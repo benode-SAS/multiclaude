@@ -1,0 +1,115 @@
+import type { Attachment, Message, PermissionRequest, QueuedItem } from '@multiclaude/shared'
+import { useEffect, useMemo, useRef } from 'react'
+import { buildTimeline } from '../lib/timeline.ts'
+import { FileChip } from './FileChip.tsx'
+import type { ViewerTarget } from './FileViewer.tsx'
+import { MessageBubble, StreamingBubble } from './MessageBubble.tsx'
+import { PermissionCard } from './PermissionCard.tsx'
+import { ToolCard } from './ToolCard.tsx'
+
+export function Thread({
+	roomId,
+	messages,
+	events,
+	attachments,
+	queue,
+	pending,
+	liveText,
+	running,
+	onApprove,
+	onOpen,
+}: {
+	roomId: string
+	messages: Message[]
+	events: Parameters<typeof buildTimeline>[1]
+	attachments: Attachment[]
+	queue: QueuedItem[]
+	pending: PermissionRequest[]
+	liveText: string
+	running: boolean
+	onApprove: (requestId: string, allow: boolean) => void
+	onOpen: (target: ViewerTarget) => void
+}) {
+	const bottomRef = useRef<HTMLDivElement>(null)
+	const scrollRef = useRef<HTMLDivElement>(null)
+	const stickyRef = useRef(true)
+
+	const timeline = useMemo(
+		() => buildTimeline(messages, events, attachments),
+		[messages, events, attachments],
+	)
+
+	const byMessage = useMemo(() => {
+		const map = new Map<string, Attachment[]>()
+		for (const attachment of attachments) {
+			if (!attachment.messageId) continue
+			const list = map.get(attachment.messageId) ?? []
+			list.push(attachment)
+			map.set(attachment.messageId, list)
+		}
+		return map
+	}, [attachments])
+
+	const queuedIds = useMemo(() => new Set(queue.map((q) => q.id)), [queue])
+
+	useEffect(() => {
+		if (stickyRef.current) bottomRef.current?.scrollIntoView({ block: 'end' })
+	}, [timeline.length, liveText, pending.length])
+
+	const onScroll = () => {
+		const el = scrollRef.current
+		if (!el) return
+		stickyRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+	}
+
+	return (
+		<div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto px-6 py-6">
+			<div className="mx-auto flex max-w-3xl flex-col gap-5">
+				{timeline.length === 0 && !running && (
+					<div className="py-20 text-center">
+						<p className="text-[15px] font-medium">Conversation vide</p>
+						<p className="mt-1 text-[13px] text-muted">
+							Écris un message — Claude travaille dans le workdir isolé de cette room.
+						</p>
+					</div>
+				)}
+
+				{timeline.map((item) => {
+					if (item.kind === 'message') {
+						return (
+							<MessageBubble
+								key={item.key}
+								message={item.message}
+								attachments={byMessage.get(item.message.id) ?? []}
+								roomId={roomId}
+								queued={queuedIds.has(item.message.id)}
+								onOpen={onOpen}
+							/>
+						)
+					}
+					if (item.kind === 'tool') {
+						return <ToolCard key={item.key} use={item.use} result={item.result} />
+					}
+					return (
+						<div key={item.key} className="ml-[42px] flex items-center gap-2">
+							<span className="text-[12px] text-muted">📦 fichier</span>
+							<FileChip attachment={item.attachment} roomId={roomId} onOpen={onOpen} />
+						</div>
+					)
+				})}
+
+				{pending.map((request) => (
+					<PermissionCard
+						key={request.requestId}
+						request={request}
+						onDecide={(allow) => onApprove(request.requestId, allow)}
+					/>
+				))}
+
+				{running && pending.length === 0 && <StreamingBubble text={liveText} />}
+
+				<div ref={bottomRef} />
+			</div>
+		</div>
+	)
+}

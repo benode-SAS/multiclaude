@@ -1,0 +1,24 @@
+{
+	"name": "@multiclaude/server",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "bun --watch src/index.ts",
+		"start": "bun src/index.ts",
+		"typecheck": "tsc --noEmit",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "bun src/db/migrate.ts"
+	},
+	"dependencies": {
+		"@elysiajs/cors": "latest",
+		"@multiclaude/shared": "workspace:*",
+		"drizzle-orm": "latest",
+		"elysia": "latest",
+		"nanoid": "latest"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"drizzle-kit": "latest"
+	}
+}
