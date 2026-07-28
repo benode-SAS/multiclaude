@@ -4,14 +4,15 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun --watch src/index.ts",
-		"start": "bun src/index.ts",
+		"dev": "bun --env-file=../../.env --watch src/index.ts",
+		"start": "bun --env-file=../../.env src/index.ts",
 		"typecheck": "tsc --noEmit",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "bun src/db/migrate.ts"
+		"db:migrate": "bun --env-file=../../.env src/db/migrate.ts"
 	},
 	"dependencies": {
 		"@elysiajs/cors": "latest",
+		"@elysiajs/static": "^1.4.10",
 		"@multiclaude/shared": "workspace:*",
 		"drizzle-orm": "latest",
 		"elysia": "latest",

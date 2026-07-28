@@ -1,7 +1,10 @@
 node_modules/
 dist/
-data/
+# DATA_DIR est configurable : couvre data/, data-prod/, data-staging/…
+data*/
 *.log
 .env
+.env.*
+!.env.example
 .DS_Store
 .idea/

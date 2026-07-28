@@ -10,13 +10,27 @@ import { runMigrations } from './db/index.ts'
 import { fileRoutes } from './files/routes.ts'
 import { roomRoutes } from './rooms/routes.ts'
 import { RoomService } from './rooms/service.ts'
+import { webRoutes } from './web.ts'
 import { hub } from './ws/hub.ts'
 import { wsRoutes } from './ws/routes.ts'
 
 runMigrations()
 await RoomService.resetStuckRooms()
 
+const serveWeb = config.serveWeb && config.webDistExists
+if (config.serveWeb && !serveWeb) {
+	console.warn(`[web] SERVE_WEB actif mais ${config.webDist} est absent — lance "bun run build"`)
+}
+
 AuthService.subscribe((auth) => hub.broadcastAll({ type: 'auth', auth }))
+
+/** Everything REST lives under /api so the front uses one path in dev and prod. */
+const api = new Elysia({ prefix: '/api' })
+	.get('/health', () => ({ ok: true }))
+	.use(authRoutes)
+	.use(roomRoutes)
+	.use(fileRoutes)
+	.use(internalRoutes)
 
 export const app = new Elysia()
 	.use(cors({ origin: config.corsOrigin }))
@@ -26,12 +40,9 @@ export const app = new Elysia()
 		set.status = 500
 		return { error: error instanceof Error ? error.message : 'internal error' }
 	})
-	.get('/health', () => ({ ok: true }))
-	.use(authRoutes)
-	.use(roomRoutes)
-	.use(fileRoutes)
-	.use(internalRoutes)
+	.use(api)
 	.use(wsRoutes)
+	.use(serveWeb ? webRoutes : new Elysia())
 	.listen(config.port)
 
 for (const signal of ['SIGINT', 'SIGTERM'] as const) {
@@ -44,6 +55,8 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
 const auth = await AuthService.status()
 console.log(`multiclaude → http://localhost:${config.port}`)
 console.log(`claude       ${claudeBin}`)
+console.log(`data         ${config.dataDir}`)
+console.log(`front        ${serveWeb ? config.webDist : 'servi par vite (bun run dev)'}`)
 console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
 
 export type App = typeof app

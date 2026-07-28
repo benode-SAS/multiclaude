@@ -9,6 +9,7 @@
 	"scripts": {
 		"dev": "bun run --filter '*' dev",
 		"build": "bun run --filter '*' build",
+		"start": "bun run --filter @multiclaude/server start",
 		"typecheck": "bun run --filter '*' typecheck",
 		"check": "biome check .",
 		"fix": "biome check --write .",

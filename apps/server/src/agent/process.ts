@@ -1,4 +1,4 @@
-import { config } from '../config.ts'
+import { claudeEnv, config } from '../config.ts'
 import { claudeBin } from './claude-bin.ts'
 import type { CliMessage, UserInput } from './protocol.ts'
 
@@ -73,7 +73,7 @@ export class ClaudeProcess {
 			stdin: 'pipe',
 			stdout: 'pipe',
 			stderr: 'pipe',
-			env: { ...process.env, ...config.claudeEnv },
+			env: { ...process.env, ...claudeEnv },
 		})
 
 		void this.pumpStdout()

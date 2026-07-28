@@ -14,6 +14,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@elysiajs/cors": "latest",
+        "@elysiajs/static": "^1.4.10",
         "@multiclaude/shared": "workspace:*",
         "drizzle-orm": "latest",
         "elysia": "latest",
@@ -76,6 +77,8 @@
     "@drizzle-team/brocli": ["@drizzle-team/brocli@0.10.2", "", {}, "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w=="],
 
     "@elysiajs/cors": ["@elysiajs/cors@1.4.2", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-FTCcbH35brTLigF1W7BYySRZomgI/dBEMK9BgK9RP9Nez7zmpGh4koL/Yr1BFv8nYz7CfhRvcM8d/c+XnwMaVQ=="],
+
+    "@elysiajs/static": ["@elysiajs/static@1.4.10", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-BN/3PZVWjqkL/6TM7RH69Pae89CfU0OqfEYPeBp2hB/GR5Euds39Wy+0ug9Vbvu++GG4tRRANf2QjaLnriJveg=="],
 
     "@emnapi/core": ["@emnapi/core@1.11.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.2.2", "tslib": "^2.4.0" } }, "sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ=="],
 

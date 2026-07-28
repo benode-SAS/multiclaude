@@ -1,6 +1,6 @@
 import type { AuthState } from '@multiclaude/shared'
 import { claudeBin } from '../agent/claude-bin.ts'
-import { config } from '../config.ts'
+import { claudeEnv, config } from '../config.ts'
 
 type LoginSession = {
 	proc: Bun.Subprocess<'pipe', 'pipe', 'pipe'>
@@ -23,7 +23,7 @@ let listeners: Array<(state: AuthState) => void> = []
 async function readStatus(): Promise<AuthState> {
 	const proc = Bun.spawn([claudeBin, 'auth', 'status', '--json'], {
 		cwd: config.dataDir,
-		env: { ...process.env, ...config.claudeEnv },
+		env: { ...process.env, ...claudeEnv },
 		stdout: 'pipe',
 		stderr: 'pipe',
 	})
@@ -83,7 +83,7 @@ export const AuthService = {
 
 		const proc = Bun.spawn([claudeBin, 'auth', 'login', '--claudeai'], {
 			cwd: config.dataDir,
-			env: { ...process.env, ...config.claudeEnv },
+			env: { ...process.env, ...claudeEnv },
 			stdin: 'pipe',
 			stdout: 'pipe',
 			stderr: 'pipe',
@@ -141,7 +141,7 @@ export const AuthService = {
 	async logout() {
 		const proc = Bun.spawn([claudeBin, 'auth', 'logout'], {
 			cwd: config.dataDir,
-			env: { ...process.env, ...config.claudeEnv },
+			env: { ...process.env, ...claudeEnv },
 			stdout: 'pipe',
 			stderr: 'pipe',
 		})

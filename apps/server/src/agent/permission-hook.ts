@@ -24,7 +24,7 @@ const input = (await Bun.stdin.json().catch(() => null)) as HookInput | null
 
 if (!roomId || input?.hook_event_name !== 'PreToolUse' || !input.tool_name) decide(true)
 
-const response = await fetch(`${server}/internal/permission`, {
+const response = await fetch(`${server}/api/internal/permission`, {
 	method: 'POST',
 	headers: { 'content-type': 'application/json' },
 	body: JSON.stringify({ roomId, tool: input?.tool_name, input: input?.tool_input }),
