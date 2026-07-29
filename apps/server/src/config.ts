@@ -6,7 +6,7 @@ const posix = (p: string) => p.split(path.sep).join('/')
 const bool = (value: string | undefined, fallback = false) =>
 	value === undefined ? fallback : /^(1|true|yes|on)$/i.test(value)
 
-const port = Number(process.env.PORT ?? 3001)
+const port = Number(process.env.PORT ?? 8000)
 const dataDir = path.resolve(root, process.env.DATA_DIR ?? 'data')
 const webDist = path.resolve(root, process.env.WEB_DIST ?? 'apps/web/dist')
 

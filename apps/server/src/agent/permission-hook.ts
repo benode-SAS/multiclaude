@@ -5,7 +5,7 @@
 type HookInput = { hook_event_name?: string; tool_name?: string; tool_input?: unknown }
 
 const roomId = process.argv[2]
-const server = process.env.MC_SERVER ?? 'http://localhost:3001'
+const server = process.env.MC_SERVER ?? 'http://localhost:8000'
 
 function decide(allow: boolean, reason?: string): never {
 	console.log(
