@@ -36,6 +36,12 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 
 			set.headers['content-type'] = meta.mime
 			set.headers['cache-control'] = 'no-cache'
+			set.headers['x-content-type-options'] = 'nosniff'
+			// Agent-authored markup must stay inert even when opened directly in a tab:
+			// `sandbox` puts it in an opaque origin, so no script and no access to the app.
+			if (meta.mime === 'text/html' || meta.mime === 'image/svg+xml') {
+				set.headers['content-security-policy'] = 'sandbox'
+			}
 			if (query.download === '1') {
 				const name = path.basename(query.path)
 				set.headers['content-disposition'] = `attachment; filename="${sanitize(name)}"`

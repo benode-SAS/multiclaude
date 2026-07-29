@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
@@ -11,6 +12,9 @@ const TEXT_MIME = /^text\/|^application\/(json|xml|javascript|x-sh|sql)/
 
 const isMarkdown = (target: ViewerTarget) =>
 	target.mime === 'text/markdown' || /\.(md|mdx|markdown)$/i.test(target.relPath)
+
+const isHtml = (target: ViewerTarget) =>
+	target.mime === 'text/html' || /\.html?$/i.test(target.relPath)
 
 const isText = (target: ViewerTarget) =>
 	TEXT_MIME.test(target.mime) || /\.(txt|log|env|ini|conf|toml|ya?ml|csv)$/i.test(target.relPath)
@@ -28,11 +32,15 @@ export function FileViewer({
 }) {
 	const [content, setContent] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
+	const [showSource, setShowSource] = useState(false)
 
 	const image = isImage(target.mime)
+	const html = isHtml(target)
 	const markdown = isMarkdown(target)
 	const text = isText(target)
-	const inline = image || ((markdown || text) && target.size <= MAX_INLINE)
+	const inline = image || ((markdown || html || text) && target.size <= MAX_INLINE)
+	const rendered = html && !showSource
+	const needsContent = inline && !image && !rendered
 
 	useEffect(() => {
 		const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -41,7 +49,11 @@ export function FileViewer({
 	}, [onClose])
 
 	useEffect(() => {
-		if (image || !inline) return
+		setShowSource(false)
+	}, [target.relPath])
+
+	useEffect(() => {
+		if (!needsContent) return
 		let cancelled = false
 		setContent(null)
 		setError(null)
@@ -56,7 +68,7 @@ export function FileViewer({
 		return () => {
 			cancelled = true
 		}
-	}, [roomId, target.relPath, image, inline])
+	}, [roomId, target.relPath, needsContent])
 
 	return (
 		<div
@@ -70,7 +82,7 @@ export function FileViewer({
 				role="presentation"
 			>
 				<header className="flex items-center gap-3 border-b border-line px-4 py-3">
-					<span>{image ? '🖼️' : markdown ? '📘' : '📄'}</span>
+					<span>{image ? '🖼️' : html ? '🌐' : markdown ? '📘' : '📄'}</span>
 					<div className="min-w-0 flex-1">
 						<p className="truncate text-[14px] font-semibold" title={target.relPath}>
 							{target.relPath}
@@ -79,6 +91,27 @@ export function FileViewer({
 							{target.mime} · {formatBytes(target.size)}
 						</p>
 					</div>
+
+					{html && inline && (
+						<div className="flex overflow-hidden rounded-lg border border-line">
+							{(['aperçu', 'source'] as const).map((label, index) => (
+								<button
+									key={label}
+									type="button"
+									onClick={() => setShowSource(index === 1)}
+									className={clsx(
+										'px-2.5 py-1.5 text-[13px] transition',
+										showSource === (index === 1)
+											? 'bg-accent text-white'
+											: 'bg-surface hover:bg-panel',
+									)}
+								>
+									{label}
+								</button>
+							))}
+						</div>
+					)}
+
 					<a
 						href={api.fileUrl(roomId, target.relPath, true)}
 						className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
@@ -94,12 +127,24 @@ export function FileViewer({
 					</button>
 				</header>
 
-				<div className="min-h-0 flex-1 overflow-auto bg-surface px-5 py-4">
+				<div className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}>
 					{image && (
 						<img
 							src={api.fileUrl(roomId, target.relPath)}
 							alt={target.filename}
 							className="mx-auto max-h-[70vh] object-contain"
+						/>
+					)}
+
+					{rendered && (
+						// sandbox without allow-same-origin: the page cannot reach this app's
+						// origin, its storage, or its API — an agent-authored file stays inert.
+						<iframe
+							key={target.relPath}
+							src={api.fileUrl(roomId, target.relPath)}
+							title={target.filename}
+							sandbox=""
+							className="h-[70vh] w-full border-0 bg-white"
 						/>
 					)}
 
@@ -109,15 +154,15 @@ export function FileViewer({
 						</p>
 					)}
 
-					{!image && inline && error && (
+					{needsContent && error && (
 						<p className="py-10 text-center text-[13px] text-red-600">{error}</p>
 					)}
 
-					{!image && inline && content === null && !error && (
+					{needsContent && content === null && !error && (
 						<p className="py-10 text-center text-[13px] text-muted">Chargement…</p>
 					)}
 
-					{!image && inline && content !== null && (
+					{needsContent && content !== null && (
 						<Markdown>
 							{markdown ? content : `\`\`\`${langOf(target.relPath)}\n${content}\n\`\`\``}
 						</Markdown>

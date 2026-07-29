@@ -27,7 +27,12 @@ function throughShim(entry: string) {
 }
 
 function resolve(): string {
-	if (process.env.CLAUDE_BIN) return process.env.CLAUDE_BIN
+	const override = process.env.CLAUDE_BIN
+	if (override) {
+		if (existsSync(override)) return posix(override)
+		// A bad override must not silently break auth — say so and keep looking.
+		console.warn(`[claude] CLAUDE_BIN=${override} n'existe pas, résolution automatique à la place`)
+	}
 
 	const found = Bun.which('claude')
 	if (found) return throughShim(found)
@@ -41,3 +46,7 @@ function resolve(): string {
 
 export const claudeBin = resolve()
 export const claudeBinResolved = claudeBin !== 'claude' || Boolean(Bun.which('claude'))
+
+if (claudeBin.endsWith('.exe') && process.platform !== 'win32') {
+	console.warn(`[claude] binaire en .exe sur ${process.platform} — chemin probablement erroné`)
+}
