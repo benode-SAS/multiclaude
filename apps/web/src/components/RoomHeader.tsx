@@ -1,6 +1,8 @@
-import { MODELS, type Room, type RoomStatus } from '@multiclaude/shared'
+import { type ContextUsage, MODELS, type Room, type RoomStatus } from '@multiclaude/shared'
+import clsx from 'clsx'
 import { useState } from 'react'
 import { Avatar } from './Avatar.tsx'
+import { ContextGauge } from './ContextGauge.tsx'
 
 export function RoomHeader({
 	room,
@@ -11,6 +13,7 @@ export function RoomHeader({
 	onRename,
 	onSetModel,
 	onStop,
+	usage,
 }: {
 	room: Room
 	status: RoomStatus
@@ -20,6 +23,7 @@ export function RoomHeader({
 	onRename: (title: string) => void
 	onSetModel: (model: string | null) => void
 	onStop: () => void
+	usage: ContextUsage | null
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -74,7 +78,15 @@ export function RoomHeader({
 				</div>
 			)}
 
-			<label className="ml-auto flex items-center gap-1.5 text-[12px] text-muted">
+			{usage && (
+				<div className="ml-auto">
+					<ContextGauge usage={usage} />
+				</div>
+			)}
+
+			<label
+				className={clsx('flex items-center gap-1.5 text-[12px] text-muted', !usage && 'ml-auto')}
+			>
 				<span>Modèle</span>
 				<select
 					value={room.model ?? ''}

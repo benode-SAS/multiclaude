@@ -25,6 +25,16 @@ export type CliMessage =
 			is_error?: boolean
 			result?: string
 			session_id?: string
+			total_cost_usd?: number
+			/** Tokens of the *last* request — i.e. the live context size. */
+			usage?: {
+				input_tokens?: number
+				cache_creation_input_tokens?: number
+				cache_read_input_tokens?: number
+				output_tokens?: number
+			}
+			/** Per-model totals; the source of truth for each model's window. */
+			modelUsage?: Record<string, { contextWindow?: number }>
 	  }
 
 export type UserInput = {

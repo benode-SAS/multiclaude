@@ -2,6 +2,7 @@ import type {
 	AgentEvent,
 	Attachment,
 	AuthState,
+	ContextUsage,
 	Message,
 	PermissionRequest,
 	QueuedItem,
@@ -34,6 +35,7 @@ type State = {
 	error: string | null
 	auth: AuthState | null
 	authBusy: boolean
+	usage: ContextUsage | null
 	theme: Theme
 	sound: boolean
 }
@@ -72,6 +74,7 @@ const empty = {
 	pending: [],
 	participants: [],
 	typing: [],
+	usage: null,
 	status: 'idle' as RoomStatus,
 	liveText: '',
 }
@@ -95,6 +98,7 @@ export const useStore = create<State & Actions>((set, get) => {
 					status: s.room.status,
 					liveText: s.liveTurn?.text ?? '',
 					auth: s.auth,
+					usage: s.usage,
 					loading: false,
 				})
 				set({ rooms: state.rooms.map((r) => (r.id === s.room.id ? s.room : r)) })
@@ -162,6 +166,9 @@ export const useStore = create<State & Actions>((set, get) => {
 			}
 			case 'auth':
 				set({ auth: message.auth })
+				return
+			case 'usage':
+				set({ usage: message.usage })
 				return
 			case 'error':
 				set({ error: message.message })

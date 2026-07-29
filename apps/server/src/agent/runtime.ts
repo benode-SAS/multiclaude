@@ -1,4 +1,10 @@
-import type { Attachment, PermissionRequest, QueuedItem, Room } from '@multiclaude/shared'
+import type {
+	Attachment,
+	ContextUsage,
+	PermissionRequest,
+	QueuedItem,
+	Room,
+} from '@multiclaude/shared'
 import { AuthService } from '../auth/service.ts'
 import { config } from '../config.ts'
 import type { FileChange } from '../files/watcher.ts'
@@ -58,6 +64,8 @@ export class RoomRuntime {
 	private producedText = false
 	private endTurn: ((error?: string) => void) | null = null
 	private interruptedBy: string | null = null
+	private activeModel = ''
+	private usage: ContextUsage | null = null
 
 	constructor(roomId: string) {
 		this.roomId = roomId
@@ -90,6 +98,7 @@ export class RoomRuntime {
 			})),
 			pending: [...this.pending.values()].map((p) => p.request),
 			liveTurn: this.liveTurn,
+			usage: this.usage,
 		}
 	}
 
@@ -324,9 +333,14 @@ export class RoomRuntime {
 
 	private async handle(message: CliMessage) {
 		if (message.type === 'system') {
-			if (message.subtype === 'init' && typeof message.session_id === 'string') {
-				await RoomService.setSessionId(this.roomId, message.session_id)
+			if (message.subtype === 'init') {
+				if (typeof message.session_id === 'string') {
+					await RoomService.setSessionId(this.roomId, message.session_id)
+				}
+				if (typeof message.model === 'string') this.activeModel = message.model
 			}
+			// The CLI compacts on its own when the window fills; make it visible.
+			if (message.subtype.includes('compact')) await this.noteCompaction(message)
 			return
 		}
 
@@ -368,6 +382,7 @@ export class RoomRuntime {
 
 		if (message.type === 'result') {
 			this.process?.markResumable()
+			this.trackUsage(message)
 			const text = message.result ?? ''
 			if (!this.producedText && text.trim()) {
 				const persisted = await RoomService.addMessage({
@@ -382,6 +397,45 @@ export class RoomRuntime {
 			const failed = message.is_error && !this.interruptedBy
 			this.endTurn?.(failed ? text || 'le turn a échoué' : undefined)
 		}
+	}
+
+	/** Auto-compaction is the CLI's own doing; we only report it in the thread. */
+	private async noteCompaction(message: { subtype: string; [key: string]: unknown }) {
+		const failed = message.compact_result === 'failed' || Boolean(message.compact_error)
+		const content = failed
+			? `⚠ La compaction du contexte a échoué : ${String(message.compact_error ?? 'raison inconnue')}`
+			: '🗜 Contexte compacté automatiquement — la conversation continue sur un résumé.'
+		const persisted = await RoomService.addMessage({
+			roomId: this.roomId,
+			author: 'system',
+			role: 'system',
+			content,
+		})
+		hub.broadcast(this.roomId, { type: 'message', message: persisted })
+	}
+
+	/**
+	 * The last request's tokens are what currently sits in the window, so the
+	 * figure drops on its own after a compaction.
+	 */
+	private trackUsage(message: Extract<CliMessage, { type: 'result' }>) {
+		const usage = message.usage
+		if (!usage) return
+		const tokens =
+			(usage.input_tokens ?? 0) +
+			(usage.cache_creation_input_tokens ?? 0) +
+			(usage.cache_read_input_tokens ?? 0)
+		if (tokens <= 0) return
+
+		const window = message.modelUsage?.[this.activeModel]?.contextWindow ?? 200_000
+		this.usage = {
+			tokens,
+			window,
+			model: this.activeModel,
+			costUsd: message.total_cost_usd ?? 0,
+			updatedAt: Date.now(),
+		}
+		hub.broadcast(this.roomId, { type: 'usage', usage: this.usage })
 	}
 
 	private async handleAssistantBlock(block: ContentBlock) {

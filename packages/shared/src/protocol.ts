@@ -84,6 +84,16 @@ export type PermissionRequest = {
 	reason: string
 }
 
+export type ContextUsage = {
+	/** Tokens sent on the last request: what actually occupies the context. */
+	tokens: number
+	/** The active model's context window, as reported by the CLI. */
+	window: number
+	model: string
+	costUsd: number
+	updatedAt: number
+}
+
 export type AuthState = {
 	loggedIn: boolean
 	email: string | null
@@ -116,6 +126,7 @@ export type Snapshot = {
 	typing: string[]
 	liveTurn: { turnId: string; text: string } | null
 	auth: AuthState
+	usage: ContextUsage | null
 }
 
 export type ServerMessage =
@@ -135,6 +146,7 @@ export type ServerMessage =
 	| { type: 'participants'; participants: string[] }
 	| { type: 'typing'; pseudo: string; typing: boolean }
 	| { type: 'auth'; auth: AuthState }
+	| { type: 'usage'; usage: ContextUsage }
 	| { type: 'error'; message: string }
 
 export type FileEntry = {

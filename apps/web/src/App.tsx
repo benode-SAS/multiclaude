@@ -67,6 +67,7 @@ export function App() {
 							onRename={(title) => void store.renameRoom(store.room!.id, title)}
 							onSetModel={store.setModel}
 							onStop={store.stopTurn}
+							usage={store.usage}
 						/>
 
 						{store.auth && (

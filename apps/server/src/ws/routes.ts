@@ -51,7 +51,12 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				hub.join({ id: ws.id, roomId: room.id, pseudo, send })
 
 				const runtime = await getRuntime(room.id)
-				const state = runtime?.state() ?? { queue: [], pending: [], liveTurn: null }
+				const state = runtime?.state() ?? {
+					queue: [],
+					pending: [],
+					liveTurn: null,
+					usage: null,
+				}
 				const snapshot: Snapshot = {
 					room,
 					messages: await RoomService.messages(room.id),
@@ -63,6 +68,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 					typing: typing.list(room.id).filter((p) => p !== pseudo),
 					liveTurn: state.liveTurn,
 					auth: await AuthService.status(),
+					usage: state.usage,
 				}
 				return send({ type: 'snapshot', snapshot })
 			}
