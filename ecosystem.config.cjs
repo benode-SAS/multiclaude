@@ -1,3 +1,19 @@
+const { existsSync } = require('node:fs')
+const os = require('node:os')
+const path = require('node:path')
+
+/**
+ * PM2 ne trouve pas toujours bun : son PATH au démarrage au boot est minimal.
+ * Résolu ici, à la lecture de la config, plutôt que laissé au hasard.
+ */
+const bun =
+	[
+		process.env.BUN_BIN,
+		path.join(os.homedir(), '.bun/bin/bun'),
+		'/usr/local/bin/bun',
+		'/usr/bin/bun',
+	].find((candidate) => candidate && existsSync(candidate)) || 'bun'
+
 /**
  * Config PM2 — doit rester en .cjs : le package.json déclare "type": "module",
  * et PM2 charge ce fichier avec require().
@@ -14,12 +30,14 @@ module.exports = {
 	apps: [
 		{
 			name: 'multiclaude',
-			script: 'apps/server/src/index.ts',
-			cwd: __dirname,
 
-			// PM2 lance node par défaut. `which bun` puis BUN_BIN=/chemin/bun si
-			// le PATH de PM2 ne le trouve pas (fréquent en démarrage au boot).
-			interpreter: process.env.BUN_BIN || 'bun',
+			// bun est lancé comme une commande, pas comme un « interpréteur » PM2 :
+			// son conteneur bun charge le script avec require(), ce qui échoue dès
+			// qu'un module de la chaîne est async. `interpreter: 'none'` l'évite.
+			script: bun,
+			args: 'apps/server/src/index.ts',
+			interpreter: 'none',
+			cwd: __dirname,
 
 			// Un seul process, impérativement : l'état des rooms (runtimes,
 			// files d'attente, permissions en attente, sockets) est en mémoire.
@@ -45,7 +63,6 @@ module.exports = {
 			// SIGINT déclenche disposeAll(), qui arrête les process claude enfants.
 			// Trop court, ils seraient orphelins après un SIGKILL de PM2.
 			kill_timeout: 10000,
-			wait_ready: false,
 
 			merge_logs: true,
 			time: true,

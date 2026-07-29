@@ -15,7 +15,6 @@ import { hub } from './ws/hub.ts'
 import { wsRoutes } from './ws/routes.ts'
 
 runMigrations()
-await RoomService.resetStuckRooms()
 
 const serveWeb = config.serveWeb && config.webDistExists
 if (config.serveWeb && !serveWeb) {
@@ -52,13 +51,24 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
 	})
 }
 
-const auth = await AuthService.status()
-console.log(`multiclaude → http://localhost:${config.port}`)
-console.log(
-	`claude       ${claudeBin}${claudeBinResolved ? '' : ' (INTROUVABLE — définis CLAUDE_BIN)'}`,
-)
-console.log(`data         ${config.dataDir}`)
-console.log(`front        ${serveWeb ? config.webDist : 'servi par vite (bun run dev)'}`)
-console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
+/**
+ * Kept out of the module top level: a top-level `await` makes this an async
+ * module, which supervisors that `require()` the entry point (PM2's bun
+ * container among them) cannot load.
+ */
+async function bootstrap() {
+	await RoomService.resetStuckRooms()
+	const auth = await AuthService.status()
+
+	console.log(`multiclaude → http://localhost:${config.port}`)
+	console.log(
+		`claude       ${claudeBin}${claudeBinResolved ? '' : ' (INTROUVABLE — définis CLAUDE_BIN)'}`,
+	)
+	console.log(`data         ${config.dataDir}`)
+	console.log(`front        ${serveWeb ? config.webDist : 'servi par vite (bun run dev)'}`)
+	console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
+}
+
+void bootstrap()
 
 export type App = typeof app
