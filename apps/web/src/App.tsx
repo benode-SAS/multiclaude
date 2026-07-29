@@ -100,7 +100,13 @@ export function App() {
 							onOpen={setViewing}
 						/>
 
-						<Composer roomId={store.room.id} status={store.status} onSend={store.sendMessage} />
+						<Composer
+							roomId={store.room.id}
+							status={store.status}
+							typing={store.typing}
+							onSend={store.sendMessage}
+							onTyping={store.setTyping}
+						/>
 					</>
 				) : (
 					<div className="flex flex-1 items-center justify-center text-[14px] text-muted">

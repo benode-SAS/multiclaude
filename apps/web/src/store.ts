@@ -27,6 +27,7 @@ type State = {
 	queue: QueuedItem[]
 	pending: PermissionRequest[]
 	participants: string[]
+	typing: string[]
 	status: RoomStatus
 	liveText: string
 	loading: boolean
@@ -46,6 +47,7 @@ type Actions = {
 	renameRoom: (roomId: string, title: string) => Promise<void>
 	deleteRoom: (roomId: string) => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
+	setTyping: (typing: boolean) => void
 	approve: (requestId: string, allow: boolean) => void
 	setModel: (model: string | null) => void
 	dismissError: () => void
@@ -68,6 +70,7 @@ const empty = {
 	queue: [],
 	pending: [],
 	participants: [],
+	typing: [],
 	status: 'idle' as RoomStatus,
 	liveText: '',
 }
@@ -87,6 +90,7 @@ export const useStore = create<State & Actions>((set, get) => {
 					queue: s.queue,
 					pending: s.pending,
 					participants: s.participants,
+					typing: s.typing,
 					status: s.room.status,
 					liveText: s.liveTurn?.text ?? '',
 					auth: s.auth,
@@ -148,6 +152,13 @@ export const useStore = create<State & Actions>((set, get) => {
 			case 'participants':
 				set({ participants: message.participants })
 				return
+			case 'typing': {
+				// Stop notices are broadcast to everyone, self included.
+				if (message.pseudo === state.pseudo) return
+				const others = state.typing.filter((p) => p !== message.pseudo)
+				set({ typing: message.typing ? [...others, message.pseudo] : others })
+				return
+			}
 			case 'auth':
 				set({ auth: message.auth })
 				return
@@ -238,6 +249,12 @@ export const useStore = create<State & Actions>((set, get) => {
 			const { activeRoomId, pseudo } = get()
 			if (!activeRoomId || !socket) return
 			socket.send({ type: 'message', roomId: activeRoomId, pseudo, content, attachmentIds })
+		},
+
+		setTyping(isTyping) {
+			const { activeRoomId, pseudo } = get()
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'typing', roomId: activeRoomId, pseudo, typing: isTyping })
 		},
 
 		approve(requestId, allow) {

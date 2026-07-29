@@ -4,6 +4,7 @@ import { getRuntime } from '../agent/runtime.ts'
 import { AuthService } from '../auth/service.ts'
 import { RoomService } from '../rooms/service.ts'
 import { hub } from './hub.ts'
+import { typing } from './typing.ts'
 
 type Session = { roomId: string; pseudo: string }
 
@@ -37,7 +38,10 @@ export const wsRoutes = new Elysia().ws('/ws', {
 
 			case 'join': {
 				const previous = sessions.get(ws.id)
-				if (previous) hub.leave(previous.roomId, ws.id)
+				if (previous) {
+					typing.clear(previous.roomId, previous.pseudo)
+					hub.leave(previous.roomId, ws.id)
+				}
 
 				const room = await RoomService.get(payload.roomId)
 				if (!room) return send({ type: 'error', message: 'room introuvable' })
@@ -56,6 +60,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 					queue: state.queue,
 					pending: state.pending,
 					participants: hub.participants(room.id),
+					typing: typing.list(room.id).filter((p) => p !== pseudo),
 					liveTurn: state.liveTurn,
 					auth: await AuthService.status(),
 				}
@@ -66,6 +71,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				const session = sessions.get(ws.id)
 				if (!session || session.roomId !== payload.roomId) return
 				if (!payload.content.trim() && !payload.attachmentIds?.length) return
+				typing.clear(session.roomId, session.pseudo)
 				const runtime = await getRuntime(payload.roomId)
 				await runtime?.submit({
 					pseudo: payload.pseudo.trim() || session.pseudo,
@@ -89,6 +95,13 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 			}
 
+			case 'typing': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				typing.set(session.roomId, session.pseudo, payload.typing, ws.id)
+				return
+			}
+
 			case 'set_model': {
 				const session = sessions.get(ws.id)
 				if (!session || session.roomId !== payload.roomId) return
@@ -103,6 +116,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 		const session = sessions.get(ws.id)
 		if (!session) return
 		sessions.delete(ws.id)
+		typing.clear(session.roomId, session.pseudo)
 		hub.leave(session.roomId, ws.id)
 	},
 })

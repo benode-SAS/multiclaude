@@ -101,6 +101,7 @@ export type ClientMessage =
 	| { type: 'approve'; roomId: string; requestId: string; allow: boolean }
 	| { type: 'rename'; roomId: string; title: string }
 	| { type: 'set_model'; roomId: string; model: string | null }
+	| { type: 'typing'; roomId: string; pseudo: string; typing: boolean }
 	| { type: 'ping' }
 
 export type Snapshot = {
@@ -111,6 +112,7 @@ export type Snapshot = {
 	queue: QueuedItem[]
 	pending: PermissionRequest[]
 	participants: string[]
+	typing: string[]
 	liveTurn: { turnId: string; text: string } | null
 	auth: AuthState
 }
@@ -130,6 +132,7 @@ export type ServerMessage =
 	| { type: 'turn_end'; turnId: string }
 	| { type: 'room_updated'; room: Room }
 	| { type: 'participants'; participants: string[] }
+	| { type: 'typing'; pseudo: string; typing: boolean }
 	| { type: 'auth'; auth: AuthState }
 	| { type: 'error'; message: string }
 

@@ -1,22 +1,58 @@
 import type { Attachment, RoomStatus } from '@multiclaude/shared'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
+import { TypingIndicator } from './TypingIndicator.tsx'
+
+/** Silence after the last keystroke before we declare the typing over. */
+const TYPING_IDLE_MS = 2500
 
 export function Composer({
 	roomId,
 	status,
+	typing,
 	onSend,
+	onTyping,
 }: {
 	roomId: string
 	status: RoomStatus
+	typing: string[]
 	onSend: (content: string, attachmentIds: string[]) => void
+	onTyping: (typing: boolean) => void
 }) {
 	const [value, setValue] = useState('')
 	const [staged, setStaged] = useState<Attachment[]>([])
 	const [uploading, setUploading] = useState(false)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 	const fileRef = useRef<HTMLInputElement>(null)
+
+	const isTypingRef = useRef(false)
+	const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const onTypingRef = useRef(onTyping)
+	onTypingRef.current = onTyping
+
+	const stopTyping = () => {
+		if (idleTimer.current) clearTimeout(idleTimer.current)
+		idleTimer.current = null
+		if (!isTypingRef.current) return
+		isTypingRef.current = false
+		onTypingRef.current(false)
+	}
+
+	const signalTyping = () => {
+		if (!isTypingRef.current) {
+			isTypingRef.current = true
+			onTypingRef.current(true)
+		}
+		if (idleTimer.current) clearTimeout(idleTimer.current)
+		idleTimer.current = setTimeout(stopTyping, TYPING_IDLE_MS)
+	}
+
+	// Leaving the room or closing the tab must not leave a stale indicator.
+	useEffect(() => stopTyping, [])
+	useEffect(() => {
+		stopTyping()
+	}, [roomId])
 
 	const resize = (el: HTMLTextAreaElement) => {
 		el.style.height = 'auto'
@@ -26,6 +62,7 @@ export function Composer({
 	const submit = () => {
 		const content = value.trim()
 		if (!content && staged.length === 0) return
+		stopTyping()
 		onSend(
 			content,
 			staged.map((a) => a.id),
@@ -53,8 +90,10 @@ export function Composer({
 	}
 
 	return (
-		<div className="border-t border-line bg-canvas px-6 py-4">
+		<div className="border-t border-line bg-canvas px-6 pt-2 pb-4">
 			<div className="mx-auto max-w-3xl">
+				<TypingIndicator people={typing} />
+
 				{staged.length > 0 && (
 					<div className="mb-2 flex flex-wrap gap-2">
 						{staged.map((attachment) => (
@@ -106,7 +145,10 @@ export function Composer({
 						onChange={(e) => {
 							setValue(e.target.value)
 							resize(e.target)
+							if (e.target.value.trim()) signalTyping()
+							else stopTyping()
 						}}
+						onBlur={stopTyping}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' && !e.shiftKey) {
 								e.preventDefault()

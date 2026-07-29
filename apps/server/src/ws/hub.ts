@@ -32,8 +32,9 @@ export const hub = {
 		return [...new Set([...(byRoom.get(roomId)?.values() ?? [])].map((c) => c.pseudo))]
 	},
 
-	broadcast(roomId: string, message: ServerMessage) {
+	broadcast(roomId: string, message: ServerMessage, exceptConnId?: string) {
 		for (const conn of byRoom.get(roomId)?.values() ?? []) {
+			if (conn.id === exceptConnId) continue
 			try {
 				conn.send(message)
 			} catch {
