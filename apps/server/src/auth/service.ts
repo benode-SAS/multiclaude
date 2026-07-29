@@ -20,45 +20,92 @@ const clean = (raw: string) => raw.replace(OSC8, '').replace(ANSI, '')
 let login: LoginSession | null = null
 let listeners: Array<(state: AuthState) => void> = []
 
-async function readStatus(): Promise<AuthState> {
-	const proc = Bun.spawn([claudeBin, 'auth', 'status', '--json'], {
-		cwd: config.dataDir,
-		env: { ...process.env, ...claudeEnv },
-		stdout: 'pipe',
-		stderr: 'pipe',
-	})
-	const out = await new Response(proc.stdout).text()
-	await proc.exited
+/** The CLI may prepend an update notice or banner before its JSON. */
+function parseJsonBlock(raw: string) {
+	const text = clean(raw).trim()
+	if (!text) return null
+	try {
+		return JSON.parse(text) as Record<string, unknown>
+	} catch {
+		const start = text.indexOf('{')
+		const end = text.lastIndexOf('}')
+		if (start === -1 || end <= start) return null
+		try {
+			return JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>
+		} catch {
+			return null
+		}
+	}
+}
 
+const oneLine = (raw: string, max = 200) =>
+	clean(raw)
+		.split('\n')
+		.map((l) => l.trim())
+		.filter(Boolean)
+		.join(' · ')
+		.slice(0, max)
+
+let reportedFailure = ''
+
+async function readStatus(): Promise<AuthState> {
 	const base = {
 		loginUrl: login?.url ?? null,
 		pending: login !== null,
 		error: login?.error ?? null,
 	}
+	const unauthenticated = (error: string): AuthState => ({
+		...base,
+		loggedIn: false,
+		email: null,
+		method: null,
+		plan: null,
+		error: base.error ?? error,
+	})
+
+	let out = ''
+	let err = ''
+	let code: number | null = null
 	try {
-		const parsed = JSON.parse(clean(out).trim()) as {
-			loggedIn?: boolean
-			email?: string
-			authMethod?: string
-			subscriptionType?: string
-		}
+		const proc = Bun.spawn([claudeBin, 'auth', 'status', '--json'], {
+			cwd: config.dataDir,
+			env: { ...process.env, ...claudeEnv },
+			stdout: 'pipe',
+			stderr: 'pipe',
+		})
+		;[out, err] = await Promise.all([
+			new Response(proc.stdout).text(),
+			new Response(proc.stderr).text(),
+		])
+		code = await proc.exited
+	} catch (error) {
+		const detail = error instanceof Error ? error.message : String(error)
+		return unauthenticated(`binaire claude introuvable (${claudeBin}) — ${detail}`)
+	}
+
+	const parsed = parseJsonBlock(out)
+	if (parsed) {
 		return {
 			...base,
 			loggedIn: parsed.loggedIn === true,
-			email: parsed.email ?? null,
-			method: parsed.authMethod ?? null,
-			plan: parsed.subscriptionType ?? null,
-		}
-	} catch {
-		return {
-			...base,
-			loggedIn: false,
-			email: null,
-			method: null,
-			plan: null,
-			error: base.error ?? 'statut du CLI claude illisible',
+			email: typeof parsed.email === 'string' ? parsed.email : null,
+			method: typeof parsed.authMethod === 'string' ? parsed.authMethod : null,
+			plan: typeof parsed.subscriptionType === 'string' ? parsed.subscriptionType : null,
 		}
 	}
+
+	// Nothing parseable: surface what the CLI actually said, once per distinct failure.
+	const detail = oneLine(err) || oneLine(out) || 'aucune sortie'
+	const message = `claude auth status a échoué (code ${code}) : ${detail}`
+	if (reportedFailure !== message) {
+		reportedFailure = message
+		console.error(`[auth] ${message}`)
+		console.error(`[auth] binaire: ${claudeBin}`)
+		console.error(
+			`[auth] CLAUDE_CONFIG_DIR: ${claudeEnv.CLAUDE_CONFIG_DIR ?? '(défaut du système)'}`,
+		)
+	}
+	return unauthenticated(message)
 }
 
 async function publish() {

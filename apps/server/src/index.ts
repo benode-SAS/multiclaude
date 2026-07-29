@@ -1,6 +1,6 @@
 import { cors } from '@elysiajs/cors'
 import { Elysia } from 'elysia'
-import { claudeBin } from './agent/claude-bin.ts'
+import { claudeBin, claudeBinResolved } from './agent/claude-bin.ts'
 import { internalRoutes } from './agent/routes.ts'
 import { disposeAll } from './agent/runtime.ts'
 import { authRoutes } from './auth/routes.ts'
@@ -54,7 +54,9 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
 
 const auth = await AuthService.status()
 console.log(`multiclaude → http://localhost:${config.port}`)
-console.log(`claude       ${claudeBin}`)
+console.log(
+	`claude       ${claudeBin}${claudeBinResolved ? '' : ' (INTROUVABLE — définis CLAUDE_BIN)'}`,
+)
 console.log(`data         ${config.dataDir}`)
 console.log(`front        ${serveWeb ? config.webDist : 'servi par vite (bun run dev)'}`)
 console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
