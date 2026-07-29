@@ -14,7 +14,7 @@ export function PermissionCard({
 	onDecide: (allow: boolean) => void
 }) {
 	return (
-		<div className="ml-[42px] max-w-[min(760px,100%)] rounded-xl border border-accent/40 bg-accent-soft/50 p-3">
+		<div className="ml-0 md:ml-[42px] max-w-[min(760px,100%)] rounded-xl border border-accent/40 bg-accent-soft/50 p-3">
 			<div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent">
 				<span>🔒</span>
 				<span>Claude demande à exécuter {request.tool}</span>

@@ -71,103 +71,97 @@ export function FileViewer({
 	}, [roomId, target.relPath, needsContent])
 
 	return (
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-6"
-			onClick={onClose}
-			role="presentation"
-		>
-			<div
-				className="flex max-h-full w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-line bg-canvas shadow-2xl"
-				onClick={(e) => e.stopPropagation()}
-				role="presentation"
-			>
-				<header className="flex items-center gap-3 border-b border-line px-4 py-3">
-					<span>{image ? '🖼️' : html ? '🌐' : markdown ? '📘' : '📄'}</span>
-					<div className="min-w-0 flex-1">
-						<p className="truncate text-[14px] font-semibold" title={target.relPath}>
-							{target.relPath}
-						</p>
-						<p className="text-[11px] text-muted">
-							{target.mime} · {formatBytes(target.size)}
-						</p>
-					</div>
-
-					{html && inline && (
-						<div className="flex overflow-hidden rounded-lg border border-line">
-							{(['aperçu', 'source'] as const).map((label, index) => (
-								<button
-									key={label}
-									type="button"
-									onClick={() => setShowSource(index === 1)}
-									className={clsx(
-										'px-2.5 py-1.5 text-[13px] transition',
-										showSource === (index === 1)
-											? 'bg-accent text-white'
-											: 'bg-surface hover:bg-panel',
-									)}
-								>
-									{label}
-								</button>
-							))}
-						</div>
-					)}
-
-					<a
-						href={api.fileUrl(roomId, target.relPath, true)}
-						className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
-					>
-						Télécharger
-					</a>
-					<button
-						type="button"
-						onClick={onClose}
-						className="rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
-					>
-						✕
-					</button>
-				</header>
-
-				<div className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}>
-					{image && (
-						<img
-							src={api.fileUrl(roomId, target.relPath)}
-							alt={target.filename}
-							className="mx-auto max-h-[70vh] object-contain"
-						/>
-					)}
-
-					{rendered && (
-						// sandbox without allow-same-origin: the page cannot reach this app's
-						// origin, its storage, or its API — an agent-authored file stays inert.
-						<iframe
-							key={target.relPath}
-							src={api.fileUrl(roomId, target.relPath)}
-							title={target.filename}
-							sandbox=""
-							className="h-[70vh] w-full border-0 bg-white"
-						/>
-					)}
-
-					{!image && !inline && (
-						<p className="py-10 text-center text-[13px] text-muted">
-							Aperçu indisponible pour ce type de fichier — utilise le téléchargement.
-						</p>
-					)}
-
-					{needsContent && error && (
-						<p className="py-10 text-center text-[13px] text-danger">{error}</p>
-					)}
-
-					{needsContent && content === null && !error && (
-						<p className="py-10 text-center text-[13px] text-muted">Chargement…</p>
-					)}
-
-					{needsContent && content !== null && (
-						<Markdown>
-							{markdown ? content : `\`\`\`${langOf(target.relPath)}\n${content}\n\`\`\``}
-						</Markdown>
-					)}
+		// Fills whatever the parent gives it: a resizable dock on desktop, a
+		// full-screen overlay on mobile. No positioning of its own.
+		<div className="flex h-full min-h-0 flex-col bg-canvas">
+			<header className="flex items-center gap-2 border-b border-line px-3 py-2.5 md:px-4 md:py-3">
+				<span>{image ? '🖼️' : html ? '🌐' : markdown ? '📘' : '📄'}</span>
+				<div className="min-w-0 flex-1">
+					<p className="truncate text-[14px] font-semibold" title={target.relPath}>
+						{target.relPath}
+					</p>
+					<p className="text-[11px] text-muted">
+						{target.mime} · {formatBytes(target.size)}
+					</p>
 				</div>
+
+				{html && inline && (
+					<div className="flex overflow-hidden rounded-lg border border-line">
+						{(['aperçu', 'source'] as const).map((label, index) => (
+							<button
+								key={label}
+								type="button"
+								onClick={() => setShowSource(index === 1)}
+								className={clsx(
+									'px-2.5 py-1.5 text-[13px] transition',
+									showSource === (index === 1)
+										? 'bg-accent text-white'
+										: 'bg-surface hover:bg-panel',
+								)}
+							>
+								{label}
+							</button>
+						))}
+					</div>
+				)}
+
+				<a
+					href={api.fileUrl(roomId, target.relPath, true)}
+					title="Télécharger"
+					className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
+				>
+					<span className="hidden lg:inline">Télécharger</span>
+					<span className="lg:hidden">↓</span>
+				</a>
+				<button
+					type="button"
+					onClick={onClose}
+					className="rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
+				>
+					✕
+				</button>
+			</header>
+
+			<div className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}>
+				{image && (
+					<img
+						src={api.fileUrl(roomId, target.relPath)}
+						alt={target.filename}
+						className="mx-auto max-h-full object-contain"
+					/>
+				)}
+
+				{rendered && (
+					// sandbox without allow-same-origin: the page cannot reach this app's
+					// origin, its storage, or its API — an agent-authored file stays inert.
+					<iframe
+						key={target.relPath}
+						src={api.fileUrl(roomId, target.relPath)}
+						title={target.filename}
+						sandbox=""
+						className="h-full w-full border-0 bg-white"
+					/>
+				)}
+
+				{!image && !inline && (
+					<p className="py-10 text-center text-[13px] text-muted">
+						Aperçu indisponible pour ce type de fichier — utilise le téléchargement.
+					</p>
+				)}
+
+				{needsContent && error && (
+					<p className="py-10 text-center text-[13px] text-danger">{error}</p>
+				)}
+
+				{needsContent && content === null && !error && (
+					<p className="py-10 text-center text-[13px] text-muted">Chargement…</p>
+				)}
+
+				{needsContent && content !== null && (
+					<Markdown>
+						{markdown ? content : `\`\`\`${langOf(target.relPath)}\n${content}\n\`\`\``}
+					</Markdown>
+				)}
 			</div>
 		</div>
 	)

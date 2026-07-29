@@ -15,7 +15,8 @@
 			"preset": "recommended",
 			"a11y": {
 				"noAutofocus": "off",
-				"noStaticElementInteractions": "off"
+				"noStaticElementInteractions": "off",
+				"useSemanticElements": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off",

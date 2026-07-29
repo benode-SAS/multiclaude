@@ -27,6 +27,7 @@ export function Sidebar({
 	onToggleSound,
 	authEmail,
 	onRelogin,
+	onNavigate,
 }: {
 	rooms: Room[]
 	activeRoomId: string | null
@@ -38,6 +39,8 @@ export function Sidebar({
 	onToggleSound: () => void
 	authEmail: string | null
 	onRelogin: () => void
+	/** Called after any action that should dismiss the mobile drawer. */
+	onNavigate: () => void
 	onSelect: (id: string) => void
 	onCreate: () => void
 	onRename: (id: string, title: string) => void
@@ -53,7 +56,7 @@ export function Sidebar({
 	}
 
 	return (
-		<aside className="flex w-[260px] shrink-0 flex-col border-r border-line bg-panel">
+		<aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-line bg-panel">
 			<div className="px-3 py-4">
 				<div className="mb-3 flex items-center gap-2 px-1">
 					<span className="text-[15px] font-semibold tracking-tight">multiclaude</span>
@@ -99,7 +102,10 @@ export function Sidebar({
 						) : (
 							<button
 								type="button"
-								onClick={() => onSelect(room.id)}
+								onClick={() => {
+									onSelect(room.id)
+									onNavigate()
+								}}
 								onDoubleClick={() => {
 									setEditingId(room.id)
 									setDraft(room.title)

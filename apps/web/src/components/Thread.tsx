@@ -64,7 +64,11 @@ export function Thread({
 	}
 
 	return (
-		<div ref={scrollRef} onScroll={onScroll} className="flex-1 overflow-y-auto px-6 py-6">
+		<div
+			ref={scrollRef}
+			onScroll={onScroll}
+			className="flex-1 overflow-y-auto px-3 py-4 md:px-6 md:py-6"
+		>
 			<div className="mx-auto flex max-w-3xl flex-col gap-5">
 				{timeline.length === 0 && !running && (
 					<div className="py-20 text-center">
@@ -95,7 +99,7 @@ export function Thread({
 						return <ToolGroup key={item.key} tools={item.tools} />
 					}
 					return (
-						<div key={item.key} className="ml-[42px] flex items-center gap-2">
+						<div key={item.key} className="flex items-center gap-2 md:ml-[42px]">
 							<span className="text-[12px] text-muted">📦 fichier</span>
 							<FileChip attachment={item.attachment} roomId={roomId} onOpen={onOpen} />
 						</div>

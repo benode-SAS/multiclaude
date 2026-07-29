@@ -90,7 +90,7 @@ export function Composer({
 	}
 
 	return (
-		<div className="border-t border-line bg-canvas px-6 pt-2 pb-4">
+		<div className="border-t border-line bg-canvas px-3 pt-2 pb-3 md:px-6 md:pb-4">
 			<div className="mx-auto max-w-3xl">
 				<TypingIndicator people={typing} />
 

@@ -14,6 +14,7 @@ export function RoomHeader({
 	onSetModel,
 	onStop,
 	usage,
+	onOpenNav,
 }: {
 	room: Room
 	status: RoomStatus
@@ -24,6 +25,7 @@ export function RoomHeader({
 	onSetModel: (model: string | null) => void
 	onStop: () => void
 	usage: ContextUsage | null
+	onOpenNav: () => void
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -34,7 +36,17 @@ export function RoomHeader({
 	}
 
 	return (
-		<header className="flex items-center gap-3 border-b border-line bg-canvas/80 px-6 py-3 backdrop-blur">
+		<header className="flex items-center gap-2 border-b border-line bg-canvas/80 px-3 py-2.5 backdrop-blur md:gap-3 md:px-6 md:py-3">
+			{/* Ouvre le tiroir : la sidebar est masquée sous md. */}
+			<button
+				type="button"
+				onClick={onOpenNav}
+				title="Conversations"
+				className="-ml-1 shrink-0 rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink md:hidden"
+			>
+				☰
+			</button>
+
 			{editing ? (
 				<input
 					autoFocus
@@ -65,7 +77,7 @@ export function RoomHeader({
 				<div className="flex items-center gap-1.5">
 					<span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[12px] text-accent">
 						<span className="size-1.5 animate-pulse rounded-full bg-accent" />
-						en cours
+						<span className="hidden sm:inline">en cours</span>
 					</span>
 					<button
 						type="button"
@@ -73,13 +85,14 @@ export function RoomHeader({
 						title="Interrompre le turn en cours"
 						className="flex items-center gap-1 rounded-full border border-line bg-surface px-2.5 py-1 text-[12px] transition hover:border-danger/50 hover:text-danger"
 					>
-						<span className="text-[9px]">■</span> Stopper
+						<span className="text-[9px]">■</span>
+						<span className="hidden sm:inline">Stopper</span>
 					</button>
 				</div>
 			)}
 
 			{usage && (
-				<div className="ml-auto">
+				<div className="ml-auto hidden lg:block">
 					<ContextGauge usage={usage} />
 				</div>
 			)}
@@ -101,7 +114,7 @@ export function RoomHeader({
 				</select>
 			</label>
 
-			<div className="flex items-center -space-x-2">
+			<div className="hidden items-center -space-x-2 sm:flex">
 				{participants.map((participant) => (
 					<div key={participant} className="rounded-full ring-2 ring-canvas">
 						<Avatar author={participant} size={26} />
@@ -112,9 +125,10 @@ export function RoomHeader({
 			<button
 				type="button"
 				onClick={onToggleFiles}
-				className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
+				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 			>
-				{filesOpen ? 'Masquer' : 'Fichiers'}
+				<span className="hidden md:inline">{filesOpen ? 'Masquer' : 'Fichiers'}</span>
+				<span className="md:hidden">📁</span>
 			</button>
 		</header>
 	)

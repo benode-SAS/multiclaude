@@ -16,7 +16,7 @@ export function ToolCard({
 	const running = result === null
 
 	return (
-		<div className="ml-[42px] max-w-[min(760px,100%)]">
+		<div className="ml-0 md:ml-[42px] max-w-[min(760px,100%)]">
 			<div
 				className={clsx(
 					'overflow-hidden rounded-xl border bg-surface/70 text-[13px]',

@@ -8,10 +8,12 @@ export function FilesPanel({
 	roomId,
 	revision,
 	onOpen,
+	onClose,
 }: {
 	roomId: string
 	revision: number
 	onOpen: (target: ViewerTarget) => void
+	onClose: () => void
 }) {
 	const [files, setFiles] = useState<FileEntry[]>([])
 
@@ -25,16 +27,25 @@ export function FilesPanel({
 	useEffect(load, [load, revision])
 
 	return (
-		<aside className="flex w-[280px] shrink-0 flex-col border-l border-line bg-panel/60">
+		<div className="flex h-full min-h-0 flex-col bg-panel/60">
 			<div className="flex items-center gap-2 border-b border-line px-4 py-3">
 				<span className="text-[13px] font-semibold">Workdir</span>
 				<span className="text-[12px] text-muted">{files.length}</span>
 				<button
 					type="button"
 					onClick={load}
+					title="Rafraîchir"
 					className="ml-auto text-[12px] text-muted hover:text-ink"
 				>
 					↻
+				</button>
+				<button
+					type="button"
+					onClick={onClose}
+					title="Fermer"
+					className="text-[14px] text-muted hover:text-ink"
+				>
+					✕
 				</button>
 			</div>
 
@@ -65,6 +76,6 @@ export function FilesPanel({
 					</button>
 				))}
 			</div>
-		</aside>
+		</div>
 	)
 }

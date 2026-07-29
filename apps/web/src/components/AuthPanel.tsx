@@ -27,7 +27,7 @@ export function AuthPanel({
 			: 'Claude Code n’est pas connecté. Connecte ton compte pour utiliser ton abonnement.'
 
 	return (
-		<div className="border-b border-warn/30 bg-warn-soft px-6 py-3">
+		<div className="border-b border-warn/30 bg-warn-soft px-4 py-3 md:px-6">
 			<div className="mx-auto flex max-w-3xl flex-col gap-3">
 				<div className="flex items-center gap-3">
 					<span>🔑</span>

@@ -28,7 +28,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 				<button
 					type="button"
 					onClick={() => setOpen(false)}
-					className="ml-[42px] flex items-center gap-2 self-start rounded-lg px-2 py-1 text-[12px] text-muted transition hover:bg-panel hover:text-ink"
+					className="ml-0 md:ml-[42px] flex items-center gap-2 self-start rounded-lg px-2 py-1 text-[12px] text-muted transition hover:bg-panel hover:text-ink"
 				>
 					<span>▴</span>
 					{tools.length} actions
@@ -41,7 +41,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 	}
 
 	return (
-		<div className="ml-[42px] max-w-[min(760px,100%)]">
+		<div className="ml-0 md:ml-[42px] max-w-[min(760px,100%)]">
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
