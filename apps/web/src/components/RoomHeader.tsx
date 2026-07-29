@@ -10,6 +10,7 @@ export function RoomHeader({
 	onToggleFiles,
 	onRename,
 	onSetModel,
+	onStop,
 }: {
 	room: Room
 	status: RoomStatus
@@ -18,6 +19,7 @@ export function RoomHeader({
 	onToggleFiles: () => void
 	onRename: (title: string) => void
 	onSetModel: (model: string | null) => void
+	onStop: () => void
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -56,10 +58,20 @@ export function RoomHeader({
 			)}
 
 			{status === 'running' && (
-				<span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[12px] text-accent">
-					<span className="size-1.5 animate-pulse rounded-full bg-accent" />
-					en cours
-				</span>
+				<div className="flex items-center gap-1.5">
+					<span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[12px] text-accent">
+						<span className="size-1.5 animate-pulse rounded-full bg-accent" />
+						en cours
+					</span>
+					<button
+						type="button"
+						onClick={onStop}
+						title="Interrompre le turn en cours"
+						className="flex items-center gap-1 rounded-full border border-line bg-surface px-2.5 py-1 text-[12px] transition hover:border-danger/50 hover:text-danger"
+					>
+						<span className="text-[9px]">■</span> Stopper
+					</button>
+				</div>
 			)}
 
 			<label className="ml-auto flex items-center gap-1.5 text-[12px] text-muted">

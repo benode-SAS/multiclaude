@@ -57,6 +57,7 @@ export class RoomRuntime {
 	private seq = 0
 	private producedText = false
 	private endTurn: ((error?: string) => void) | null = null
+	private interruptedBy: string | null = null
 
 	constructor(roomId: string) {
 		this.roomId = roomId
@@ -90,6 +91,38 @@ export class RoomRuntime {
 			pending: [...this.pending.values()].map((p) => p.request),
 			liveTurn: this.liveTurn,
 		}
+	}
+
+	/**
+	 * Interrupts the running turn. Queued messages are left alone — they are
+	 * other people's asks, not part of what is being stopped.
+	 */
+	async stop(by: string) {
+		if (!this.running || !this.process?.alive) return false
+
+		this.interruptedBy = by
+		// A tool waiting on a human would otherwise keep the CLI blocked.
+		for (const [requestId, entry] of this.pending) {
+			hub.broadcast(this.roomId, { type: 'permission_resolved', requestId, allow: false, by })
+			entry.resolve({ allow: false, reason: `interrompu par ${by}` })
+		}
+		this.pending.clear()
+
+		const sent = this.process.interrupt(newId())
+		if (!sent) {
+			this.endTurn?.(undefined)
+			return false
+		}
+
+		// If the CLI does not wind down, drop the process; the next turn resumes.
+		setTimeout(() => {
+			if (this.interruptedBy && this.running) {
+				this.process?.stop()
+				this.process = null
+				this.endTurn?.(undefined)
+			}
+		}, 8000)
+		return true
 	}
 
 	approve(requestId: string, allow: boolean, by: string) {
@@ -214,6 +247,7 @@ export class RoomRuntime {
 		this.liveTurn = { turnId: this.turnId, text: '' }
 		this.seq = 0
 		this.producedText = false
+		this.interruptedBy = null
 
 		const finished = new Promise<string | undefined>((resolve) => {
 			this.endTurn = resolve
@@ -225,6 +259,19 @@ export class RoomRuntime {
 		this.liveTurn = null
 
 		hub.broadcast(this.roomId, { type: 'turn_end', turnId: this.turnId })
+
+		const stoppedBy = this.interruptedBy
+		this.interruptedBy = null
+		if (stoppedBy) {
+			const message = await RoomService.addMessage({
+				roomId: this.roomId,
+				author: 'system',
+				role: 'system',
+				content: `⏹ Turn interrompu par ${stoppedBy}.`,
+			})
+			hub.broadcast(this.roomId, { type: 'message', message })
+			return
+		}
 		if (error) await this.fail(error)
 	}
 
@@ -331,7 +378,9 @@ export class RoomRuntime {
 				})
 				hub.broadcast(this.roomId, { type: 'message', message: persisted })
 			}
-			this.endTurn?.(message.is_error ? text || 'le turn a échoué' : undefined)
+			// An interrupt lands here as an error; it is not one.
+			const failed = message.is_error && !this.interruptedBy
+			this.endTurn?.(failed ? text || 'le turn a échoué' : undefined)
 		}
 	}
 

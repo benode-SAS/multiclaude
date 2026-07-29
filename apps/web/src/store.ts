@@ -48,6 +48,7 @@ type Actions = {
 	deleteRoom: (roomId: string) => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
 	setTyping: (typing: boolean) => void
+	stopTurn: () => void
 	approve: (requestId: string, allow: boolean) => void
 	setModel: (model: string | null) => void
 	dismissError: () => void
@@ -249,6 +250,12 @@ export const useStore = create<State & Actions>((set, get) => {
 			const { activeRoomId, pseudo } = get()
 			if (!activeRoomId || !socket) return
 			socket.send({ type: 'message', roomId: activeRoomId, pseudo, content, attachmentIds })
+		},
+
+		stopTurn() {
+			const { activeRoomId } = get()
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'stop', roomId: activeRoomId })
 		},
 
 		setTyping(isTyping) {

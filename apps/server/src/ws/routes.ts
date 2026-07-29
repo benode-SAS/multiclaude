@@ -95,6 +95,14 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 			}
 
+			case 'stop': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				const runtime = await getRuntime(payload.roomId)
+				await runtime?.stop(session.pseudo)
+				return
+			}
+
 			case 'typing': {
 				const session = sessions.get(ws.id)
 				if (!session || session.roomId !== payload.roomId) return

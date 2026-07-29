@@ -94,6 +94,24 @@ export class ClaudeProcess {
 		this.proc?.stdin.flush()
 	}
 
+	/**
+	 * Asks the CLI to abandon the current turn. Preferred over killing: the
+	 * process stays alive for the next turn and the session transcript stays
+	 * consistent, where a kill would leave a tool_use without its result.
+	 */
+	interrupt(requestId: string) {
+		if (!this.alive) return false
+		this.proc?.stdin.write(
+			`${JSON.stringify({
+				type: 'control_request',
+				request_id: requestId,
+				request: { subtype: 'interrupt' },
+			})}\n`,
+		)
+		this.proc?.stdin.flush()
+		return true
+	}
+
 	stop() {
 		this.stopped = true
 		try {

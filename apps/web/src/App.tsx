@@ -66,6 +66,7 @@ export function App() {
 							onToggleFiles={() => setFilesOpen((v) => !v)}
 							onRename={(title) => void store.renameRoom(store.room!.id, title)}
 							onSetModel={store.setModel}
+							onStop={store.stopTurn}
 						/>
 
 						{store.auth && (

@@ -102,6 +102,7 @@ export type ClientMessage =
 	| { type: 'rename'; roomId: string; title: string }
 	| { type: 'set_model'; roomId: string; model: string | null }
 	| { type: 'typing'; roomId: string; pseudo: string; typing: boolean }
+	| { type: 'stop'; roomId: string }
 	| { type: 'ping' }
 
 export type Snapshot = {
