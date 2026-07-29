@@ -6,6 +6,7 @@ import { watchWorkdir } from '../files/watcher.ts'
 import { newId } from '../lib/ids.ts'
 import { RoomService } from '../rooms/service.ts'
 import { hub } from '../ws/hub.ts'
+import { classify } from './policy.ts'
 import { ClaudeProcess } from './process.ts'
 import type { CliMessage, ContentBlock } from './protocol.ts'
 
@@ -101,8 +102,14 @@ export class RoomRuntime {
 
 	/** Called by the PreToolUse hook; blocks until a human clicks. */
 	requestPermission(tool: string, input: Record<string, unknown>) {
-		if (!config.confirmTools.has(tool)) return Promise.resolve({ allow: true })
-		const request: PermissionRequest = { requestId: newId(), tool, input }
+		const decision = classify(tool, input, {
+			workdir: this.workdir,
+			alwaysAsk: config.alwaysAskTools,
+			extraPatterns: config.askPatterns,
+		})
+		if (decision.allow) return Promise.resolve({ allow: true })
+
+		const request: PermissionRequest = { requestId: newId(), tool, input, reason: decision.reason }
 		return new Promise<{ allow: boolean; reason?: string }>((resolve) => {
 			this.pending.set(request.requestId, { request, resolve })
 			hub.broadcast(this.roomId, { type: 'permission_request', request })

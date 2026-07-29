@@ -15,9 +15,14 @@ export function PermissionCard({
 }) {
 	return (
 		<div className="ml-[42px] max-w-[min(760px,100%)] rounded-xl border border-accent/40 bg-accent-soft/50 p-3">
-			<div className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-accent">
+			<div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent">
 				<span>🔒</span>
 				<span>Claude demande à exécuter {request.tool}</span>
+				{request.reason && (
+					<span className="rounded-full border border-accent/30 px-2 py-0.5 text-[11px] font-normal">
+						{request.reason}
+					</span>
+				)}
 			</div>
 			<pre className="mb-3 max-h-48 overflow-auto rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[12px] whitespace-pre-wrap">
 				{summarize(request)}

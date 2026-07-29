@@ -2,7 +2,14 @@ import type { Room } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { formatDay } from '../lib/format.ts'
+import type { Theme } from '../lib/theme.ts'
 import { Avatar } from './Avatar.tsx'
+
+const THEMES: Array<{ id: Theme; icon: string; label: string }> = [
+	{ id: 'light', icon: '☀', label: 'Clair' },
+	{ id: 'dark', icon: '☾', label: 'Sombre' },
+	{ id: 'system', icon: '◐', label: 'Système' },
+]
 
 export function Sidebar({
 	rooms,
@@ -14,11 +21,19 @@ export function Sidebar({
 	onRename,
 	onDelete,
 	onChangePseudo,
+	theme,
+	onSetTheme,
+	sound,
+	onToggleSound,
 }: {
 	rooms: Room[]
 	activeRoomId: string | null
 	pseudo: string
 	connected: boolean
+	theme: Theme
+	onSetTheme: (theme: Theme) => void
+	sound: boolean
+	onToggleSound: () => void
 	onSelect: (id: string) => void
 	onCreate: () => void
 	onRename: (id: string, title: string) => void
@@ -103,7 +118,7 @@ export function Sidebar({
 							onClick={() => {
 								if (confirm(`Supprimer "${room.title}" et son workdir ?`)) onDelete(room.id)
 							}}
-							className="hidden shrink-0 text-[12px] text-muted hover:text-red-600 group-hover:block"
+							className="hidden shrink-0 text-[12px] text-muted hover:text-danger group-hover:block"
 							title="Supprimer"
 						>
 							🗑
@@ -111,6 +126,39 @@ export function Sidebar({
 					</div>
 				))}
 			</nav>
+
+			<div className="flex items-center gap-2 border-t border-line px-3 py-2">
+				<div className="flex overflow-hidden rounded-lg border border-line">
+					{THEMES.map((option) => (
+						<button
+							key={option.id}
+							type="button"
+							onClick={() => onSetTheme(option.id)}
+							title={option.label}
+							className={clsx(
+								'px-2 py-1 text-[13px] transition',
+								theme === option.id
+									? 'bg-accent text-white'
+									: 'bg-surface text-muted hover:text-ink',
+							)}
+						>
+							{option.icon}
+						</button>
+					))}
+				</div>
+
+				<button
+					type="button"
+					onClick={onToggleSound}
+					title={sound ? 'Son des demandes : activé' : 'Son des demandes : coupé'}
+					className={clsx(
+						'rounded-lg border border-line px-2 py-1 text-[13px] transition',
+						sound ? 'bg-surface text-ink' : 'bg-surface text-muted line-through',
+					)}
+				>
+					{sound ? '🔔' : '🔕'}
+				</button>
+			</div>
 
 			<button
 				type="button"

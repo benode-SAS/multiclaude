@@ -19,11 +19,11 @@ export function AuthPanel({
 	if (auth.loggedIn) return null
 
 	return (
-		<div className="border-b border-amber-200 bg-amber-50 px-6 py-3">
+		<div className="border-b border-warn/30 bg-warn-soft px-6 py-3">
 			<div className="mx-auto flex max-w-3xl flex-col gap-3">
 				<div className="flex items-center gap-3">
 					<span>🔑</span>
-					<span className="flex-1 text-[13px] font-medium text-amber-900">
+					<span className="flex-1 text-[13px] font-medium text-warn">
 						{auth.pending
 							? 'Connexion en cours — ouvre le lien, puis colle le code (ou l’URL de redirection).'
 							: 'Claude Code n’est pas connecté. Connecte ton compte pour utiliser ton abonnement.'}
@@ -45,7 +45,7 @@ export function AuthPanel({
 						href={auth.loginUrl}
 						target="_blank"
 						rel="noreferrer"
-						className="truncate rounded-lg border border-amber-200 bg-surface px-3 py-2 font-mono text-[12px] text-accent underline"
+						className="truncate rounded-lg border border-warn/30 bg-surface px-3 py-2 font-mono text-[12px] text-accent underline"
 					>
 						{auth.loginUrl}
 					</a>
@@ -66,7 +66,7 @@ export function AuthPanel({
 							value={code}
 							onChange={(e) => setCode(e.target.value)}
 							placeholder="Colle ici le code ou l’URL de redirection"
-							className="flex-1 rounded-lg border border-amber-200 bg-surface px-3 py-2 text-[13px] outline-none focus:border-accent/60"
+							className="flex-1 rounded-lg border border-warn/30 bg-surface px-3 py-2 text-[13px] outline-none focus:border-accent/60"
 						/>
 						<button
 							type="submit"
@@ -78,14 +78,14 @@ export function AuthPanel({
 						<button
 							type="button"
 							onClick={onCancel}
-							className="rounded-lg border border-amber-200 bg-surface px-3 py-2 text-[13px] transition hover:bg-panel"
+							className="rounded-lg border border-warn/30 bg-surface px-3 py-2 text-[13px] transition hover:bg-panel"
 						>
 							Annuler
 						</button>
 					</form>
 				)}
 
-				{auth.error && <p className="text-[12px] text-red-700">{auth.error}</p>}
+				{auth.error && <p className="text-[12px] text-danger">{auth.error}</p>}
 			</div>
 		</div>
 	)

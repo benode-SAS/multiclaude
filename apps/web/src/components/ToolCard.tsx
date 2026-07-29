@@ -20,7 +20,7 @@ export function ToolCard({
 			<div
 				className={clsx(
 					'overflow-hidden rounded-xl border bg-surface/70 text-[13px]',
-					result?.isError ? 'border-red-200' : 'border-line',
+					result?.isError ? 'border-danger/40' : 'border-line',
 				)}
 			>
 				<button
@@ -36,7 +36,7 @@ export function ToolCard({
 						</code>
 					)}
 					{running && <span className="text-muted">…</span>}
-					{result?.isError && <span className="text-red-600">erreur</span>}
+					{result?.isError && <span className="text-danger">erreur</span>}
 					<span className="ml-auto text-muted">{open ? '▴' : '▾'}</span>
 				</button>
 
@@ -51,7 +51,7 @@ export function ToolCard({
 							<pre
 								className={clsx(
 									'max-h-72 overflow-auto border-t border-line px-3 py-2 font-mono text-[12px] leading-relaxed whitespace-pre-wrap',
-									result.isError ? 'text-red-700' : 'text-muted',
+									result.isError ? 'text-danger' : 'text-muted',
 								)}
 							>
 								{result.content || '(vide)'}

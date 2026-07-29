@@ -28,13 +28,29 @@ export const config = {
 		return existsSync(path.join(webDist, 'index.html'))
 	},
 
-	/** Tools requiring a human click before they run. Everything else is auto-allowed. */
-	confirmTools: new Set(
-		(process.env.CONFIRM_TOOLS ?? 'Bash,KillShell,WebFetch')
+	/**
+	 * Tools that always ask, whatever the command policy says. Empty by default:
+	 * see agent/policy.ts, which decides per command instead of per tool.
+	 */
+	alwaysAskTools: new Set(
+		(process.env.ALWAYS_ASK_TOOLS ?? '')
 			.split(',')
 			.map((t) => t.trim())
 			.filter(Boolean),
 	),
+	/** Extra regexes forcing a confirmation, e.g. `ASK_PATTERNS=deploy\.sh,prod`. */
+	askPatterns: (process.env.ASK_PATTERNS ?? '')
+		.split(',')
+		.map((p) => p.trim())
+		.filter(Boolean)
+		.flatMap((p) => {
+			try {
+				return [new RegExp(p, 'i')]
+			} catch {
+				console.warn(`[config] ASK_PATTERNS: motif invalide ignoré (${p})`)
+				return []
+			}
+		}),
 	permissionHookPath: posix(path.join(import.meta.dir, 'agent/permission-hook.ts')),
 	permissionTimeoutSec: Number(process.env.PERMISSION_TIMEOUT ?? 900),
 

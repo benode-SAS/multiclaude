@@ -12,6 +12,8 @@ import type {
 import { create } from 'zustand'
 import { api } from './lib/api.ts'
 import { createSocket, type Socket } from './lib/socket.ts'
+import { flashTitle, playPermissionChime, setSoundEnabled, soundEnabled } from './lib/sound.ts'
+import { applyTheme, storedTheme, type Theme } from './lib/theme.ts'
 
 type State = {
 	pseudo: string
@@ -31,6 +33,8 @@ type State = {
 	error: string | null
 	auth: AuthState | null
 	authBusy: boolean
+	theme: Theme
+	sound: boolean
 }
 
 type Actions = {
@@ -45,6 +49,8 @@ type Actions = {
 	approve: (requestId: string, allow: boolean) => void
 	setModel: (model: string | null) => void
 	dismissError: () => void
+	setTheme: (theme: Theme) => void
+	toggleSound: () => void
 	refreshAuth: () => Promise<void>
 	startLogin: () => Promise<void>
 	submitCode: (code: string) => Promise<void>
@@ -115,6 +121,8 @@ export const useStore = create<State & Actions>((set, get) => {
 				return
 			case 'permission_request':
 				set({ pending: [...state.pending, message.request] })
+				playPermissionChime()
+				flashTitle('🔒 autorisation demandée')
 				return
 			case 'permission_resolved':
 				set({ pending: state.pending.filter((p) => p.requestId !== message.requestId) })
@@ -164,6 +172,8 @@ export const useStore = create<State & Actions>((set, get) => {
 		error: null,
 		auth: null,
 		authBusy: false,
+		theme: storedTheme(),
+		sound: soundEnabled(),
 		...empty,
 
 		async init(pseudo) {
@@ -244,6 +254,18 @@ export const useStore = create<State & Actions>((set, get) => {
 
 		dismissError() {
 			set({ error: null })
+		},
+
+		setTheme(theme) {
+			applyTheme(theme)
+			set({ theme })
+		},
+
+		toggleSound() {
+			const sound = !get().sound
+			setSoundEnabled(sound)
+			set({ sound })
+			if (sound) playPermissionChime()
 		},
 
 		async refreshAuth() {

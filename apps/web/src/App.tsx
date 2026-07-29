@@ -7,6 +7,7 @@ import { PseudoGate } from './components/PseudoGate.tsx'
 import { RoomHeader } from './components/RoomHeader.tsx'
 import { Sidebar } from './components/Sidebar.tsx'
 import { Thread } from './components/Thread.tsx'
+import { applyTheme, storedTheme, watchSystemTheme } from './lib/theme.ts'
 import { storedPseudo, useStore } from './store.ts'
 
 export function App() {
@@ -19,6 +20,9 @@ export function App() {
 		const pseudo = storedPseudo()
 		if (pseudo && !store.pseudo) void store.init(pseudo)
 	}, [store])
+
+	// 'system' must follow the OS while the app stays open.
+	useEffect(() => watchSystemTheme(() => applyTheme(storedTheme())), [])
 
 	if (gate || !store.pseudo) {
 		return (
@@ -45,6 +49,10 @@ export function App() {
 				onRename={(id, title) => void store.renameRoom(id, title)}
 				onDelete={(id) => void store.deleteRoom(id)}
 				onChangePseudo={() => setGate(true)}
+				theme={store.theme}
+				onSetTheme={store.setTheme}
+				sound={store.sound}
+				onToggleSound={store.toggleSound}
 			/>
 
 			<main className="flex min-w-0 flex-1 flex-col">
@@ -71,7 +79,7 @@ export function App() {
 						)}
 
 						{store.error && (
-							<div className="flex items-center gap-2 border-b border-red-200 bg-red-50 px-6 py-2 text-[13px] text-red-700">
+							<div className="flex items-center gap-2 border-b border-danger/30 bg-danger-soft px-6 py-2 text-[13px] text-danger">
 								<span className="flex-1">{store.error}</span>
 								<button type="button" onClick={store.dismissError} className="underline">
 									fermer

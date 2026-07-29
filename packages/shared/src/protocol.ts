@@ -80,6 +80,8 @@ export type PermissionRequest = {
 	requestId: string
 	tool: string
 	input: Record<string, unknown>
+	/** Why the policy stopped on this call, shown on the approval card. */
+	reason: string
 }
 
 export type AuthState = {

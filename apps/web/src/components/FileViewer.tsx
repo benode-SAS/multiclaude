@@ -155,7 +155,7 @@ export function FileViewer({
 					)}
 
 					{needsContent && error && (
-						<p className="py-10 text-center text-[13px] text-red-600">{error}</p>
+						<p className="py-10 text-center text-[13px] text-danger">{error}</p>
 					)}
 
 					{needsContent && content === null && !error && (

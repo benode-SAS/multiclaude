@@ -1,18 +1,60 @@
 @import "tailwindcss";
-@import "highlight.js/styles/github.css";
 
-@theme {
-	--color-canvas: #faf9f5;
-	--color-panel: #f2f0e9;
-	--color-surface: #ffffff;
-	--color-line: #e6e2d8;
-	--color-ink: #1f1e1c;
-	--color-muted: #6f6b62;
-	--color-accent: #c96442;
-	--color-accent-soft: #f4e4de;
+/* The theme toggle stamps `data-theme` on <html>; media query is the default. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* `inline` keeps the utilities pointing at the variables, so swapping the
+   palette below re-themes the whole app without rebuilding. */
+@theme inline {
+	--color-canvas: var(--canvas);
+	--color-panel: var(--panel);
+	--color-surface: var(--surface);
+	--color-line: var(--line);
+	--color-ink: var(--ink);
+	--color-muted: var(--muted);
+	--color-accent: var(--accent);
+	--color-accent-soft: var(--accent-soft);
+	--color-danger: var(--danger);
+	--color-danger-soft: var(--danger-soft);
+	--color-warn: var(--warn);
+	--color-warn-soft: var(--warn-soft);
 
 	--font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 	--font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
+}
+
+:root {
+	--canvas: #faf9f5;
+	--panel: #f2f0e9;
+	--surface: #ffffff;
+	--line: #e6e2d8;
+	--ink: #1f1e1c;
+	--muted: #6f6b62;
+	--accent: #c96442;
+	--accent-soft: #f4e4de;
+	--danger: #b42318;
+	--danger-soft: #fdecea;
+	--warn: #8a5a1c;
+	--warn-soft: #fdf3e2;
+	--shadow: rgb(0 0 0 / 0.06);
+	color-scheme: light;
+}
+
+[data-theme="dark"] {
+	--canvas: #1f1e1d;
+	--panel: #2a2927;
+	--surface: #262523;
+	--line: #3a3835;
+	--ink: #f0eee6;
+	--muted: #a19d94;
+	--accent: #d97757;
+	--accent-soft: #3a2a24;
+	--danger: #f0806f;
+	--danger-soft: #3a2320;
+	--warn: #e0b070;
+	--warn-soft: #362c1c;
+	--shadow: rgb(0 0 0 / 0.4);
+	color-scheme: dark;
 }
 
 html,
@@ -30,13 +72,59 @@ body {
 	height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-	background: color-mix(in oklab, var(--color-line) 80%, black 10%);
+	background: color-mix(in oklab, var(--line) 80%, var(--ink) 15%);
 	border-radius: 999px;
 	border: 3px solid transparent;
 	background-clip: content-box;
 }
 ::-webkit-scrollbar-track {
 	background: transparent;
+}
+
+/* Syntax colours, defined here rather than imported so both themes share one
+   source and no stylesheet has to be swapped at runtime. */
+.hljs-comment,
+.hljs-quote {
+	color: var(--muted);
+	font-style: italic;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-type {
+	color: light-dark(#a626a4, #c792ea);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+	color: light-dark(#50a14f, #a3d18a);
+}
+.hljs-number,
+.hljs-built_in,
+.hljs-attr {
+	color: light-dark(#986801, #f2b96a);
+}
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+	color: light-dark(#4078f2, #82aaff);
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute {
+	color: light-dark(#e45649, #f07178);
+}
+.hljs-meta,
+.hljs-deletion {
+	color: light-dark(#a0a1a7, #8b8880);
+}
+.hljs-emphasis {
+	font-style: italic;
+}
+.hljs-strong {
+	font-weight: 600;
 }
 
 @utility prose-chat {
@@ -73,25 +161,25 @@ body {
 		margin-top: 0.25rem;
 	}
 	& a {
-		color: var(--color-accent);
+		color: var(--accent);
 		text-decoration: underline;
 		text-underline-offset: 2px;
 	}
 	& blockquote {
-		border-left: 3px solid var(--color-line);
+		border-left: 3px solid var(--line);
 		padding-left: 0.75rem;
-		color: var(--color-muted);
+		color: var(--muted);
 	}
 	& code {
 		font-family: var(--font-mono);
 		font-size: 0.85em;
-		background: var(--color-panel);
+		background: var(--panel);
 		padding: 0.1em 0.35em;
 		border-radius: 4px;
 	}
 	& pre {
-		background: var(--color-panel);
-		border: 1px solid var(--color-line);
+		background: var(--panel);
+		border: 1px solid var(--line);
 		border-radius: 10px;
 		padding: 0.85rem 0.95rem;
 		overflow-x: auto;
@@ -109,16 +197,16 @@ body {
 	}
 	& th,
 	& td {
-		border: 1px solid var(--color-line);
+		border: 1px solid var(--line);
 		padding: 0.4rem 0.6rem;
 		text-align: left;
 	}
 	& th {
-		background: var(--color-panel);
+		background: var(--panel);
 		font-weight: 600;
 	}
 	& hr {
-		border-color: var(--color-line);
+		border-color: var(--line);
 	}
 }
 
@@ -139,6 +227,6 @@ body {
 	height: 1em;
 	margin-left: 2px;
 	vertical-align: text-bottom;
-	background: var(--color-accent);
+	background: var(--accent);
 	animation: blink 1s steps(1) infinite;
 }
