@@ -21,8 +21,12 @@ export const config = {
 	internalUrl: `http://127.0.0.1:${port}`,
 	corsOrigin: process.env.CORS_ORIGIN ?? true,
 
-	/** Serve the built front from this server so everything lives on one port. */
-	serveWeb: bool(process.env.SERVE_WEB, false),
+	/**
+	 * Serve the built front from this server so everything lives on one port.
+	 * On by default: in production the build is the only front there is, and in
+	 * dev vite answers on its own port anyway. SERVE_WEB=false forces it off.
+	 */
+	serveWeb: bool(process.env.SERVE_WEB, true),
 	webDist,
 	get webDistExists() {
 		return existsSync(path.join(webDist, 'index.html'))

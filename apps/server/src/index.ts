@@ -17,9 +17,6 @@ import { wsRoutes } from './ws/routes.ts'
 runMigrations()
 
 const serveWeb = config.serveWeb && config.webDistExists
-if (config.serveWeb && !serveWeb) {
-	console.warn(`[web] SERVE_WEB actif mais ${config.webDist} est absent — lance "bun run build"`)
-}
 
 AuthService.subscribe((auth) => hub.broadcastAll({ type: 'auth', auth }))
 
@@ -51,6 +48,13 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
 	})
 }
 
+/** Says exactly why the front is or is not being served — the usual head-scratcher. */
+function describeFront() {
+	if (serveWeb) return config.webDist
+	if (!config.serveWeb) return 'désactivé (SERVE_WEB=false) — sers-le par vite ou un autre hôte'
+	return `AUCUN : ${config.webDist} est absent, lance "bun run build"`
+}
+
 /**
  * Kept out of the module top level: a top-level `await` makes this an async
  * module, which supervisors that `require()` the entry point (PM2's bun
@@ -65,7 +69,7 @@ async function bootstrap() {
 		`claude       ${claudeBin}${claudeBinResolved ? '' : ' (INTROUVABLE — définis CLAUDE_BIN)'}`,
 	)
 	console.log(`data         ${config.dataDir}`)
-	console.log(`front        ${serveWeb ? config.webDist : 'servi par vite (bun run dev)'}`)
+	console.log(`front        ${describeFront()}`)
 	console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
 }
 

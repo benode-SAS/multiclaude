@@ -10,6 +10,7 @@
 		"dev": "bun run --filter '*' dev",
 		"build": "bun run --filter '*' build",
 		"start": "bun run --filter @multiclaude/server start",
+		"deploy": "bun install && bun run build && bun run db:migrate",
 		"typecheck": "bun run --filter '*' typecheck",
 		"check": "biome check .",
 		"fix": "biome check --write .",
