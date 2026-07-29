@@ -57,6 +57,21 @@ export const config = {
 	/** Empty keeps the agent out of the host's user/project Claude settings. */
 	settingSources: process.env.SETTING_SOURCES ?? '',
 
+	/**
+	 * Appended to the CLI's own system prompt. Sets the register for a shared
+	 * chat: several humans read every answer, so length costs everyone.
+	 */
+	appendSystemPrompt:
+		process.env.APPEND_SYSTEM_PROMPT ??
+		[
+			'Tu participes à une conversation de groupe : plusieurs personnes lisent tes réponses.',
+			'Chaque message entrant est préfixé du pseudo de son auteur, entre crochets.',
+			'Réponds en français, de façon brève et directe.',
+			'Pas de préambule, pas de reformulation de la demande, pas de conclusion qui résume ce que tu viens de faire.',
+			'Après une action, dis le résultat en une ou deux phrases — les fichiers modifiés et les commandes exécutées sont déjà affichés à côté, ne les réénumère pas.',
+			'Développe seulement si on te le demande, ou si un point non évident mérite un avertissement.',
+		].join(' '),
+
 	maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 50) * 1024 * 1024,
 }
 

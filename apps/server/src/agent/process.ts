@@ -62,6 +62,7 @@ export class ClaudeProcess {
 			config.settingSources,
 			'--settings',
 			this.settings(),
+			...(config.appendSystemPrompt ? ['--append-system-prompt', config.appendSystemPrompt] : []),
 			...(this.options.model ? ['--model', this.options.model] : []),
 			...(this.resumable
 				? ['--resume', this.options.sessionId]

@@ -1,11 +1,12 @@
 import type { Attachment, Message, PermissionRequest, QueuedItem } from '@multiclaude/shared'
 import { useEffect, useMemo, useRef } from 'react'
-import { buildTimeline } from '../lib/timeline.ts'
+import { buildTimeline, groupTimeline } from '../lib/timeline.ts'
 import { FileChip } from './FileChip.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
 import { MessageBubble, StreamingBubble } from './MessageBubble.tsx'
 import { PermissionCard } from './PermissionCard.tsx'
 import { ToolCard } from './ToolCard.tsx'
+import { ToolGroup } from './ToolGroup.tsx'
 
 export function Thread({
 	roomId,
@@ -35,7 +36,7 @@ export function Thread({
 	const stickyRef = useRef(true)
 
 	const timeline = useMemo(
-		() => buildTimeline(messages, events, attachments),
+		() => groupTimeline(buildTimeline(messages, events, attachments)),
 		[messages, events, attachments],
 	)
 
@@ -89,6 +90,9 @@ export function Thread({
 					}
 					if (item.kind === 'tool') {
 						return <ToolCard key={item.key} use={item.use} result={item.result} />
+					}
+					if (item.kind === 'tools') {
+						return <ToolGroup key={item.key} tools={item.tools} />
 					}
 					return (
 						<div key={item.key} className="ml-[42px] flex items-center gap-2">

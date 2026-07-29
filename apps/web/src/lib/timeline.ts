@@ -56,6 +56,40 @@ export function buildTimeline(
 	return items.sort((a, b) => a.at - b.at)
 }
 
+export type ToolItem = Extract<TimelineItem, { kind: 'tool' }>
+
+export type TimelineRow =
+	| Exclude<TimelineItem, { kind: 'tool' }>
+	| ToolItem
+	| { kind: 'tools'; key: string; at: number; tools: ToolItem[] }
+
+/**
+ * Folds runs of back-to-back tool calls into one collapsible row. A lone call
+ * stays as it is — grouping a single action would only add a click.
+ */
+export function groupTimeline(items: TimelineItem[]): TimelineRow[] {
+	const rows: TimelineRow[] = []
+	let run: ToolItem[] = []
+
+	const flush = () => {
+		if (run.length === 0) return
+		if (run.length === 1) rows.push(run[0]!)
+		else rows.push({ kind: 'tools', key: `g-${run[0]!.key}`, at: run[0]!.at, tools: run })
+		run = []
+	}
+
+	for (const item of items) {
+		if (item.kind === 'tool') {
+			run.push(item)
+			continue
+		}
+		flush()
+		rows.push(item)
+	}
+	flush()
+	return rows
+}
+
 const str = (value: unknown) => (typeof value === 'string' ? value : undefined)
 
 export function describeTool(use: ToolUsePayload) {
