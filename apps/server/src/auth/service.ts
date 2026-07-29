@@ -20,6 +20,19 @@ const clean = (raw: string) => raw.replace(OSC8, '').replace(ANSI, '')
 let login: LoginSession | null = null
 let listeners: Array<(state: AuthState) => void> = []
 
+/**
+ * `claude auth status` only reports that credentials exist on disk, not that
+ * the token still works. An expired token therefore looks logged in until a
+ * turn fails, so a run-time rejection is recorded here to override it.
+ */
+let invalidated: string | null = null
+
+/** Reasons the CLI gives when the stored token is no longer usable. */
+const AUTH_FAILURE =
+	/oauth|401|403|failed to authenticate|not logged ?in|re-?authenticate|invalid api key|token (has )?expired/i
+
+export const looksLikeAuthFailure = (text: string) => AUTH_FAILURE.test(text)
+
 /** The CLI may prepend an update notice or banner before its JSON. */
 function parseJsonBlock(raw: string) {
 	const text = clean(raw).trim()
@@ -52,7 +65,7 @@ async function readStatus(): Promise<AuthState> {
 	const base = {
 		loginUrl: login?.url ?? null,
 		pending: login !== null,
-		error: login?.error ?? null,
+		error: login?.error ?? invalidated,
 	}
 	const unauthenticated = (error: string): AuthState => ({
 		...base,
@@ -87,7 +100,7 @@ async function readStatus(): Promise<AuthState> {
 	if (parsed) {
 		return {
 			...base,
-			loggedIn: parsed.loggedIn === true,
+			loggedIn: parsed.loggedIn === true && invalidated === null,
 			email: typeof parsed.email === 'string' ? parsed.email : null,
 			method: typeof parsed.authMethod === 'string' ? parsed.authMethod : null,
 			plan: typeof parsed.subscriptionType === 'string' ? parsed.subscriptionType : null,
@@ -124,9 +137,24 @@ export const AuthService = {
 
 	status: readStatus,
 
+	/** Called when a turn was rejected for authentication: forces a re-login. */
+	markInvalid(reason: string) {
+		if (invalidated === reason) return
+		invalidated = reason
+		void publish()
+	},
+
+	/** A turn that goes through proves the stored token works again. */
+	markValid() {
+		if (invalidated === null) return
+		invalidated = null
+		void publish()
+	},
+
 	/** Spawns `claude auth login` and captures the authorize URL it prints. */
 	async startLogin(): Promise<AuthState> {
 		if (login) return readStatus()
+		invalidated = null
 
 		const proc = Bun.spawn([claudeBin, 'auth', 'login', '--claudeai'], {
 			cwd: config.dataDir,
@@ -168,6 +196,7 @@ export const AuthService = {
 		if (!session) return readStatus()
 
 		session.error = null
+		invalidated = null
 		session.proc.stdin.write(`${extractCode(raw)}\n`)
 		session.proc.stdin.flush()
 		await Promise.race([session.proc.exited, Bun.sleep(30000)])

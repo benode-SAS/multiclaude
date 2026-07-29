@@ -16,18 +16,22 @@ export function AuthPanel({
 }) {
 	const [code, setCode] = useState('')
 
-	if (auth.loggedIn) return null
+	// Also shown while a login runs, and on an auth error even if the CLI still
+	// reports a stored account — otherwise an expired token has no way out.
+	if (auth.loggedIn && !auth.pending && !auth.error) return null
+
+	const headline = auth.pending
+		? 'Connexion en cours — ouvre le lien, puis colle le code (ou l’URL de redirection).'
+		: auth.error
+			? 'La connexion Claude Code a été refusée. Reconnecte le compte pour continuer.'
+			: 'Claude Code n’est pas connecté. Connecte ton compte pour utiliser ton abonnement.'
 
 	return (
 		<div className="border-b border-warn/30 bg-warn-soft px-6 py-3">
 			<div className="mx-auto flex max-w-3xl flex-col gap-3">
 				<div className="flex items-center gap-3">
 					<span>🔑</span>
-					<span className="flex-1 text-[13px] font-medium text-warn">
-						{auth.pending
-							? 'Connexion en cours — ouvre le lien, puis colle le code (ou l’URL de redirection).'
-							: 'Claude Code n’est pas connecté. Connecte ton compte pour utiliser ton abonnement.'}
-					</span>
+					<span className="flex-1 text-[13px] font-medium text-warn">{headline}</span>
 					{!auth.pending && (
 						<button
 							type="button"
@@ -35,7 +39,7 @@ export function AuthPanel({
 							disabled={busy}
 							className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-50"
 						>
-							{busy ? 'Démarrage…' : 'Se connecter'}
+							{busy ? 'Démarrage…' : auth.error ? 'Se reconnecter' : 'Se connecter'}
 						</button>
 					)}
 				</div>

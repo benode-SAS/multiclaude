@@ -25,6 +25,8 @@ export function Sidebar({
 	onSetTheme,
 	sound,
 	onToggleSound,
+	authEmail,
+	onRelogin,
 }: {
 	rooms: Room[]
 	activeRoomId: string | null
@@ -34,6 +36,8 @@ export function Sidebar({
 	onSetTheme: (theme: Theme) => void
 	sound: boolean
 	onToggleSound: () => void
+	authEmail: string | null
+	onRelogin: () => void
 	onSelect: (id: string) => void
 	onCreate: () => void
 	onRename: (id: string, title: string) => void
@@ -146,6 +150,19 @@ export function Sidebar({
 						</button>
 					))}
 				</div>
+
+				{/* Toujours accessible : une reconnexion ne doit pas dépendre de la
+				    détection d'un échec pour être atteignable. */}
+				<button
+					type="button"
+					onClick={onRelogin}
+					title={
+						authEmail ? `Compte Claude : ${authEmail} — reconnecter` : 'Connecter un compte Claude'
+					}
+					className="rounded-lg border border-line bg-surface px-2 py-1 text-[13px] text-muted transition hover:text-ink"
+				>
+					🔑
+				</button>
 
 				<button
 					type="button"

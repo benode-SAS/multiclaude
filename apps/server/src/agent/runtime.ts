@@ -5,7 +5,7 @@ import type {
 	QueuedItem,
 	Room,
 } from '@multiclaude/shared'
-import { AuthService } from '../auth/service.ts'
+import { AuthService, looksLikeAuthFailure } from '../auth/service.ts'
 import { config } from '../config.ts'
 import type { FileChange } from '../files/watcher.ts'
 import { watchWorkdir } from '../files/watcher.ts'
@@ -395,6 +395,13 @@ export class RoomRuntime {
 			}
 			// An interrupt lands here as an error; it is not one.
 			const failed = message.is_error && !this.interruptedBy
+			if (failed && looksLikeAuthFailure(text)) {
+				// `auth status` still says logged in with a stale token: only a
+				// rejected turn reveals it, so record it to unlock the login UI.
+				AuthService.markInvalid(text.trim() || 'authentification refusée par l’API')
+			} else if (!failed) {
+				AuthService.markValid()
+			}
 			this.endTurn?.(failed ? text || 'le turn a échoué' : undefined)
 		}
 	}

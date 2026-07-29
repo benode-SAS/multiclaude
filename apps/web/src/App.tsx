@@ -53,6 +53,8 @@ export function App() {
 				onSetTheme={store.setTheme}
 				sound={store.sound}
 				onToggleSound={store.toggleSound}
+				authEmail={store.auth?.email ?? null}
+				onRelogin={() => void store.startLogin()}
 			/>
 
 			<main className="flex min-w-0 flex-1 flex-col">
