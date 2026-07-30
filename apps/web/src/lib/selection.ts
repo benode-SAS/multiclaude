@@ -16,14 +16,22 @@ function textNodes(root: Node) {
 	return nodes
 }
 
-/** Absolute character offset of (node, offset) within `root`. */
+/**
+ * Absolute character offset of a boundary point within `root`.
+ *
+ * Measured with a probe range rather than by walking text nodes: a double or
+ * triple click yields element boundaries (`<p>`, child index) that no text-node
+ * scan would ever match.
+ */
 function offsetIn(root: Element, node: Node, offset: number) {
-	let total = 0
-	for (const text of textNodes(root)) {
-		if (text === node) return total + offset
-		total += text.data.length
+	const probe = document.createRange()
+	probe.selectNodeContents(root)
+	try {
+		probe.setEnd(node, offset)
+	} catch {
+		return null
 	}
-	return null
+	return probe.toString().length
 }
 
 /**
@@ -45,9 +53,12 @@ export function describeSelection(): SelectionAnchor | null {
 	const container = element?.closest(CONTAINER)
 	if (!container) return null
 
-	const from = offsetIn(container, range.startContainer, range.startOffset)
-	const to = offsetIn(container, range.endContainer, range.endOffset)
-	if (from === null || to === null) return null
+	// Un triple clic déborde souvent sur le bloc suivant : on borne au conteneur
+	// plutôt que d'abandonner la sélection.
+	const from = offsetIn(container, range.startContainer, range.startOffset) ?? 0
+	const to =
+		offsetIn(container, range.endContainer, range.endOffset) ?? container.textContent?.length ?? 0
+	if (from === to) return null
 
 	return {
 		scope: container.getAttribute('data-selection-scope') === 'viewer' ? 'viewer' : 'message',
@@ -66,10 +77,11 @@ function resolveRange(anchor: SelectionAnchor): Range | null {
 	if (!container) return null
 
 	const range = document.createRange()
+	const nodes = textNodes(container)
 	let cursor = 0
 	let started = false
 
-	for (const text of textNodes(container)) {
+	for (const text of nodes) {
 		const next = cursor + text.data.length
 		if (!started && anchor.start <= next) {
 			range.setStart(text, Math.max(0, anchor.start - cursor))
@@ -81,7 +93,14 @@ function resolveRange(anchor: SelectionAnchor): Range | null {
 		}
 		cursor = next
 	}
-	return started ? range : null
+
+	if (!started) return null
+	// La borne de fin dépassait le contenu : coller à la fin plutôt que de
+	// renvoyer un intervalle vide, invisible à l'écran.
+	const last = nodes.at(-1)
+	if (!last) return null
+	range.setEnd(last, last.data.length)
+	return range
 }
 
 const HIGHLIGHT_PREFIX = 'mc-sel-'

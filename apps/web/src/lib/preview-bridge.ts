@@ -29,14 +29,13 @@ export const BRIDGE_SCRIPT = `
     return list
   }
 
+  // Sonde plutôt que parcours de nœuds texte : un double ou triple clic renvoie
+  // des bornes qui sont des éléments, qu'aucun parcours ne ferait correspondre.
   var offsetOf = function (node, offset) {
-    var total = 0
-    var list = nodes()
-    for (var i = 0; i < list.length; i++) {
-      if (list[i] === node) return total + offset
-      total += list[i].data.length
-    }
-    return null
+    var probe = document.createRange()
+    probe.selectNodeContents(document.body)
+    try { probe.setEnd(node, offset) } catch (e) { return null }
+    return probe.toString().length
   }
 
   var rangeOf = function (start, end) {
@@ -48,7 +47,10 @@ export const BRIDGE_SCRIPT = `
       if (started && end <= next) { range.setEnd(t, Math.max(0, end - cursor)); return range }
       cursor = next
     }
-    return started ? range : null
+    if (!started || list.length === 0) return null
+    var last = list[list.length - 1]
+    range.setEnd(last, last.data.length)
+    return range
   }
 
   var ratio = function () {
@@ -69,7 +71,9 @@ export const BRIDGE_SCRIPT = `
     var r = sel.getRangeAt(0)
     var from = offsetOf(r.startContainer, r.startOffset)
     var to = offsetOf(r.endContainer, r.endOffset)
-    if (from === null || to === null) return send({ type: 'mc-selection-clear' })
+    if (from === null) from = 0
+    if (to === null) to = (document.body.textContent || '').length
+    if (from === to) return send({ type: 'mc-selection-clear' })
     send({
       type: 'mc-selection',
       start: Math.min(from, to),
