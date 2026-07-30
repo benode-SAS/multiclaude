@@ -5,7 +5,12 @@ import { formatBytes, isImage } from '../lib/format.ts'
 import { TypingIndicator } from './TypingIndicator.tsx'
 
 /** Silence after the last keystroke before we declare the typing over. */
-const TYPING_IDLE_MS = 2500
+const TYPING_IDLE_MS = 20_000
+/**
+ * Le signal « je tape » n'était émis qu'à la première touche : le serveur
+ * l'expirait donc en pleine frappe. On le rafraîchit tant que ça tape.
+ */
+const TYPING_HEARTBEAT_MS = 5_000
 /** Drafts are shared and persisted, but not on every keystroke. */
 const DRAFT_DEBOUNCE_MS = 500
 
@@ -59,6 +64,7 @@ export function Composer({
 	}
 
 	const isTypingRef = useRef(false)
+	const lastSentAt = useRef(0)
 	const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 	const onTypingRef = useRef(onTyping)
 	onTypingRef.current = onTyping
@@ -72,8 +78,10 @@ export function Composer({
 	}
 
 	const signalTyping = () => {
-		if (!isTypingRef.current) {
+		const now = Date.now()
+		if (!isTypingRef.current || now - lastSentAt.current > TYPING_HEARTBEAT_MS) {
 			isTypingRef.current = true
+			lastSentAt.current = now
 			onTypingRef.current(true)
 		}
 		if (idleTimer.current) clearTimeout(idleTimer.current)
