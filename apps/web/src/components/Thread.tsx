@@ -20,6 +20,8 @@ export function Thread({
 	running,
 	onApprove,
 	onOpen,
+	self,
+	onEditMessage,
 	onScrollRatio,
 	followScroll,
 }: {
@@ -33,6 +35,8 @@ export function Thread({
 	running: boolean
 	onApprove: (requestId: string, allow: boolean) => void
 	onOpen: (target: ViewerTarget) => void
+	self: string
+	onEditMessage: (messageId: string, content: string) => void
 	onScrollRatio: (ratio: number) => void
 	/** Scroll position to mirror while following someone, null otherwise. */
 	followScroll: number | null
@@ -41,9 +45,20 @@ export function Thread({
 	const scrollRef = useRef<HTMLDivElement>(null)
 	const stickyRef = useRef(true)
 
+	const queuedIds = useMemo(() => new Set(queue.map((q) => q.id)), [queue])
+
+	// Les messages en attente sont épinglés au-dessus de la saisie : les laisser
+	// aussi dans le fil les ferait disparaître sous la réponse en cours.
 	const timeline = useMemo(
-		() => groupTimeline(buildTimeline(messages, events, attachments)),
-		[messages, events, attachments],
+		() =>
+			groupTimeline(
+				buildTimeline(
+					messages.filter((message) => !queuedIds.has(message.id)),
+					events,
+					attachments,
+				),
+			),
+		[messages, events, attachments, queuedIds],
 	)
 
 	const byMessage = useMemo(() => {
@@ -56,8 +71,6 @@ export function Thread({
 		}
 		return map
 	}, [attachments])
-
-	const queuedIds = useMemo(() => new Set(queue.map((q) => q.id)), [queue])
 
 	useEffect(() => {
 		// Suivre quelqu'un prime sur le collage en bas, sinon les deux se battent.
@@ -101,7 +114,8 @@ export function Thread({
 								message={item.message}
 								attachments={byMessage.get(item.message.id) ?? []}
 								roomId={roomId}
-								queued={queuedIds.has(item.message.id)}
+								onEdit={onEditMessage}
+								canEdit={item.message.author === self && item.message.role === 'user'}
 								onOpen={onOpen}
 							/>
 						)

@@ -70,6 +70,8 @@ type Actions = {
 	deleteRoom: (roomId: string) => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
 	setTyping: (typing: boolean) => void
+	editMessage: (messageId: string, content: string) => void
+	cancelQueued: (messageId: string) => void
 	saveDraft: (content: string) => void
 	reportPresence: (presence: PresenceInput) => void
 	follow: (pseudo: string | null) => void
@@ -149,6 +151,17 @@ export const useStore = create<State & Actions>((set, get) => {
 					liveText: message.message.role === 'assistant' ? '' : state.liveText,
 				})
 				return
+			case 'message_updated':
+				set({
+					messages: state.messages.map((m) => (m.id === message.message.id ? message.message : m)),
+				})
+				return
+			case 'message_removed':
+				set({
+					messages: state.messages.filter((m) => m.id !== message.messageId),
+					queue: state.queue.filter((q) => q.id !== message.messageId),
+				})
+				return
 			case 'text_delta':
 				set({ liveText: state.liveText + message.delta })
 				return
@@ -194,9 +207,12 @@ export const useStore = create<State & Actions>((set, get) => {
 			case 'status':
 				set({ status: message.status })
 				return
-			case 'queued':
-				set({ queue: [...state.queue, message.item] })
+			case 'queued': {
+				// Sert aussi de mise à jour quand un message en file est corrigé.
+				const others = state.queue.filter((q) => q.id !== message.item.id)
+				set({ queue: [...others, message.item] })
 				return
+			}
 			case 'dequeued':
 				set({ queue: state.queue.filter((q) => q.id !== message.id) })
 				return
@@ -333,6 +349,18 @@ export const useStore = create<State & Actions>((set, get) => {
 			if (!activeRoomId || !socket) return
 			set({ draft: '' })
 			socket.send({ type: 'message', roomId: activeRoomId, pseudo, content, attachmentIds })
+		},
+
+		editMessage(messageId, content) {
+			const { activeRoomId } = get()
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'edit_message', roomId: activeRoomId, messageId, content })
+		},
+
+		cancelQueued(messageId) {
+			const { activeRoomId } = get()
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'cancel_queued', roomId: activeRoomId, messageId })
 		},
 
 		stopTurn() {

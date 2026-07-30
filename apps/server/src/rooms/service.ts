@@ -112,6 +112,21 @@ export const RoomService = {
 		return message
 	},
 
+	async message(id: string): Promise<Message | null> {
+		const [row] = await db.select().from(messages).where(eq(messages.id, id)).limit(1)
+		return row ?? null
+	},
+
+	async editMessage(id: string, content: string): Promise<Message | null> {
+		const editedAt = now()
+		await db.update(messages).set({ content, editedAt }).where(eq(messages.id, id))
+		return RoomService.message(id)
+	},
+
+	async removeMessage(id: string) {
+		await db.delete(messages).where(eq(messages.id, id))
+	},
+
 	async events(roomId: string): Promise<AgentEvent[]> {
 		const rows = await db
 			.select()

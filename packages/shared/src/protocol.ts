@@ -34,6 +34,7 @@ export type Message = {
 	role: MessageRole
 	content: string
 	createdAt: number
+	editedAt?: number | null
 }
 
 export type ToolUsePayload = {
@@ -152,6 +153,8 @@ export type ClientMessage =
 	| { type: 'set_model'; roomId: string; model: string | null }
 	| { type: 'typing'; roomId: string; pseudo: string; typing: boolean }
 	| { type: 'stop'; roomId: string }
+	| { type: 'edit_message'; roomId: string; messageId: string; content: string }
+	| { type: 'cancel_queued'; roomId: string; messageId: string }
 	| { type: 'draft'; roomId: string; content: string }
 	| { type: 'presence'; roomId: string; presence: PresenceInput }
 	| { type: 'ping' }
@@ -176,6 +179,8 @@ export type Snapshot = {
 export type ServerMessage =
 	| { type: 'snapshot'; snapshot: Snapshot }
 	| { type: 'message'; message: Message }
+	| { type: 'message_updated'; message: Message }
+	| { type: 'message_removed'; messageId: string }
 	| { type: 'text_delta'; turnId: string; delta: string }
 	| { type: 'event'; event: AgentEvent }
 	| { type: 'file_change'; action: FileAction; relPath: string; size: number; mime: string }

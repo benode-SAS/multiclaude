@@ -227,6 +227,8 @@ export function App() {
 							running={store.status === 'running'}
 							onApprove={store.approve}
 							onOpen={setViewing}
+							self={store.pseudo}
+							onEditMessage={store.editMessage}
 							onScrollRatio={setChatScroll}
 							followScroll={followed && followed.view === 'chat' ? followed.scroll : null}
 						/>
@@ -237,6 +239,10 @@ export function App() {
 							typing={store.typing}
 							drafts={store.drafts}
 							draft={store.draft}
+							queue={store.queue}
+							self={store.pseudo}
+							onEditQueued={store.editMessage}
+							onCancelQueued={store.cancelQueued}
 							onSend={store.sendMessage}
 							onTyping={store.setTyping}
 							onDraft={store.saveDraft}

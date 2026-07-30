@@ -25,6 +25,8 @@ export const messages = sqliteTable(
 		role: text('role', { enum: ['user', 'assistant', 'system'] }).notNull(),
 		content: text('content').notNull(),
 		createdAt: integer('created_at').notNull(),
+		/** Marque une correction : le fil doit rester honnête sur ce qui a changé. */
+		editedAt: integer('edited_at'),
 	},
 	(t) => [index('messages_room_created_idx').on(t.roomId, t.createdAt)],
 )

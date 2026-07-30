@@ -134,6 +134,20 @@ export class RoomRuntime {
 		return true
 	}
 
+	/** Un message encore en file n'est pas parti : le corriger a un effet réel. */
+	editQueued(messageId: string, content: string) {
+		const submission = this.queue.find((item) => item.messageId === messageId)
+		if (!submission) return false
+		submission.content = content
+		return true
+	}
+
+	cancelQueued(messageId: string) {
+		const before = this.queue.length
+		this.queue = this.queue.filter((item) => item.messageId !== messageId)
+		return this.queue.length < before
+	}
+
 	approve(requestId: string, allow: boolean, by: string) {
 		const entry = this.pending.get(requestId)
 		if (!entry) return

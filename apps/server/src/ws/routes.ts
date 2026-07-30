@@ -120,6 +120,43 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 			}
 
+			case 'edit_message': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				const content = payload.content.trim()
+				if (!content) return
+
+				const existing = await RoomService.message(payload.messageId)
+				// On ne corrige que ses propres messages, et jamais ceux de Claude.
+				if (!existing || existing.roomId !== session.roomId) return
+				if (existing.role !== 'user' || existing.author !== session.pseudo) return
+
+				const updated = await RoomService.editMessage(payload.messageId, content)
+				if (!updated) return
+
+				const runtime = await getRuntime(session.roomId)
+				// Encore en file : la version corrigée est celle qui partira.
+				if (runtime?.editQueued(payload.messageId, content)) {
+					hub.broadcast(session.roomId, {
+						type: 'queued',
+						item: { id: updated.id, pseudo: updated.author, content },
+					})
+				}
+				hub.broadcast(session.roomId, { type: 'message_updated', message: updated })
+				return
+			}
+
+			case 'cancel_queued': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				const runtime = await getRuntime(session.roomId)
+				if (!runtime?.cancelQueued(payload.messageId)) return
+				await RoomService.removeMessage(payload.messageId)
+				hub.broadcast(session.roomId, { type: 'dequeued', id: payload.messageId })
+				hub.broadcast(session.roomId, { type: 'message_removed', messageId: payload.messageId })
+				return
+			}
+
 			case 'draft': {
 				const session = sessions.get(ws.id)
 				if (!session || session.roomId !== payload.roomId) return

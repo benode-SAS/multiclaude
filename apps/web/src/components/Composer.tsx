@@ -1,7 +1,8 @@
-import type { Attachment, RoomStatus } from '@multiclaude/shared'
+import type { Attachment, QueuedItem, RoomStatus } from '@multiclaude/shared'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
+import { QueuedStrip } from './QueuedStrip.tsx'
 import { TypingIndicator } from './TypingIndicator.tsx'
 
 /** Silence after the last keystroke before we declare the typing over. */
@@ -20,6 +21,10 @@ export function Composer({
 	typing,
 	drafts,
 	draft,
+	queue,
+	self,
+	onEditQueued,
+	onCancelQueued,
 	onSend,
 	onTyping,
 	onDraft,
@@ -29,6 +34,10 @@ export function Composer({
 	typing: string[]
 	drafts: Record<string, string>
 	draft: string
+	queue: QueuedItem[]
+	self: string
+	onEditQueued: (messageId: string, content: string) => void
+	onCancelQueued: (messageId: string) => void
 	onSend: (content: string, attachmentIds: string[]) => void
 	onTyping: (typing: boolean) => void
 	onDraft: (content: string) => void
@@ -192,6 +201,8 @@ export function Composer({
 			)}
 
 			<div className="mx-auto max-w-3xl">
+				<QueuedStrip items={queue} self={self} onEdit={onEditQueued} onCancel={onCancelQueued} />
+
 				<TypingIndicator people={typing} drafts={drafts} />
 
 				{staged.length > 0 && (

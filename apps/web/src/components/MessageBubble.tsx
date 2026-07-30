@@ -1,5 +1,6 @@
 import type { Attachment, Message } from '@multiclaude/shared'
 import clsx from 'clsx'
+import { useState } from 'react'
 import { authorColor, formatTime } from '../lib/format.ts'
 import { Avatar } from './Avatar.tsx'
 import { FileChip } from './FileChip.tsx'
@@ -10,21 +11,31 @@ export function MessageBubble({
 	message,
 	attachments,
 	roomId,
-	queued,
+	canEdit,
+	onEdit,
 	onOpen,
 }: {
 	message: Message
 	attachments: Attachment[]
 	roomId: string
-	queued?: boolean
+	canEdit?: boolean
+	onEdit?: (messageId: string, content: string) => void
 	onOpen: (target: ViewerTarget) => void
 }) {
+	const [editing, setEditing] = useState(false)
+	const [draft, setDraft] = useState(message.content)
+
+	const commit = () => {
+		const next = draft.trim()
+		if (next && next !== message.content) onEdit?.(message.id, next)
+		setEditing(false)
+	}
 	const isClaude = message.role === 'assistant'
 	const isSystem = message.role === 'system'
 	const color = authorColor(message.author)
 
 	return (
-		<div className="flex gap-3" data-message-id={message.id}>
+		<div className="group/msg flex gap-3" data-message-id={message.id}>
 			<Avatar author={message.author} />
 			<div className="min-w-0 flex-1">
 				<div className="mb-1 flex items-baseline gap-2">
@@ -32,10 +43,23 @@ export function MessageBubble({
 						{isClaude ? 'Claude' : message.author}
 					</span>
 					<span className="text-[11px] text-muted">{formatTime(message.createdAt)}</span>
-					{queued && (
-						<span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] text-accent">
-							en attente
+					{message.editedAt && (
+						<span className="text-[11px] text-muted" title="Message corrigé après envoi">
+							modifié
 						</span>
+					)}
+					{canEdit && !editing && (
+						<button
+							type="button"
+							onClick={() => {
+								setDraft(message.content)
+								setEditing(true)
+							}}
+							title="Modifier"
+							className="text-[11px] text-muted opacity-0 transition group-hover/msg:opacity-100 hover:text-ink"
+						>
+							✎
+						</button>
 					)}
 				</div>
 
@@ -51,7 +75,43 @@ export function MessageBubble({
 						!isClaude && !isSystem && 'bg-panel',
 					)}
 				>
-					{isClaude ? (
+					{editing ? (
+						<div className="flex flex-col gap-2">
+							<textarea
+								autoFocus
+								value={draft}
+								onChange={(e) => setDraft(e.target.value)}
+								onKeyDown={(e) => {
+									if (e.key === 'Enter' && !e.shiftKey) {
+										e.preventDefault()
+										commit()
+									}
+									if (e.key === 'Escape') setEditing(false)
+								}}
+								rows={3}
+								className="w-full resize-none rounded-lg border border-accent/50 bg-surface px-2 py-1.5 text-[14px] outline-none"
+							/>
+							<div className="flex items-center gap-2 text-[12px]">
+								<button
+									type="button"
+									onClick={commit}
+									className="rounded bg-accent px-2 py-0.5 text-white"
+								>
+									Enregistrer
+								</button>
+								<button
+									type="button"
+									onClick={() => setEditing(false)}
+									className="text-muted hover:text-ink"
+								>
+									Annuler
+								</button>
+								{/* La session de Claude garde l'original : le dire évite de
+								    croire que la correction change ce qu'il a compris. */}
+								<span className="text-muted">Claude garde la version déjà reçue</span>
+							</div>
+						</div>
+					) : isClaude ? (
 						<Markdown>{message.content}</Markdown>
 					) : (
 						<p className="break-anywhere text-[15px] leading-relaxed whitespace-pre-wrap">
