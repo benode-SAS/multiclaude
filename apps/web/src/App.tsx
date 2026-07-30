@@ -81,7 +81,7 @@ export function App() {
 					onSelect={store.selectRoom}
 					onCreate={() => void store.createRoom()}
 					onRename={(id, title) => void store.renameRoom(id, title)}
-					onDelete={(id) => void store.deleteRoom(id)}
+					onDelete={(id) => setPendingDelete(store.rooms.find((room) => room.id === id) ?? null)}
 					onChangePseudo={() => setGate(true)}
 					theme={store.theme}
 					onSetTheme={store.setTheme}
