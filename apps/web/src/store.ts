@@ -5,6 +5,8 @@ import type {
 	ContextUsage,
 	Message,
 	PermissionRequest,
+	Presence,
+	PresenceInput,
 	QueuedItem,
 	Room,
 	RoomStatus,
@@ -29,6 +31,12 @@ type State = {
 	pending: PermissionRequest[]
 	participants: string[]
 	typing: string[]
+	/** Others' drafts, keyed by pseudo. Own draft lives in `draft`. */
+	drafts: Record<string, string>
+	draft: string
+	presence: Record<string, Presence>
+	/** Pseudo whose view is being mirrored, if any. */
+	following: string | null
 	status: RoomStatus
 	liveText: string
 	loading: boolean
@@ -50,6 +58,9 @@ type Actions = {
 	deleteRoom: (roomId: string) => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
 	setTyping: (typing: boolean) => void
+	saveDraft: (content: string) => void
+	reportPresence: (presence: PresenceInput) => void
+	follow: (pseudo: string | null) => void
 	stopTurn: () => void
 	approve: (requestId: string, allow: boolean) => void
 	setModel: (model: string | null) => void
@@ -74,6 +85,10 @@ const empty = {
 	pending: [],
 	participants: [],
 	typing: [],
+	drafts: {},
+	draft: '',
+	presence: {},
+	following: null,
 	usage: null,
 	status: 'idle' as RoomStatus,
 	liveText: '',
@@ -95,6 +110,14 @@ export const useStore = create<State & Actions>((set, get) => {
 					pending: s.pending,
 					participants: s.participants,
 					typing: s.typing,
+					draft: s.drafts.find((d) => d.pseudo === state.pseudo)?.content ?? '',
+					drafts: Object.fromEntries(
+						s.drafts.filter((d) => d.pseudo !== state.pseudo).map((d) => [d.pseudo, d.content]),
+					),
+					presence: Object.fromEntries(
+						s.presence.filter((p) => p.pseudo !== state.pseudo).map((p) => [p.pseudo, p]),
+					),
+					following: null,
 					status: s.room.status,
 					liveText: s.liveTurn?.text ?? '',
 					auth: s.auth,
@@ -162,6 +185,25 @@ export const useStore = create<State & Actions>((set, get) => {
 				if (message.pseudo === state.pseudo) return
 				const others = state.typing.filter((p) => p !== message.pseudo)
 				set({ typing: message.typing ? [...others, message.pseudo] : others })
+				return
+			}
+			case 'draft': {
+				const { pseudo, content } = message.draft
+				if (pseudo === state.pseudo) return
+				set({ drafts: { ...state.drafts, [pseudo]: content } })
+				return
+			}
+			case 'presence': {
+				if (message.presence.pseudo === state.pseudo) return
+				set({ presence: { ...state.presence, [message.presence.pseudo]: message.presence } })
+				return
+			}
+			case 'presence_left': {
+				const { [message.pseudo]: _gone, ...rest } = state.presence
+				set({
+					presence: rest,
+					following: state.following === message.pseudo ? null : state.following,
+				})
 				return
 			}
 			case 'auth':
@@ -256,6 +298,7 @@ export const useStore = create<State & Actions>((set, get) => {
 		sendMessage(content, attachmentIds) {
 			const { activeRoomId, pseudo } = get()
 			if (!activeRoomId || !socket) return
+			set({ draft: '' })
 			socket.send({ type: 'message', roomId: activeRoomId, pseudo, content, attachmentIds })
 		},
 
@@ -263,6 +306,23 @@ export const useStore = create<State & Actions>((set, get) => {
 			const { activeRoomId } = get()
 			if (!activeRoomId || !socket) return
 			socket.send({ type: 'stop', roomId: activeRoomId })
+		},
+
+		saveDraft(content) {
+			const { activeRoomId } = get()
+			set({ draft: content })
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'draft', roomId: activeRoomId, content })
+		},
+
+		reportPresence(presence) {
+			const { activeRoomId } = get()
+			if (!activeRoomId || !socket) return
+			socket.send({ type: 'presence', roomId: activeRoomId, presence })
+		},
+
+		follow(pseudo) {
+			set({ following: pseudo })
 		},
 
 		setTyping(isTyping) {

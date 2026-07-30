@@ -1,4 +1,4 @@
-import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const rooms = sqliteTable('rooms', {
 	id: text('id').primaryKey(),
@@ -61,4 +61,21 @@ export const attachments = sqliteTable(
 		createdAt: integer('created_at').notNull(),
 	},
 	(t) => [index('attachments_room_path_idx').on(t.roomId, t.relPath)],
+)
+
+/**
+ * Unsent message per participant. Persisted rather than kept in memory so a
+ * draft survives a server restart, and reaches the same pseudo on any device.
+ */
+export const drafts = sqliteTable(
+	'drafts',
+	{
+		roomId: text('room_id')
+			.notNull()
+			.references(() => rooms.id, { onDelete: 'cascade' }),
+		pseudo: text('pseudo').notNull(),
+		content: text('content').notNull(),
+		updatedAt: integer('updated_at').notNull(),
+	},
+	(t) => [primaryKey({ columns: [t.roomId, t.pseudo] })],
 )

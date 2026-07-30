@@ -1,7 +1,8 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
+import { applyScrollRatio, scrollRatio } from '../lib/presence.ts'
 import { Markdown } from './Markdown.tsx'
 
 export type ViewerTarget = { relPath: string; filename: string; mime: string; size: number }
@@ -25,11 +26,16 @@ export function FileViewer({
 	target,
 	roomId,
 	onClose,
+	onScrollRatio,
+	followScroll,
 }: {
 	target: ViewerTarget
 	roomId: string
 	onClose: () => void
+	onScrollRatio?: (ratio: number) => void
+	followScroll?: number | null
 }) {
+	const bodyRef = useRef<HTMLDivElement>(null)
 	const [content, setContent] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [showSource, setShowSource] = useState(false)
@@ -51,6 +57,11 @@ export function FileViewer({
 	useEffect(() => {
 		setShowSource(false)
 	}, [target.relPath])
+
+	useEffect(() => {
+		if (followScroll === null || followScroll === undefined || !bodyRef.current) return
+		applyScrollRatio(bodyRef.current, followScroll)
+	}, [followScroll, content])
 
 	useEffect(() => {
 		if (!needsContent) return
@@ -122,7 +133,11 @@ export function FileViewer({
 				</button>
 			</header>
 
-			<div className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}>
+			<div
+				ref={bodyRef}
+				onScroll={(e) => onScrollRatio?.(scrollRatio(e.currentTarget))}
+				className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}
+			>
 				{image && (
 					<img
 						src={api.fileUrl(roomId, target.relPath)}

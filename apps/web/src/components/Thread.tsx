@@ -1,5 +1,6 @@
 import type { Attachment, Message, PermissionRequest, QueuedItem } from '@multiclaude/shared'
 import { useEffect, useMemo, useRef } from 'react'
+import { applyScrollRatio, scrollRatio } from '../lib/presence.ts'
 import { buildTimeline, groupTimeline } from '../lib/timeline.ts'
 import { FileChip } from './FileChip.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
@@ -19,6 +20,9 @@ export function Thread({
 	running,
 	onApprove,
 	onOpen,
+	onScrollRatio,
+	followScroll,
+	highlightMessageId,
 }: {
 	roomId: string
 	messages: Message[]
@@ -30,6 +34,10 @@ export function Thread({
 	running: boolean
 	onApprove: (requestId: string, allow: boolean) => void
 	onOpen: (target: ViewerTarget) => void
+	onScrollRatio: (ratio: number) => void
+	/** Scroll position to mirror while following someone, null otherwise. */
+	followScroll: number | null
+	highlightMessageId: string | null
 }) {
 	const bottomRef = useRef<HTMLDivElement>(null)
 	const scrollRef = useRef<HTMLDivElement>(null)
@@ -54,13 +62,21 @@ export function Thread({
 	const queuedIds = useMemo(() => new Set(queue.map((q) => q.id)), [queue])
 
 	useEffect(() => {
+		// Suivre quelqu'un prime sur le collage en bas, sinon les deux se battent.
+		if (followScroll !== null) return
 		if (stickyRef.current) bottomRef.current?.scrollIntoView({ block: 'end' })
-	}, [timeline.length, liveText, pending.length])
+	}, [timeline.length, liveText, pending.length, followScroll])
+
+	useEffect(() => {
+		if (followScroll === null || !scrollRef.current) return
+		applyScrollRatio(scrollRef.current, followScroll)
+	}, [followScroll])
 
 	const onScroll = () => {
 		const el = scrollRef.current
 		if (!el) return
 		stickyRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+		onScrollRatio(scrollRatio(el))
 	}
 
 	return (
@@ -82,14 +98,22 @@ export function Thread({
 				{timeline.map((item) => {
 					if (item.kind === 'message') {
 						return (
-							<MessageBubble
+							<div
 								key={item.key}
-								message={item.message}
-								attachments={byMessage.get(item.message.id) ?? []}
-								roomId={roomId}
-								queued={queuedIds.has(item.message.id)}
-								onOpen={onOpen}
-							/>
+								className={
+									highlightMessageId === item.message.id
+										? 'rounded-xl ring-2 ring-accent/60 transition'
+										: undefined
+								}
+							>
+								<MessageBubble
+									message={item.message}
+									attachments={byMessage.get(item.message.id) ?? []}
+									roomId={roomId}
+									queued={queuedIds.has(item.message.id)}
+									onOpen={onOpen}
+								/>
+							</div>
 						)
 					}
 					if (item.kind === 'tool') {

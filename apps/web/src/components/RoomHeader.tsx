@@ -15,6 +15,9 @@ export function RoomHeader({
 	onStop,
 	usage,
 	onOpenNav,
+	self,
+	following,
+	onFollow,
 }: {
 	room: Room
 	status: RoomStatus
@@ -26,6 +29,9 @@ export function RoomHeader({
 	onStop: () => void
 	usage: ContextUsage | null
 	onOpenNav: () => void
+	self: string
+	following: string | null
+	onFollow: (pseudo: string | null) => void
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -130,11 +136,29 @@ export function RoomHeader({
 				</select>
 			</label>
 
+			{/* Cliquer un badge met la vue en miroir de la sienne. */}
 			<div className="hidden items-center -space-x-2 sm:flex">
 				{participants.map((participant) => (
-					<div key={participant} className="rounded-full ring-2 ring-canvas">
+					<button
+						key={participant}
+						type="button"
+						disabled={participant === self}
+						onClick={() => onFollow(participant === following ? null : participant)}
+						title={
+							participant === self
+								? participant
+								: participant === following
+									? `Arrêter de suivre ${participant}`
+									: `Suivre ${participant}`
+						}
+						className={clsx(
+							'rounded-full ring-2 transition',
+							participant === following ? 'ring-accent' : 'ring-canvas',
+							participant !== self && 'hover:ring-accent/60',
+						)}
+					>
 						<Avatar author={participant} size={26} />
-					</div>
+					</button>
 				))}
 			</div>
 

@@ -2,8 +2,10 @@ import type { ClientMessage, ServerMessage, Snapshot } from '@multiclaude/shared
 import { Elysia, t } from 'elysia'
 import { getRuntime } from '../agent/runtime.ts'
 import { AuthService } from '../auth/service.ts'
+import { DraftService } from '../rooms/drafts.ts'
 import { RoomService } from '../rooms/service.ts'
 import { hub } from './hub.ts'
+import { presence } from './presence.ts'
 import { typing } from './typing.ts'
 
 type Session = { roomId: string; pseudo: string }
@@ -41,6 +43,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				if (previous) {
 					typing.clear(previous.roomId, previous.pseudo)
 					hub.leave(previous.roomId, ws.id)
+					presence.leave(previous.roomId, previous.pseudo)
 				}
 
 				const room = await RoomService.get(payload.roomId)
@@ -66,6 +69,8 @@ export const wsRoutes = new Elysia().ws('/ws', {
 					pending: state.pending,
 					participants: hub.participants(room.id),
 					typing: typing.list(room.id).filter((p) => p !== pseudo),
+					drafts: await DraftService.list(room.id),
+					presence: presence.list(room.id),
 					liveTurn: state.liveTurn,
 					auth: await AuthService.status(),
 					usage: state.usage,
@@ -78,6 +83,12 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				if (!session || session.roomId !== payload.roomId) return
 				if (!payload.content.trim() && !payload.attachmentIds?.length) return
 				typing.clear(session.roomId, session.pseudo)
+				await DraftService.clear(session.roomId, session.pseudo)
+				hub.broadcast(
+					session.roomId,
+					{ type: 'draft', draft: { pseudo: session.pseudo, content: '', updatedAt: Date.now() } },
+					ws.id,
+				)
 				const runtime = await getRuntime(payload.roomId)
 				await runtime?.submit({
 					pseudo: payload.pseudo.trim() || session.pseudo,
@@ -109,6 +120,22 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 			}
 
+			case 'draft': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				const draft = await DraftService.save(session.roomId, session.pseudo, payload.content)
+				// Broadcast to the others: the author already has the text on screen.
+				hub.broadcast(session.roomId, { type: 'draft', draft }, ws.id)
+				return
+			}
+
+			case 'presence': {
+				const session = sessions.get(ws.id)
+				if (!session || session.roomId !== payload.roomId) return
+				presence.set(session.roomId, session.pseudo, payload.presence, ws.id)
+				return
+			}
+
 			case 'typing': {
 				const session = sessions.get(ws.id)
 				if (!session || session.roomId !== payload.roomId) return
@@ -132,5 +159,6 @@ export const wsRoutes = new Elysia().ws('/ws', {
 		sessions.delete(ws.id)
 		typing.clear(session.roomId, session.pseudo)
 		hub.leave(session.roomId, ws.id)
+		presence.leave(session.roomId, session.pseudo)
 	},
 })

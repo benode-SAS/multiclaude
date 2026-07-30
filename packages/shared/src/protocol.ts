@@ -84,6 +84,33 @@ export type PermissionRequest = {
 	reason: string
 }
 
+/** A participant's in-progress message, shared so others can peek at it. */
+export type Draft = {
+	pseudo: string
+	content: string
+	updatedAt: number
+}
+
+/**
+ * Where someone is and what they are looking at. Ephemeral and throttled:
+ * enough to follow along, not a keystroke log.
+ */
+export type Presence = {
+	pseudo: string
+	view: 'chat' | 'file'
+	/** Path of the file open in their viewer, when `view` is 'file'. */
+	filePath: string | null
+	/** Scroll position of their active pane, 0 to 1. */
+	scroll: number
+	/** Excerpt of their current text selection. */
+	selection: string | null
+	/** Id of the message their selection sits in, when it is one. */
+	selectionMessageId: string | null
+	updatedAt: number
+}
+
+export type PresenceInput = Omit<Presence, 'pseudo' | 'updatedAt'>
+
 export type ContextUsage = {
 	/** Tokens sent on the last request: what actually occupies the context. */
 	tokens: number
@@ -113,6 +140,8 @@ export type ClientMessage =
 	| { type: 'set_model'; roomId: string; model: string | null }
 	| { type: 'typing'; roomId: string; pseudo: string; typing: boolean }
 	| { type: 'stop'; roomId: string }
+	| { type: 'draft'; roomId: string; content: string }
+	| { type: 'presence'; roomId: string; presence: PresenceInput }
 	| { type: 'ping' }
 
 export type Snapshot = {
@@ -124,6 +153,9 @@ export type Snapshot = {
 	pending: PermissionRequest[]
 	participants: string[]
 	typing: string[]
+	/** Every participant's draft, including the joiner's own. */
+	drafts: Draft[]
+	presence: Presence[]
 	liveTurn: { turnId: string; text: string } | null
 	auth: AuthState
 	usage: ContextUsage | null
@@ -145,6 +177,9 @@ export type ServerMessage =
 	| { type: 'room_updated'; room: Room }
 	| { type: 'participants'; participants: string[] }
 	| { type: 'typing'; pseudo: string; typing: boolean }
+	| { type: 'draft'; draft: Draft }
+	| { type: 'presence'; presence: Presence }
+	| { type: 'presence_left'; pseudo: string }
 	| { type: 'auth'; auth: AuthState }
 	| { type: 'usage'; usage: ContextUsage }
 	| { type: 'error'; message: string }

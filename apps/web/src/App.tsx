@@ -6,12 +6,14 @@ import { Composer } from './components/Composer.tsx'
 import { ConfirmDialog } from './components/ConfirmDialog.tsx'
 import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
+import { FollowBar } from './components/FollowBar.tsx'
 import { PseudoGate } from './components/PseudoGate.tsx'
 import { ResizeHandle } from './components/ResizeHandle.tsx'
 import { RoomHeader } from './components/RoomHeader.tsx'
 import { Sidebar } from './components/Sidebar.tsx'
 import { Thread } from './components/Thread.tsx'
 import { useDockWidth, useIsDesktop } from './lib/layout.ts'
+import { readSelection, usePresenceReporter } from './lib/presence.ts'
 import { applyTheme, storedTheme, watchSystemTheme } from './lib/theme.ts'
 import { storedPseudo, useStore } from './store.ts'
 
@@ -22,6 +24,12 @@ export function App() {
 	const [viewing, setViewing] = useState<ViewerTarget | null>(null)
 	const [navOpen, setNavOpen] = useState(false)
 	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
+	const [chatScroll, setChatScroll] = useState(0)
+	const [fileScroll, setFileScroll] = useState(0)
+	const [selection, setSelection] = useState<{
+		selection: string | null
+		selectionMessageId: string | null
+	}>({ selection: null, selectionMessageId: null })
 
 	const isDesktop = useIsDesktop()
 	const [dockWidth, setDockWidth, resetDockWidth] = useDockWidth()
@@ -33,6 +41,39 @@ export function App() {
 
 	// 'system' must follow the OS while the app stays open.
 	useEffect(() => watchSystemTheme(() => applyTheme(storedTheme())), [])
+
+	useEffect(() => {
+		const onSelectionChange = () => setSelection(readSelection())
+		document.addEventListener('selectionchange', onSelectionChange)
+		return () => document.removeEventListener('selectionchange', onSelectionChange)
+	}, [])
+
+	const followed = store.following ? store.presence[store.following] : undefined
+
+	// Mirror the followed person's file, so opening one on their side opens it here.
+	useEffect(() => {
+		if (!followed) return
+		if (followed.view === 'file' && followed.filePath) {
+			setViewing((current) =>
+				current?.relPath === followed.filePath
+					? current
+					: { relPath: followed.filePath!, filename: followed.filePath!, mime: '', size: 0 },
+			)
+		} else {
+			setViewing(null)
+		}
+	}, [followed])
+
+	usePresenceReporter(
+		{
+			view: viewing ? 'file' : 'chat',
+			filePath: viewing?.relPath ?? null,
+			scroll: viewing ? fileScroll : chatScroll,
+			selection: selection.selection,
+			selectionMessageId: selection.selectionMessageId,
+		},
+		store.reportPresence,
+	)
 
 	if (gate || !store.pseudo) {
 		return (
@@ -53,7 +94,16 @@ export function App() {
 
 	const dockContent =
 		dock === 'viewer' && viewing && store.room ? (
-			<FileViewer target={viewing} roomId={store.room.id} onClose={() => setViewing(null)} />
+			<FileViewer
+				target={viewing}
+				roomId={store.room.id}
+				onClose={() => {
+					setViewing(null)
+					if (store.following) store.follow(null)
+				}}
+				onScrollRatio={setFileScroll}
+				followScroll={followed && followed.view === 'file' ? followed.scroll : null}
+			/>
 		) : dock === 'files' && store.room ? (
 			<FilesPanel
 				roomId={store.room.id}
@@ -119,7 +169,18 @@ export function App() {
 							onStop={store.stopTurn}
 							usage={store.usage}
 							onOpenNav={() => setNavOpen(true)}
+							self={store.pseudo}
+							following={store.following}
+							onFollow={store.follow}
 						/>
+
+						{store.following && (
+							<FollowBar
+								pseudo={store.following}
+								presence={followed}
+								onStop={() => store.follow(null)}
+							/>
+						)}
 
 						{store.auth && (
 							<AuthPanel
@@ -151,14 +212,20 @@ export function App() {
 							running={store.status === 'running'}
 							onApprove={store.approve}
 							onOpen={setViewing}
+							onScrollRatio={setChatScroll}
+							followScroll={followed && followed.view === 'chat' ? followed.scroll : null}
+							highlightMessageId={followed?.selectionMessageId ?? null}
 						/>
 
 						<Composer
 							roomId={store.room.id}
 							status={store.status}
 							typing={store.typing}
+							drafts={store.drafts}
+							draft={store.draft}
 							onSend={store.sendMessage}
 							onTyping={store.setTyping}
+							onDraft={store.saveDraft}
 						/>
 					</>
 				) : (

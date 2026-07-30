@@ -6,25 +6,57 @@ import { TypingIndicator } from './TypingIndicator.tsx'
 
 /** Silence after the last keystroke before we declare the typing over. */
 const TYPING_IDLE_MS = 2500
+/** Drafts are shared and persisted, but not on every keystroke. */
+const DRAFT_DEBOUNCE_MS = 500
 
 export function Composer({
 	roomId,
 	status,
 	typing,
+	drafts,
+	draft,
 	onSend,
 	onTyping,
+	onDraft,
 }: {
 	roomId: string
 	status: RoomStatus
 	typing: string[]
+	drafts: Record<string, string>
+	draft: string
 	onSend: (content: string, attachmentIds: string[]) => void
 	onTyping: (typing: boolean) => void
+	onDraft: (content: string) => void
 }) {
 	const [value, setValue] = useState('')
 	const [staged, setStaged] = useState<Attachment[]>([])
 	const [uploading, setUploading] = useState(false)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 	const fileRef = useRef<HTMLInputElement>(null)
+
+	const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+	const onDraftRef = useRef(onDraft)
+	onDraftRef.current = onDraft
+	const hydratedFor = useRef<string | null>(null)
+
+	// The stored draft arrives with the snapshot, after mount: adopt it once per
+	// room, and never on top of something already being typed.
+	useEffect(() => {
+		if (hydratedFor.current === roomId) return
+		hydratedFor.current = roomId
+		setValue(draft)
+	}, [roomId, draft])
+
+	const flushDraft = (content: string) => {
+		if (draftTimer.current) clearTimeout(draftTimer.current)
+		draftTimer.current = null
+		onDraftRef.current(content)
+	}
+
+	const queueDraft = (content: string) => {
+		if (draftTimer.current) clearTimeout(draftTimer.current)
+		draftTimer.current = setTimeout(() => onDraftRef.current(content), DRAFT_DEBOUNCE_MS)
+	}
 
 	const isTypingRef = useRef(false)
 	const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -63,6 +95,8 @@ export function Composer({
 		const content = value.trim()
 		if (!content && staged.length === 0) return
 		stopTyping()
+		if (draftTimer.current) clearTimeout(draftTimer.current)
+		draftTimer.current = null
 		onSend(
 			content,
 			staged.map((a) => a.id),
@@ -92,7 +126,7 @@ export function Composer({
 	return (
 		<div className="border-t border-line bg-canvas px-3 pt-2 pb-3 md:px-6 md:pb-4">
 			<div className="mx-auto max-w-3xl">
-				<TypingIndicator people={typing} />
+				<TypingIndicator people={typing} drafts={drafts} />
 
 				{staged.length > 0 && (
 					<div className="mb-2 flex flex-wrap gap-2">
@@ -145,10 +179,14 @@ export function Composer({
 						onChange={(e) => {
 							setValue(e.target.value)
 							resize(e.target)
+							queueDraft(e.target.value)
 							if (e.target.value.trim()) signalTyping()
 							else stopTyping()
 						}}
-						onBlur={stopTyping}
+						onBlur={() => {
+							stopTyping()
+							flushDraft(value)
+						}}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' && !e.shiftKey) {
 								e.preventDefault()

@@ -24,7 +24,8 @@ export function MessageBubble({
 	const color = authorColor(message.author)
 
 	return (
-		<div className="flex gap-3">
+		// L'identifiant permet de situer une sélection dans le fil pour le suivi.
+		<div className="flex gap-3" data-message-id={message.id}>
 			<Avatar author={message.author} />
 			<div className="min-w-0 flex-1">
 				<div className="mb-1 flex items-baseline gap-2">
