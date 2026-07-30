@@ -35,6 +35,9 @@ type State = {
 	drafts: Record<string, string>
 	draft: string
 	presence: Record<string, Presence>
+	/** Bumped per path when the workdir changes, to refetch what is on screen. */
+	fileVersions: Record<string, number>
+	filesRevision: number
 	/** Pseudo whose view is being mirrored, if any. */
 	following: string | null
 	status: RoomStatus
@@ -89,6 +92,8 @@ const empty = {
 	draft: '',
 	presence: {},
 	following: null,
+	fileVersions: {},
+	filesRevision: 0,
 	usage: null,
 	status: 'idle' as RoomStatus,
 	liveText: '',
@@ -147,10 +152,22 @@ export const useStore = create<State & Actions>((set, get) => {
 				set({ attachments: [...rest, message.attachment] })
 				return
 			}
-			case 'file_change':
-				if (message.action !== 'deleted') return
-				set({ attachments: state.attachments.filter((a) => a.relPath !== message.relPath) })
+			case 'file_change': {
+				// Une modification garde le même chemin : c'est la version qui dit
+				// à la liseuse ouverte qu'il faut relire.
+				set({
+					filesRevision: state.filesRevision + 1,
+					fileVersions: {
+						...state.fileVersions,
+						[message.relPath]: (state.fileVersions[message.relPath] ?? 0) + 1,
+					},
+					attachments:
+						message.action === 'deleted'
+							? state.attachments.filter((a) => a.relPath !== message.relPath)
+							: state.attachments,
+				})
 				return
+			}
 			case 'permission_request':
 				set({ pending: [...state.pending, message.request] })
 				playPermissionChime()

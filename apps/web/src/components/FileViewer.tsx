@@ -32,6 +32,7 @@ export function FileViewer({
 	followScroll,
 	onSelection,
 	highlights,
+	version = 0,
 }: {
 	target: ViewerTarget
 	roomId: string
@@ -40,6 +41,8 @@ export function FileViewer({
 	followScroll?: number | null
 	onSelection?: (anchor: SelectionAnchor | null) => void
 	highlights?: Array<{ name: string; bg: string; fg: string; start: number; end: number }>
+	/** Incrémenté quand le fichier change sur disque : relit et casse le cache. */
+	version?: number
 }) {
 	const bodyRef = useRef<HTMLDivElement>(null)
 	const frameRef = useRef<HTMLIFrameElement>(null)
@@ -112,12 +115,20 @@ export function FileViewer({
 	useEffect(() => {
 		if (!needsContent) return
 		let cancelled = false
-		setContent(null)
+		// Une relecture ne doit pas renvoyer en haut du document : on retient la
+		// position pour la rendre après.
+		const keep = bodyRef.current ? scrollRatio(bodyRef.current) : 0
 		setError(null)
-		fetch(api.fileUrl(roomId, target.relPath))
+		fetch(`${api.fileUrl(roomId, target.relPath)}&v=${version}`)
 			.then((res) => (res.ok ? res.text() : Promise.reject(new Error(`${res.status}`))))
 			.then((body) => {
-				if (!cancelled) setContent(body)
+				if (cancelled) return
+				setContent(body)
+				if (keep > 0) {
+					requestAnimationFrame(() => {
+						if (bodyRef.current) applyScrollRatio(bodyRef.current, keep)
+					})
+				}
 			})
 			.catch(() => {
 				if (!cancelled) setError('lecture impossible')
@@ -125,7 +136,12 @@ export function FileViewer({
 		return () => {
 			cancelled = true
 		}
-	}, [roomId, target.relPath, needsContent])
+	}, [roomId, target.relPath, needsContent, version])
+
+	// Repartir de zéro en changeant de fichier, pas en le relisant.
+	useEffect(() => {
+		setContent(null)
+	}, [target.relPath])
 
 	return (
 		// Fills whatever the parent gives it: a resizable dock on desktop, a
@@ -188,7 +204,7 @@ export function FileViewer({
 			>
 				{image && (
 					<img
-						src={api.fileUrl(roomId, target.relPath)}
+						src={`${api.fileUrl(roomId, target.relPath)}&v=${version}`}
 						alt={target.filename}
 						className="mx-auto max-h-full object-contain"
 					/>
@@ -199,7 +215,7 @@ export function FileViewer({
 					// origine opaque — assez pour s'instrumenter, pas pour atteindre le
 					// DOM, le stockage ni l'API de l'app. Dialogue par postMessage.
 					<iframe
-						key={target.relPath}
+						key={`${target.relPath}#${version}`}
 						ref={frameRef}
 						srcDoc={buildPreviewDocument(
 							content,

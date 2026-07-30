@@ -108,11 +108,12 @@ export function App() {
 				followScroll={followed && followed.view === 'file' ? followed.scroll : null}
 				onSelection={setSelection}
 				highlights={previewHighlights(Object.values(store.presence), viewing.relPath)}
+				version={store.fileVersions[viewing.relPath] ?? 0}
 			/>
 		) : dock === 'files' && store.room ? (
 			<FilesPanel
 				roomId={store.room.id}
-				revision={store.attachments.length}
+				revision={store.filesRevision}
 				onOpen={setViewing}
 				onClose={() => setFilesOpen(false)}
 			/>
