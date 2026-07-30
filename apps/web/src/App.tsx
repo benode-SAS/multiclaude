@@ -1,7 +1,9 @@
+import type { Room } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { AuthPanel } from './components/AuthPanel.tsx'
 import { Composer } from './components/Composer.tsx'
+import { ConfirmDialog } from './components/ConfirmDialog.tsx'
 import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
 import { PseudoGate } from './components/PseudoGate.tsx'
@@ -19,6 +21,7 @@ export function App() {
 	const [filesOpen, setFilesOpen] = useState(false)
 	const [viewing, setViewing] = useState<ViewerTarget | null>(null)
 	const [navOpen, setNavOpen] = useState(false)
+	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
 
 	const isDesktop = useIsDesktop()
 	const [dockWidth, setDockWidth, resetDockWidth] = useDockWidth()
@@ -177,6 +180,21 @@ export function App() {
 				) : (
 					<div className="fixed inset-0 z-50 bg-canvas">{dockContent}</div>
 				))}
+
+			{pendingDelete && (
+				<ConfirmDialog
+					title="Supprimer la conversation ?"
+					message="L'historique et le dossier de travail de cette room sont effacés définitivement."
+					detail={pendingDelete.title}
+					confirmLabel="Supprimer"
+					onCancel={() => setPendingDelete(null)}
+					onConfirm={() => {
+						void store.deleteRoom(pendingDelete.id)
+						setPendingDelete(null)
+						setNavOpen(false)
+					}}
+				/>
+			)}
 		</div>
 	)
 }

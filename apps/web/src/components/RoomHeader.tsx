@@ -35,6 +35,11 @@ export function RoomHeader({
 		setEditing(false)
 	}
 
+	const startEditing = () => {
+		setDraft(room.title)
+		setEditing(true)
+	}
+
 	return (
 		<header className="flex items-center gap-2 border-b border-line bg-canvas/80 px-3 py-2.5 backdrop-blur md:gap-3 md:px-6 md:py-3">
 			{/* Ouvre le tiroir : la sidebar est masquée sous md. */}
@@ -51,6 +56,8 @@ export function RoomHeader({
 				<input
 					autoFocus
 					value={draft}
+					// Selected on focus: renaming usually means replacing, not appending.
+					onFocus={(e) => e.currentTarget.select()}
 					onChange={(e) => setDraft(e.target.value)}
 					onBlur={commit}
 					onKeyDown={(e) => {
@@ -60,17 +67,26 @@ export function RoomHeader({
 					className="min-w-0 flex-1 rounded border border-accent/50 bg-surface px-2 py-1 text-[15px] font-semibold outline-none"
 				/>
 			) : (
-				<button
-					type="button"
-					onDoubleClick={() => {
-						setDraft(room.title)
-						setEditing(true)
-					}}
-					className="min-w-0 truncate text-[15px] font-semibold"
-					title="Double-clic pour renommer"
-				>
-					{room.title}
-				</button>
+				// The pencil carries the affordance: double-click alone was invisible,
+				// and unusable on touch.
+				<div className="group flex min-w-0 items-center gap-1">
+					<button
+						type="button"
+						onDoubleClick={startEditing}
+						className="min-w-0 truncate text-[15px] font-semibold"
+						title="Double-clic pour renommer"
+					>
+						{room.title}
+					</button>
+					<button
+						type="button"
+						onClick={startEditing}
+						title="Renommer la conversation"
+						className="shrink-0 rounded px-1 py-0.5 text-[12px] text-muted opacity-100 transition hover:bg-panel hover:text-ink md:opacity-0 md:group-hover:opacity-100"
+					>
+						✎
+					</button>
+				</div>
 			)}
 
 			{status === 'running' && (

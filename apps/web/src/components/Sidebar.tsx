@@ -120,19 +120,32 @@ export function Sidebar({
 						{room.status === 'running' && (
 							<span className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" />
 						)}
-						<span className="shrink-0 text-[11px] text-muted group-hover:hidden">
+
+						{/* Sans survol sur mobile, les actions y sont toujours visibles. */}
+						<span className="shrink-0 text-[11px] text-muted max-md:hidden group-hover:hidden">
 							{formatDay(room.updatedAt)}
 						</span>
-						<button
-							type="button"
-							onClick={() => {
-								if (confirm(`Supprimer "${room.title}" et son workdir ?`)) onDelete(room.id)
-							}}
-							className="hidden shrink-0 text-[12px] text-muted hover:text-danger group-hover:block"
-							title="Supprimer"
-						>
-							🗑
-						</button>
+						<span className="shrink-0 items-center gap-1 max-md:flex hidden group-hover:flex">
+							<button
+								type="button"
+								onClick={() => {
+									setEditingId(room.id)
+									setDraft(room.title)
+								}}
+								className="text-[12px] text-muted hover:text-ink"
+								title="Renommer"
+							>
+								✎
+							</button>
+							<button
+								type="button"
+								onClick={() => onDelete(room.id)}
+								className="text-[12px] text-muted hover:text-danger"
+								title="Supprimer"
+							>
+								🗑
+							</button>
+						</span>
 					</div>
 				))}
 			</nav>
