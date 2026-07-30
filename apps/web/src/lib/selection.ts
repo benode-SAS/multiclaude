@@ -124,3 +124,14 @@ export function paintSelections(presences: Presence[]) {
 }
 
 export const selectionsSupported = supported
+
+/** Sélections visant le document ouvert, prêtes à être envoyées dans l'aperçu. */
+export function previewHighlights(presences: Presence[], filePath: string | null) {
+	if (!filePath) return []
+	return presences.flatMap((presence) => {
+		const anchor = presence.selection
+		if (anchor?.scope !== 'viewer' || anchor.key !== filePath) return []
+		const { bg, fg } = authorColor(presence.pseudo)
+		return [{ name: key(presence.pseudo), bg, fg, start: anchor.start, end: anchor.end }]
+	})
+}

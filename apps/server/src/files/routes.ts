@@ -51,6 +51,34 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 		{ query: t.Object({ path: t.String(), download: t.Optional(t.String()) }) },
 	)
 
+	/**
+	 * Même contenu que /files/content, mais adressé par chemin : une page HTML
+	 * rendue a besoin d'un <base> sur lequel ses ressources relatives résolvent,
+	 * ce qu'une URL à paramètre de requête ne permet pas.
+	 */
+	.get('/raw/*', async ({ params, set }) => {
+		const room = await RoomService.get(params.id)
+		if (!room) return status(404, 'Not Found')
+
+		const wildcard = (params as Record<string, string>)['*'] ?? ''
+		let meta: Awaited<ReturnType<typeof readFileMeta>>
+		try {
+			meta = await readFileMeta(room.workdir, decodeURIComponent(wildcard))
+		} catch {
+			return status(400, 'Bad Path')
+		}
+		if (!meta) return status(404, 'Not Found')
+
+		set.headers['content-type'] = meta.mime
+		set.headers['cache-control'] = 'no-cache'
+		set.headers['x-content-type-options'] = 'nosniff'
+		// Servi tel quel, il reste inerte : seul l'aperçu instrumenté exécute du script.
+		if (meta.mime === 'text/html' || meta.mime === 'image/svg+xml') {
+			set.headers['content-security-policy'] = 'sandbox'
+		}
+		return Bun.file(meta.abs)
+	})
+
 	.post(
 		'/upload',
 		async ({ params, body }) => {

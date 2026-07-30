@@ -14,7 +14,7 @@ import { Sidebar } from './components/Sidebar.tsx'
 import { Thread } from './components/Thread.tsx'
 import { useDockWidth, useIsDesktop } from './lib/layout.ts'
 import { usePresenceReporter } from './lib/presence.ts'
-import { describeSelection, paintSelections } from './lib/selection.ts'
+import { describeSelection, paintSelections, previewHighlights } from './lib/selection.ts'
 import { applyTheme, storedTheme, watchSystemTheme } from './lib/theme.ts'
 import { storedPseudo, useStore } from './store.ts'
 
@@ -106,6 +106,8 @@ export function App() {
 				}}
 				onScrollRatio={setFileScroll}
 				followScroll={followed && followed.view === 'file' ? followed.scroll : null}
+				onSelection={setSelection}
+				highlights={previewHighlights(Object.values(store.presence), viewing.relPath)}
 			/>
 		) : dock === 'files' && store.room ? (
 			<FilesPanel

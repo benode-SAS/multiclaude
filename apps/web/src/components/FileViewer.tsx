@@ -1,8 +1,10 @@
+import type { SelectionAnchor } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
 import { applyScrollRatio, scrollRatio } from '../lib/presence.ts'
+import { anchorFromPreview, buildPreviewDocument, type PreviewIn } from '../lib/preview-bridge.ts'
 import { Markdown } from './Markdown.tsx'
 
 export type ViewerTarget = { relPath: string; filename: string; mime: string; size: number }
@@ -28,17 +30,24 @@ export function FileViewer({
 	onClose,
 	onScrollRatio,
 	followScroll,
+	onSelection,
+	highlights,
 }: {
 	target: ViewerTarget
 	roomId: string
 	onClose: () => void
 	onScrollRatio?: (ratio: number) => void
 	followScroll?: number | null
+	onSelection?: (anchor: SelectionAnchor | null) => void
+	highlights?: Array<{ name: string; bg: string; fg: string; start: number; end: number }>
 }) {
 	const bodyRef = useRef<HTMLDivElement>(null)
+	const frameRef = useRef<HTMLIFrameElement>(null)
 	const [content, setContent] = useState<string | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const [showSource, setShowSource] = useState(false)
+
+	const post = (message: PreviewIn) => frameRef.current?.contentWindow?.postMessage(message, '*')
 
 	const image = isImage(target.mime)
 	const html = isHtml(target)
@@ -46,7 +55,7 @@ export function FileViewer({
 	const text = isText(target)
 	const inline = image || ((markdown || html || text) && target.size <= MAX_INLINE)
 	const rendered = html && !showSource
-	const needsContent = inline && !image && !rendered
+	const needsContent = inline && !image
 
 	useEffect(() => {
 		const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -59,9 +68,46 @@ export function FileViewer({
 	}, [target.relPath])
 
 	useEffect(() => {
-		if (followScroll === null || followScroll === undefined || !bodyRef.current) return
-		applyScrollRatio(bodyRef.current, followScroll)
-	}, [followScroll, content])
+		if (followScroll === null || followScroll === undefined) return
+		if (rendered) {
+			post({ type: 'mc-apply-scroll', ratio: followScroll })
+			return
+		}
+		if (bodyRef.current) applyScrollRatio(bodyRef.current, followScroll)
+	}, [followScroll, content, rendered])
+
+	// Le document rendu vit dans une origine opaque : tout passe par postMessage.
+	useEffect(() => {
+		if (!rendered) return
+		const onMessage = (event: MessageEvent) => {
+			if (event.source !== frameRef.current?.contentWindow) return
+			const data = event.data as {
+				type?: string
+				ratio?: number
+				start?: number
+				end?: number
+				text?: string
+			}
+			if (data?.type === 'mc-scroll' && typeof data.ratio === 'number') {
+				onScrollRatio?.(data.ratio)
+			} else if (data?.type === 'mc-selection' && typeof data.start === 'number') {
+				onSelection?.(
+					anchorFromPreview(
+						{ type: 'mc-selection', start: data.start, end: data.end ?? 0, text: data.text ?? '' },
+						target.relPath,
+					),
+				)
+			} else if (data?.type === 'mc-selection-clear') {
+				onSelection?.(null)
+			}
+		}
+		window.addEventListener('message', onMessage)
+		return () => window.removeEventListener('message', onMessage)
+	}, [rendered, onScrollRatio, onSelection, target.relPath])
+
+	useEffect(() => {
+		if (rendered) post({ type: 'mc-apply-selections', entries: highlights ?? [] })
+	}, [rendered, highlights])
 
 	useEffect(() => {
 		if (!needsContent) return
@@ -148,21 +194,19 @@ export function FileViewer({
 					/>
 				)}
 
-				{rendered && (
-					<div className="border-b border-line bg-panel/60 px-3 py-1.5 text-[11px] text-muted">
-						Aperçu isolé : le défilement et les sélections ne sont pas partagés ici. Bascule sur «
-						source » pour les suivre.
-					</div>
-				)}
-
-				{rendered && (
-					// sandbox without allow-same-origin: the page cannot reach this app's
-					// origin, its storage, or its API — an agent-authored file stays inert.
+				{rendered && content !== null && (
+					// allow-scripts sans allow-same-origin : la page s'exécute dans une
+					// origine opaque — assez pour s'instrumenter, pas pour atteindre le
+					// DOM, le stockage ni l'API de l'app. Dialogue par postMessage.
 					<iframe
 						key={target.relPath}
-						src={api.fileUrl(roomId, target.relPath)}
+						ref={frameRef}
+						srcDoc={buildPreviewDocument(
+							content,
+							`${api.rawUrl(roomId, target.relPath.split('/').slice(0, -1).join('/'))}/`,
+						)}
 						title={target.filename}
-						sandbox=""
+						sandbox="allow-scripts"
 						className="h-full w-full border-0 bg-white"
 					/>
 				)}
@@ -181,7 +225,7 @@ export function FileViewer({
 					<p className="py-10 text-center text-[13px] text-muted">Chargement…</p>
 				)}
 
-				{needsContent && content !== null && (
+				{needsContent && content !== null && !rendered && (
 					<Markdown>
 						{markdown ? content : `\`\`\`${langOf(target.relPath)}\n${content}\n\`\`\``}
 					</Markdown>

@@ -34,6 +34,9 @@ export const api = {
 		form.append('file', file)
 		return json<Attachment>(`/rooms/${id}/upload`, { method: 'POST', body: form })
 	},
+	/** Path-addressed URL, so a rendered page can resolve relative assets. */
+	rawUrl: (roomId: string, relPath: string) =>
+		`${base}/rooms/${roomId}/raw/${relPath.split('/').map(encodeURIComponent).join('/')}`,
 	fileUrl: (roomId: string, relPath: string, download = false) =>
 		`${base}/rooms/${roomId}/files/content?path=${encodeURIComponent(relPath)}${download ? '&download=1' : ''}`,
 }
