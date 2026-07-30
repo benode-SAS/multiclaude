@@ -24,7 +24,6 @@ export function MessageBubble({
 	const color = authorColor(message.author)
 
 	return (
-		// L'identifiant permet de situer une sélection dans le fil pour le suivi.
 		<div className="flex gap-3" data-message-id={message.id}>
 			<Avatar author={message.author} />
 			<div className="min-w-0 flex-1">
@@ -41,6 +40,10 @@ export function MessageBubble({
 				</div>
 
 				<div
+					// Ancre des sélections partagées : le conteneur du seul texte,
+					// pour que les décalages ne bougent pas avec l'entête.
+					data-selection-scope="message"
+					data-selection-key={message.id}
 					className={clsx(
 						'max-w-[min(760px,100%)] rounded-2xl px-4 py-3',
 						isClaude && 'bg-surface border border-line',

@@ -22,8 +22,9 @@ export const presence = {
 			view: input.view === 'file' ? 'file' : 'chat',
 			filePath: input.filePath ?? null,
 			scroll: Number.isFinite(input.scroll) ? Math.min(Math.max(input.scroll, 0), 1) : 0,
-			selection: input.selection ? input.selection.slice(0, EXCERPT) : null,
-			selectionMessageId: input.selectionMessageId ?? null,
+			selection: input.selection
+				? { ...input.selection, text: input.selection.text.slice(0, EXCERPT) }
+				: null,
 			updatedAt: Date.now(),
 		}
 		room.set(pseudo, next)

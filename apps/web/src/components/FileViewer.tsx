@@ -136,6 +136,8 @@ export function FileViewer({
 			<div
 				ref={bodyRef}
 				onScroll={(e) => onScrollRatio?.(scrollRatio(e.currentTarget))}
+				data-selection-scope="viewer"
+				data-selection-key={target.relPath}
 				className={clsx('min-h-0 flex-1 overflow-auto bg-surface', !rendered && 'px-5 py-4')}
 			>
 				{image && (
@@ -144,6 +146,13 @@ export function FileViewer({
 						alt={target.filename}
 						className="mx-auto max-h-full object-contain"
 					/>
+				)}
+
+				{rendered && (
+					<div className="border-b border-line bg-panel/60 px-3 py-1.5 text-[11px] text-muted">
+						Aperçu isolé : le défilement et les sélections ne sont pas partagés ici. Bascule sur «
+						source » pour les suivre.
+					</div>
 				)}
 
 				{rendered && (

@@ -1,4 +1,4 @@
-import type { Room } from '@multiclaude/shared'
+import type { Room, SelectionAnchor } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import { AuthPanel } from './components/AuthPanel.tsx'
@@ -13,7 +13,8 @@ import { RoomHeader } from './components/RoomHeader.tsx'
 import { Sidebar } from './components/Sidebar.tsx'
 import { Thread } from './components/Thread.tsx'
 import { useDockWidth, useIsDesktop } from './lib/layout.ts'
-import { readSelection, usePresenceReporter } from './lib/presence.ts'
+import { usePresenceReporter } from './lib/presence.ts'
+import { describeSelection, paintSelections } from './lib/selection.ts'
 import { applyTheme, storedTheme, watchSystemTheme } from './lib/theme.ts'
 import { storedPseudo, useStore } from './store.ts'
 
@@ -26,10 +27,7 @@ export function App() {
 	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
 	const [chatScroll, setChatScroll] = useState(0)
 	const [fileScroll, setFileScroll] = useState(0)
-	const [selection, setSelection] = useState<{
-		selection: string | null
-		selectionMessageId: string | null
-	}>({ selection: null, selectionMessageId: null })
+	const [selection, setSelection] = useState<SelectionAnchor | null>(null)
 
 	const isDesktop = useIsDesktop()
 	const [dockWidth, setDockWidth, resetDockWidth] = useDockWidth()
@@ -43,10 +41,16 @@ export function App() {
 	useEffect(() => watchSystemTheme(() => applyTheme(storedTheme())), [])
 
 	useEffect(() => {
-		const onSelectionChange = () => setSelection(readSelection())
+		const onSelectionChange = () => setSelection(describeSelection())
 		document.addEventListener('selectionchange', onSelectionChange)
 		return () => document.removeEventListener('selectionchange', onSelectionChange)
 	}, [])
+
+	// Les sélections des autres sont peintes en permanence, pas seulement en
+	// mode suivi : c'est ce qui rend la présence lisible à la Google Docs.
+	useEffect(() => {
+		paintSelections(Object.values(store.presence))
+	}, [store.presence, store.messages, viewing])
 
 	const followed = store.following ? store.presence[store.following] : undefined
 
@@ -69,8 +73,7 @@ export function App() {
 			view: viewing ? 'file' : 'chat',
 			filePath: viewing?.relPath ?? null,
 			scroll: viewing ? fileScroll : chatScroll,
-			selection: selection.selection,
-			selectionMessageId: selection.selectionMessageId,
+			selection,
 		},
 		store.reportPresence,
 	)
@@ -214,7 +217,6 @@ export function App() {
 							onOpen={setViewing}
 							onScrollRatio={setChatScroll}
 							followScroll={followed && followed.view === 'chat' ? followed.scroll : null}
-							highlightMessageId={followed?.selectionMessageId ?? null}
 						/>
 
 						<Composer

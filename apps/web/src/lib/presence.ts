@@ -2,13 +2,17 @@ import type { PresenceInput } from '@multiclaude/shared'
 import { useEffect, useRef } from 'react'
 
 const THROTTLE_MS = 300
-const SELECTION_MAX = 400
+
+const sameSelection = (a: PresenceInput['selection'], b: PresenceInput['selection']) => {
+	if (a === b) return true
+	if (!a || !b) return false
+	return a.scope === b.scope && a.key === b.key && a.start === b.start && a.end === b.end
+}
 
 const same = (a: PresenceInput, b: PresenceInput) =>
 	a.view === b.view &&
 	a.filePath === b.filePath &&
-	a.selection === b.selection &&
-	a.selectionMessageId === b.selectionMessageId &&
+	sameSelection(a.selection, b.selection) &&
 	Math.abs(a.scroll - b.scroll) < 0.005
 
 /**
@@ -42,22 +46,6 @@ export function usePresenceReporter(state: PresenceInput, send: (p: PresenceInpu
 		},
 		[],
 	)
-}
-
-/** Current selection, plus the message it belongs to when there is one. */
-export function readSelection() {
-	const selection = window.getSelection()
-	const text = selection?.toString().trim() ?? ''
-	if (!text) return { selection: null, selectionMessageId: null }
-
-	let node = selection?.anchorNode as HTMLElement | null
-	if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement
-	const holder = node?.closest?.('[data-message-id]') ?? null
-
-	return {
-		selection: text.slice(0, SELECTION_MAX),
-		selectionMessageId: holder?.getAttribute('data-message-id') ?? null,
-	}
 }
 
 export const scrollRatio = (el: HTMLElement) => {

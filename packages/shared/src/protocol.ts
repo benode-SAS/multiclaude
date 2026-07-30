@@ -92,6 +92,21 @@ export type Draft = {
 }
 
 /**
+ * A selection expressed as character offsets inside a named container, so each
+ * client can rebuild the exact range in its own DOM — the rendered markup
+ * differs between viewports, a pixel rectangle would not survive the trip.
+ */
+export type SelectionAnchor = {
+	/** 'message' targets a chat bubble, 'viewer' the open document. */
+	scope: 'message' | 'viewer'
+	/** Message id, or file path for the viewer. */
+	key: string
+	start: number
+	end: number
+	text: string
+}
+
+/**
  * Where someone is and what they are looking at. Ephemeral and throttled:
  * enough to follow along, not a keystroke log.
  */
@@ -102,10 +117,7 @@ export type Presence = {
 	filePath: string | null
 	/** Scroll position of their active pane, 0 to 1. */
 	scroll: number
-	/** Excerpt of their current text selection. */
-	selection: string | null
-	/** Id of the message their selection sits in, when it is one. */
-	selectionMessageId: string | null
+	selection: SelectionAnchor | null
 	updatedAt: number
 }
 

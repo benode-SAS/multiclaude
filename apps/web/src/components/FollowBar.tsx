@@ -27,9 +27,9 @@ export function FollowBar({
 			{presence?.selection && (
 				<span
 					className="ml-2 hidden min-w-0 max-w-xs truncate rounded bg-surface px-2 py-0.5 font-mono text-[11px] md:inline"
-					title={presence.selection}
+					title={presence.selection.text}
 				>
-					« {presence.selection} »
+					« {presence.selection.text} »
 				</span>
 			)}
 

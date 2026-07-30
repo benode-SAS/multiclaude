@@ -22,7 +22,6 @@ export function Thread({
 	onOpen,
 	onScrollRatio,
 	followScroll,
-	highlightMessageId,
 }: {
 	roomId: string
 	messages: Message[]
@@ -37,7 +36,6 @@ export function Thread({
 	onScrollRatio: (ratio: number) => void
 	/** Scroll position to mirror while following someone, null otherwise. */
 	followScroll: number | null
-	highlightMessageId: string | null
 }) {
 	const bottomRef = useRef<HTMLDivElement>(null)
 	const scrollRef = useRef<HTMLDivElement>(null)
@@ -98,22 +96,14 @@ export function Thread({
 				{timeline.map((item) => {
 					if (item.kind === 'message') {
 						return (
-							<div
+							<MessageBubble
 								key={item.key}
-								className={
-									highlightMessageId === item.message.id
-										? 'rounded-xl ring-2 ring-accent/60 transition'
-										: undefined
-								}
-							>
-								<MessageBubble
-									message={item.message}
-									attachments={byMessage.get(item.message.id) ?? []}
-									roomId={roomId}
-									queued={queuedIds.has(item.message.id)}
-									onOpen={onOpen}
-								/>
-							</div>
+								message={item.message}
+								attachments={byMessage.get(item.message.id) ?? []}
+								roomId={roomId}
+								queued={queuedIds.has(item.message.id)}
+								onOpen={onOpen}
+							/>
 						)
 					}
 					if (item.kind === 'tool') {
