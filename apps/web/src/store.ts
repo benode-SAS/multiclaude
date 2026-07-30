@@ -15,7 +15,15 @@ import type {
 import { create } from 'zustand'
 import { api } from './lib/api.ts'
 import { createSocket, type Socket } from './lib/socket.ts'
-import { flashTitle, playPermissionChime, setSoundEnabled, soundEnabled } from './lib/sound.ts'
+import {
+	flashTitle,
+	notifyEnabled,
+	notifyPermission,
+	playPermissionChime,
+	setSoundEnabled,
+	soundEnabled,
+	toggleNotifications,
+} from './lib/sound.ts'
 import { applyTheme, storedTheme, type Theme } from './lib/theme.ts'
 
 type State = {
@@ -49,6 +57,7 @@ type State = {
 	usage: ContextUsage | null
 	theme: Theme
 	sound: boolean
+	notify: boolean
 }
 
 type Actions = {
@@ -70,6 +79,7 @@ type Actions = {
 	dismissError: () => void
 	setTheme: (theme: Theme) => void
 	toggleSound: () => void
+	toggleNotify: () => Promise<void>
 	refreshAuth: () => Promise<void>
 	startLogin: () => Promise<void>
 	submitCode: (code: string) => Promise<void>
@@ -172,6 +182,11 @@ export const useStore = create<State & Actions>((set, get) => {
 				set({ pending: [...state.pending, message.request] })
 				playPermissionChime()
 				flashTitle('🔒 autorisation demandée')
+				notifyPermission(
+					state.room?.title ?? 'multiclaude',
+					message.request.tool,
+					message.request.reason,
+				)
 				return
 			case 'permission_resolved':
 				set({ pending: state.pending.filter((p) => p.requestId !== message.requestId) })
@@ -252,6 +267,7 @@ export const useStore = create<State & Actions>((set, get) => {
 		authBusy: false,
 		theme: storedTheme(),
 		sound: soundEnabled(),
+		notify: notifyEnabled(),
 		...empty,
 
 		async init(pseudo) {
@@ -367,6 +383,11 @@ export const useStore = create<State & Actions>((set, get) => {
 		setTheme(theme) {
 			applyTheme(theme)
 			set({ theme })
+		},
+
+		async toggleNotify() {
+			const granted = await toggleNotifications(!get().notify)
+			set({ notify: granted })
 		},
 
 		toggleSound() {

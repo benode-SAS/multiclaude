@@ -150,6 +150,8 @@ export function App() {
 					onSetTheme={store.setTheme}
 					sound={store.sound}
 					onToggleSound={store.toggleSound}
+					notify={store.notify}
+					onToggleNotify={() => void store.toggleNotify()}
 					authEmail={store.auth?.email ?? null}
 					onRelogin={() => void store.startLogin()}
 					onNavigate={() => setNavOpen(false)}

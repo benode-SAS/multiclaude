@@ -1,6 +1,7 @@
 import { type ContextUsage, MODELS, type Room, type RoomStatus } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
+import { api } from '../lib/api.ts'
 import { Avatar } from './Avatar.tsx'
 import { ContextGauge } from './ContextGauge.tsx'
 
@@ -160,6 +161,14 @@ export function RoomHeader({
 					</button>
 				))}
 			</div>
+
+			<a
+				href={api.exportUrl(room.id)}
+				title="Exporter la conversation en markdown"
+				className="hidden shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50 md:inline-block"
+			>
+				↧
+			</a>
 
 			<button
 				type="button"

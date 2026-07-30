@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { formatDay } from '../lib/format.ts'
 import type { Theme } from '../lib/theme.ts'
 import { Avatar } from './Avatar.tsx'
+import { SearchBox } from './SearchBox.tsx'
 
 const THEMES: Array<{ id: Theme; icon: string; label: string }> = [
 	{ id: 'light', icon: '☀', label: 'Clair' },
@@ -25,6 +26,8 @@ export function Sidebar({
 	onSetTheme,
 	sound,
 	onToggleSound,
+	notify,
+	onToggleNotify,
 	authEmail,
 	onRelogin,
 	onNavigate,
@@ -37,6 +40,8 @@ export function Sidebar({
 	onSetTheme: (theme: Theme) => void
 	sound: boolean
 	onToggleSound: () => void
+	notify: boolean
+	onToggleNotify: () => void
 	authEmail: string | null
 	onRelogin: () => void
 	/** Called after any action that should dismiss the mobile drawer. */
@@ -77,6 +82,13 @@ export function Sidebar({
 					Nouvelle conversation
 				</button>
 			</div>
+
+			<SearchBox
+				onOpen={(id) => {
+					onSelect(id)
+					onNavigate()
+				}}
+			/>
 
 			<nav className="flex-1 overflow-y-auto px-2 pb-2">
 				{rooms.map((room) => (
@@ -193,6 +205,23 @@ export function Sidebar({
 					)}
 				>
 					{sound ? '🔔' : '🔕'}
+				</button>
+
+				{/* Le carillon ne sert à rien onglet fermé, d'où la notification système. */}
+				<button
+					type="button"
+					onClick={onToggleNotify}
+					title={
+						notify
+							? 'Notifications système : activées'
+							: 'Notifications système : désactivées — une demande non vue expire'
+					}
+					className={clsx(
+						'rounded-lg border border-line px-2 py-1 text-[13px] transition',
+						notify ? 'bg-surface text-ink' : 'bg-surface text-muted line-through',
+					)}
+				>
+					🖥
 				</button>
 			</div>
 

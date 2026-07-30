@@ -2,6 +2,8 @@ import { Elysia, status, t } from 'elysia'
 import { disposeRuntime, getRuntime } from '../agent/runtime.ts'
 import { hub } from '../ws/hub.ts'
 import { cloneInto, isCloneUrl } from './clone.ts'
+import { exportRoom } from './export.ts'
+import { searchMessages } from './search.ts'
 import { RoomService } from './service.ts'
 
 export const roomRoutes = new Elysia({ prefix: '/rooms' })
@@ -51,6 +53,10 @@ HEAD : ${result.head}`
 		},
 	)
 
+	.get('/search/all', ({ query }) => searchMessages(query.q ?? '', query.roomId), {
+		query: t.Object({ q: t.Optional(t.String()), roomId: t.Optional(t.String()) }),
+	})
+
 	.get('/:id', async ({ params }) => (await RoomService.get(params.id)) ?? status(404, 'Not Found'))
 
 	.patch(
@@ -63,6 +69,15 @@ HEAD : ${result.head}`
 		},
 		{ body: t.Object({ title: t.String() }) },
 	)
+
+	.get('/:id/export', async ({ params, set }) => {
+		const result = await exportRoom(params.id)
+		if (!result) return status(404, 'Not Found')
+		const name = result.room.title.replace(/[^\w.-]+/g, '_').slice(0, 60) || 'conversation'
+		set.headers['content-type'] = 'text/markdown; charset=utf-8'
+		set.headers['content-disposition'] = `attachment; filename="${name}.md"`
+		return result.markdown
+	})
 
 	.delete('/:id', async ({ params }) => {
 		disposeRuntime(params.id)

@@ -1,5 +1,14 @@
 import type { Attachment, AuthState, FileEntry, Room } from '@multiclaude/shared'
 
+export type SearchHit = {
+	roomId: string
+	roomTitle: string
+	messageId: string
+	author: string
+	excerpt: string
+	createdAt: number
+}
+
 const base = '/api'
 
 async function json<T>(input: string, init?: RequestInit): Promise<T> {
@@ -23,6 +32,11 @@ export const api = {
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
 
 	rooms: () => json<Room[]>('/rooms'),
+	search: (q: string, roomId?: string) =>
+		json<SearchHit[]>(
+			`/rooms/search/all?q=${encodeURIComponent(q)}${roomId ? `&roomId=${roomId}` : ''}`,
+		),
+	exportUrl: (roomId: string) => `${base}/rooms/${roomId}/export`,
 	createRoom: (input: { title?: string; repoUrl?: string; branch?: string } = {}) =>
 		json<Room>('/rooms', { method: 'POST', body: JSON.stringify(input) }),
 	renameRoom: (id: string, title: string) =>

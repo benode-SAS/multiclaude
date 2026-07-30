@@ -46,6 +46,46 @@ export function playPermissionChime() {
 	}
 }
 
+const NOTIFY_KEY = 'multiclaude:notify'
+
+export const notifyEnabled = () =>
+	typeof Notification !== 'undefined' &&
+	Notification.permission === 'granted' &&
+	localStorage.getItem(NOTIFY_KEY) !== 'off'
+
+export const notifySupported = () => typeof Notification !== 'undefined'
+
+/** Demande l'autorisation système, puis retient le choix de l'utilisateur. */
+export async function toggleNotifications(on: boolean) {
+	if (!notifySupported()) return false
+	localStorage.setItem(NOTIFY_KEY, on ? 'on' : 'off')
+	if (!on) return false
+	if (Notification.permission === 'default') await Notification.requestPermission()
+	return Notification.permission === 'granted'
+}
+
+/**
+ * Le carillon ne sert à rien onglet fermé, et une demande non vue fait
+ * expirer le turn au bout du délai du hook.
+ */
+export function notifyPermission(room: string, tool: string, reason: string) {
+	if (!notifyEnabled()) return
+	if (!document.hidden && document.hasFocus()) return
+	try {
+		const notification = new Notification(`Autorisation demandée — ${room}`, {
+			body: `${tool} : ${reason}`,
+			tag: 'multiclaude-permission',
+			requireInteraction: true,
+		})
+		notification.onclick = () => {
+			window.focus()
+			notification.close()
+		}
+	} catch {
+		// notifications refusées entre-temps
+	}
+}
+
 /** Flashes the tab title until the window regains focus. */
 export function flashTitle(message: string) {
 	if (!document.hidden && document.hasFocus()) return
