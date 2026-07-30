@@ -120,11 +120,11 @@ export function App() {
 		) : null
 
 	return (
-		<div className="relative flex h-full overflow-hidden">
+		<div className="relative flex h-dvh overflow-hidden">
 			{/* Colonne fixe à partir de md, tiroir coulissant en dessous. */}
 			<div
 				className={clsx(
-					'z-40 transition-transform duration-200 md:static md:translate-x-0',
+					'z-[60] transition-transform duration-200 md:static md:z-auto md:translate-x-0',
 					'max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:shadow-2xl',
 					navOpen ? 'max-md:translate-x-0' : 'max-md:-translate-x-full',
 				)}
@@ -154,7 +154,7 @@ export function App() {
 					type="button"
 					aria-label="Fermer le menu"
 					onClick={() => setNavOpen(false)}
-					className="fixed inset-0 z-30 bg-black/40 md:hidden"
+					className="fixed inset-0 z-[55] bg-black/40 md:hidden"
 				/>
 			)}
 

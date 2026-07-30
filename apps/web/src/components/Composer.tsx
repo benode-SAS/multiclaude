@@ -179,9 +179,9 @@ export function Composer({
 	}, [])
 
 	return (
-		<div className="border-t border-line bg-canvas px-3 pt-2 pb-3 md:px-6 md:pb-4">
+		<div className="border-t border-line bg-canvas px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 md:pb-4">
 			{dropping && (
-				<div className="pointer-events-none fixed inset-0 z-[70] flex items-center justify-center bg-canvas/80 backdrop-blur-sm">
+				<div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center bg-canvas/80 p-4 backdrop-blur-sm">
 					<div className="rounded-2xl border-2 border-dashed border-accent px-8 py-6 text-center">
 						<p className="text-[15px] font-semibold text-accent">Déposer pour joindre</p>
 						<p className="mt-1 text-[13px] text-muted">

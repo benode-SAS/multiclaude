@@ -60,11 +60,32 @@
 html,
 body,
 #root {
-	height: 100%;
+	/* dvh suit la barre d'outils mobile : avec 100%, la page dépasse la fenêtre
+	   visible et le layout entier se met à défiler. */
+	height: 100dvh;
+	overflow: hidden;
+	overscroll-behavior: none;
 }
 
 body {
 	@apply bg-canvas text-ink font-sans antialiased;
+	-webkit-text-size-adjust: 100%;
+}
+
+/* iOS zoome sur un champ de moins de 16 px, ce qui décale toute la mise en
+   page au moment de la saisie. */
+@media (max-width: 767px) {
+	input,
+	textarea,
+	select {
+		font-size: 16px;
+	}
+}
+
+/* Un chemin ou une URL sans espace suffit à faire déborder la page. */
+.break-anywhere {
+	overflow-wrap: anywhere;
+	word-break: break-word;
 }
 
 ::-webkit-scrollbar {
@@ -148,6 +169,13 @@ body {
 	}
 	& p {
 		line-height: 1.7;
+		overflow-wrap: anywhere;
+	}
+	& li {
+		overflow-wrap: anywhere;
+	}
+	& code {
+		overflow-wrap: anywhere;
 	}
 	& ul {
 		list-style: disc;

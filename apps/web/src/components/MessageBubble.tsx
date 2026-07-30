@@ -54,7 +54,9 @@ export function MessageBubble({
 					{isClaude ? (
 						<Markdown>{message.content}</Markdown>
 					) : (
-						<p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+						<p className="break-anywhere text-[15px] leading-relaxed whitespace-pre-wrap">
+							{message.content}
+						</p>
 					)}
 				</div>
 

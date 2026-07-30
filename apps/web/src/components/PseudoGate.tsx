@@ -10,13 +10,13 @@ export function PseudoGate({
 	const [value, setValue] = useState(initial)
 
 	return (
-		<div className="flex h-full items-center justify-center bg-canvas">
+		<div className="flex h-dvh items-center justify-center bg-canvas p-4">
 			<form
 				onSubmit={(e) => {
 					e.preventDefault()
 					if (value.trim()) onSubmit(value.trim())
 				}}
-				className="w-[340px] rounded-2xl border border-line bg-surface p-6 shadow-sm"
+				className="w-full max-w-[340px] rounded-2xl border border-line bg-surface p-6 shadow-sm"
 			>
 				<h1 className="text-lg font-semibold tracking-tight">multiclaude</h1>
 				<p className="mt-1 mb-5 text-[13px] text-muted">

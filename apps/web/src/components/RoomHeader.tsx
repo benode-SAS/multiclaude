@@ -47,7 +47,7 @@ export function RoomHeader({
 	}
 
 	return (
-		<header className="flex items-center gap-2 border-b border-line bg-canvas/80 px-3 py-2.5 backdrop-blur md:gap-3 md:px-6 md:py-3">
+		<header className="flex min-w-0 items-center gap-2 overflow-hidden border-b border-line bg-canvas/80 px-3 py-2.5 backdrop-blur md:gap-3 md:px-6 md:py-3">
 			{/* Ouvre le tiroir : la sidebar est masquée sous md. */}
 			<button
 				type="button"
@@ -75,7 +75,7 @@ export function RoomHeader({
 			) : (
 				// The pencil carries the affordance: double-click alone was invisible,
 				// and unusable on touch.
-				<div className="group flex min-w-0 items-center gap-1">
+				<div className="group flex min-w-0 flex-1 items-center gap-1">
 					<button
 						type="button"
 						onDoubleClick={startEditing}
@@ -114,19 +114,18 @@ export function RoomHeader({
 			)}
 
 			{usage && (
-				<div className="ml-auto hidden lg:block">
+				<div className="hidden shrink-0 lg:block">
 					<ContextGauge usage={usage} />
 				</div>
 			)}
 
-			<label
-				className={clsx('flex items-center gap-1.5 text-[12px] text-muted', !usage && 'ml-auto')}
-			>
-				<span>Modèle</span>
+			{/* Borné en largeur : « Défaut du compte » suffit à faire déborder un iPhone. */}
+			<label className="flex shrink-0 items-center gap-1.5 text-[12px] text-muted">
+				<span className="hidden lg:inline">Modèle</span>
 				<select
 					value={room.model ?? ''}
 					onChange={(e) => onSetModel(e.target.value || null)}
-					className="rounded-lg border border-line bg-surface px-2 py-1.5 text-[13px] text-ink outline-none transition hover:border-accent/50 focus:border-accent/60"
+					className="max-w-[6.5rem] truncate rounded-lg border border-line bg-surface px-2 py-1.5 text-[13px] text-ink outline-none transition hover:border-accent/50 focus:border-accent/60 md:max-w-none"
 				>
 					{MODELS.map((model) => (
 						<option key={model.id ?? 'default'} value={model.id ?? ''}>
@@ -137,7 +136,7 @@ export function RoomHeader({
 			</label>
 
 			{/* Cliquer un badge met la vue en miroir de la sienne. */}
-			<div className="hidden items-center -space-x-2 sm:flex">
+			<div className="hidden shrink-0 items-center -space-x-2 lg:flex">
 				{participants.map((participant) => (
 					<button
 						key={participant}
