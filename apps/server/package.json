@@ -8,7 +8,8 @@
 		"start": "bun --env-file=../../.env src/index.ts",
 		"typecheck": "tsc --noEmit",
 		"db:generate": "drizzle-kit generate",
-		"db:migrate": "bun --env-file=../../.env src/db/migrate.ts"
+		"db:migrate": "bun --env-file=../../.env src/db/migrate.ts",
+		"test": "bun test"
 	},
 	"dependencies": {
 		"@elysiajs/cors": "latest",

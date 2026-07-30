@@ -7,6 +7,7 @@ import { ConfirmDialog } from './components/ConfirmDialog.tsx'
 import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
 import { FollowBar } from './components/FollowBar.tsx'
+import { NewRoomDialog } from './components/NewRoomDialog.tsx'
 import { PseudoGate } from './components/PseudoGate.tsx'
 import { ResizeHandle } from './components/ResizeHandle.tsx'
 import { RoomHeader } from './components/RoomHeader.tsx'
@@ -25,6 +26,9 @@ export function App() {
 	const [viewing, setViewing] = useState<ViewerTarget | null>(null)
 	const [navOpen, setNavOpen] = useState(false)
 	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
+	const [creating, setCreating] = useState(false)
+	const [createBusy, setCreateBusy] = useState(false)
+	const [createError, setCreateError] = useState<string | null>(null)
 	const [chatScroll, setChatScroll] = useState(0)
 	const [fileScroll, setFileScroll] = useState(0)
 	const [selection, setSelection] = useState<SelectionAnchor | null>(null)
@@ -135,7 +139,10 @@ export function App() {
 					pseudo={store.pseudo}
 					connected={store.connected}
 					onSelect={store.selectRoom}
-					onCreate={() => void store.createRoom()}
+					onCreate={() => {
+						setCreateError(null)
+						setCreating(true)
+					}}
 					onRename={(id, title) => void store.renameRoom(id, title)}
 					onDelete={(id) => setPendingDelete(store.rooms.find((room) => room.id === id) ?? null)}
 					onChangePseudo={() => setGate(true)}
@@ -252,6 +259,29 @@ export function App() {
 				) : (
 					<div className="fixed inset-0 z-50 bg-canvas">{dockContent}</div>
 				))}
+
+			{creating && (
+				<NewRoomDialog
+					busy={createBusy}
+					error={createError}
+					onCancel={() => setCreating(false)}
+					onCreate={async (input) => {
+						setCreateBusy(true)
+						setCreateError(null)
+						try {
+							await store.createRoom(input)
+							setCreating(false)
+							setNavOpen(false)
+						} catch (error) {
+							// Le serveur renvoie la raison exacte de l'échec du clone.
+							const detail = error instanceof Error ? error.message : String(error)
+							setCreateError(detail.replace(/^\d+\s*/, ''))
+						} finally {
+							setCreateBusy(false)
+						}
+					}}
+				/>
+			)}
 
 			{pendingDelete && (
 				<ConfirmDialog

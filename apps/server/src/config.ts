@@ -77,6 +77,10 @@ export const config = {
 		].join(' '),
 
 	maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 50) * 1024 * 1024,
+
+	/** Profondeur du clone : 0 pour un historique complet. */
+	cloneDepth: Number(process.env.CLONE_DEPTH ?? 1),
+	cloneTimeoutMs: Number(process.env.CLONE_TIMEOUT ?? 180) * 1000,
 }
 
 /** Passed to every spawned `claude` process (agent turns, auth, status). */

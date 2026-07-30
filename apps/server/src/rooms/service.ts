@@ -41,7 +41,9 @@ export const RoomService = {
 	async create(title?: string): Promise<Room> {
 		const id = newId()
 		const workdir = path.join(config.roomsDir, id, 'workdir')
-		await mkdir(path.join(workdir, 'uploads'), { recursive: true })
+		// Laissé vide : git clone refuse un dossier non vide. uploads/ est créé
+		// au premier envoi de fichier.
+		await mkdir(workdir, { recursive: true })
 		const ts = now()
 		const row = {
 			id,

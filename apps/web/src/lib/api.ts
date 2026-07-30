@@ -23,8 +23,8 @@ export const api = {
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
 
 	rooms: () => json<Room[]>('/rooms'),
-	createRoom: (title?: string) =>
-		json<Room>('/rooms', { method: 'POST', body: JSON.stringify({ title }) }),
+	createRoom: (input: { title?: string; repoUrl?: string; branch?: string } = {}) =>
+		json<Room>('/rooms', { method: 'POST', body: JSON.stringify(input) }),
 	renameRoom: (id: string, title: string) =>
 		json<Room>(`/rooms/${id}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
 	deleteRoom: (id: string) => json<{ ok: boolean }>(`/rooms/${id}`, { method: 'DELETE' }),

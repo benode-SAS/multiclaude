@@ -1,0 +1,16 @@
+# Fins de ligne normalisées en LF dans le dépôt, quel que soit l'OS de travail.
+* text=auto eol=lf
+
+# Fichiers binaires : aucune conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.db binary
+
+# Le lockfile est généré : le sortir des diffs de revue.
+bun.lock linguist-generated=true
