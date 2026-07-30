@@ -36,6 +36,7 @@ export function Composer({
 	const [value, setValue] = useState('')
 	const [staged, setStaged] = useState<Attachment[]>([])
 	const [uploading, setUploading] = useState(false)
+	const [dropping, setDropping] = useState(false)
 	const textareaRef = useRef<HTMLTextAreaElement>(null)
 	const fileRef = useRef<HTMLInputElement>(null)
 
@@ -117,11 +118,12 @@ export function Composer({
 		}
 	}
 
-	const upload = async (files: FileList | null) => {
-		if (!files?.length) return
+	const upload = async (files: ArrayLike<File> | null) => {
+		const list = files ? Array.from(files) : []
+		if (list.length === 0) return
 		setUploading(true)
 		try {
-			for (const file of Array.from(files)) {
+			for (const file of list) {
 				const attachment = await api.upload(roomId, file)
 				setStaged((prev) => [...prev, attachment])
 			}
@@ -131,8 +133,64 @@ export function Composer({
 		}
 	}
 
+	const uploadRef = useRef(upload)
+	uploadRef.current = upload
+
+	/**
+	 * Dépôt sur toute la fenêtre, pas seulement sur la zone de saisie : viser un
+	 * champ étroit avec un fichier est pénible. Le compteur d'entrées évite que
+	 * le survol d'un enfant ne fasse clignoter l'incrustation.
+	 */
+	useEffect(() => {
+		let depth = 0
+		const hasFiles = (event: DragEvent) => event.dataTransfer?.types.includes('Files') ?? false
+
+		const onEnter = (event: DragEvent) => {
+			if (!hasFiles(event)) return
+			depth++
+			setDropping(true)
+		}
+		const onOver = (event: DragEvent) => {
+			if (hasFiles(event)) event.preventDefault()
+		}
+		const onLeave = (event: DragEvent) => {
+			if (!hasFiles(event)) return
+			depth = Math.max(0, depth - 1)
+			if (depth === 0) setDropping(false)
+		}
+		const onDrop = (event: DragEvent) => {
+			if (!hasFiles(event)) return
+			event.preventDefault()
+			depth = 0
+			setDropping(false)
+			void uploadRef.current(event.dataTransfer?.files ?? null)
+		}
+
+		window.addEventListener('dragenter', onEnter)
+		window.addEventListener('dragover', onOver)
+		window.addEventListener('dragleave', onLeave)
+		window.addEventListener('drop', onDrop)
+		return () => {
+			window.removeEventListener('dragenter', onEnter)
+			window.removeEventListener('dragover', onOver)
+			window.removeEventListener('dragleave', onLeave)
+			window.removeEventListener('drop', onDrop)
+		}
+	}, [])
+
 	return (
 		<div className="border-t border-line bg-canvas px-3 pt-2 pb-3 md:px-6 md:pb-4">
+			{dropping && (
+				<div className="pointer-events-none fixed inset-0 z-[70] flex items-center justify-center bg-canvas/80 backdrop-blur-sm">
+					<div className="rounded-2xl border-2 border-dashed border-accent px-8 py-6 text-center">
+						<p className="text-[15px] font-semibold text-accent">Déposer pour joindre</p>
+						<p className="mt-1 text-[13px] text-muted">
+							Les fichiers sont déposés dans le dossier de travail de la conversation.
+						</p>
+					</div>
+				</div>
+			)}
+
 			<div className="mx-auto max-w-3xl">
 				<TypingIndicator people={typing} drafts={drafts} />
 
@@ -194,6 +252,14 @@ export function Composer({
 						onBlur={() => {
 							stopTyping()
 							flushDraft(value)
+						}}
+						onPaste={(e) => {
+							// Une capture d'écran collée arrive en fichier, sans texte :
+							// on ne bloque le collage que s'il y a vraiment des fichiers.
+							const files = e.clipboardData.files
+							if (files.length === 0) return
+							e.preventDefault()
+							void upload(files)
 						}}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' && !e.shiftKey) {

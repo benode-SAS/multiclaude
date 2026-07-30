@@ -122,7 +122,7 @@ export const BRIDGE_SCRIPT = `
 /** Wraps the raw file so relative assets still resolve, then instruments it. */
 export function buildPreviewDocument(html: string, baseHref: string) {
 	// `</script>` échappé : sans ça, la balise fermerait sur place à l'injection.
-	const bridge = BRIDGE_SCRIPT.replace(/<\/script/gi, '</script')
+	const bridge = BRIDGE_SCRIPT.replace(/<\/script/gi, '<\\/script')
 	return `<!doctype html><base href="${baseHref}">${html}<script>${bridge}</script>`
 }
 
