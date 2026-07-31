@@ -19,6 +19,7 @@ export function RoomHeader({
 	self,
 	following,
 	onFollow,
+	onFork,
 }: {
 	room: Room
 	status: RoomStatus
@@ -33,6 +34,7 @@ export function RoomHeader({
 	self: string
 	following: string | null
 	onFollow: (pseudo: string | null) => void
+	onFork: () => void
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -161,6 +163,16 @@ export function RoomHeader({
 					</button>
 				))}
 			</div>
+
+			{/* Dérive la session : avancer sans abîmer le contexte partagé. */}
+			<button
+				type="button"
+				onClick={onFork}
+				title="Dupliquer la conversation — même contexte, fils séparés"
+				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
+			>
+				⑂
+			</button>
 
 			<a
 				href={api.exportUrl(room.id)}

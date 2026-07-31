@@ -123,8 +123,9 @@ export function Sidebar({
 									setDraft(room.title)
 								}}
 								className="min-w-0 flex-1 truncate text-left"
-								title={room.title}
+								title={room.forkedFrom ? `${room.title} — issue d'un fork` : room.title}
 							>
+								{room.forkedFrom && <span className="mr-1 text-muted">⑂</span>}
 								{room.title}
 							</button>
 						)}

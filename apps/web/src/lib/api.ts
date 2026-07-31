@@ -39,6 +39,7 @@ export const api = {
 	exportUrl: (roomId: string) => `${base}/rooms/${roomId}/export`,
 	createRoom: (input: { title?: string; repoUrl?: string; branch?: string } = {}) =>
 		json<Room>('/rooms', { method: 'POST', body: JSON.stringify(input) }),
+	forkRoom: (id: string) => json<Room>(`/rooms/${id}/fork`, { method: 'POST', body: '{}' }),
 	renameRoom: (id: string, title: string) =>
 		json<Room>(`/rooms/${id}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
 	deleteRoom: (id: string) => json<{ ok: boolean }>(`/rooms/${id}`, { method: 'DELETE' }),

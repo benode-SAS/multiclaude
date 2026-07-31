@@ -66,6 +66,7 @@ type Actions = {
 	refreshRooms: () => Promise<void>
 	selectRoom: (roomId: string) => void
 	createRoom: (input?: { title?: string; repoUrl?: string; branch?: string }) => Promise<void>
+	forkRoom: (roomId: string) => Promise<void>
 	renameRoom: (roomId: string, title: string) => Promise<void>
 	deleteRoom: (roomId: string) => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
@@ -321,6 +322,12 @@ export const useStore = create<State & Actions>((set, get) => {
 
 		async createRoom(input) {
 			const room = await api.createRoom(input)
+			set({ rooms: [room, ...get().rooms] })
+			get().selectRoom(room.id)
+		},
+
+		async forkRoom(roomId) {
+			const room = await api.forkRoom(roomId)
 			set({ rooms: [room, ...get().rooms] })
 			get().selectRoom(room.id)
 		},

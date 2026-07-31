@@ -1,4 +1,4 @@
-import { mkdir, rm } from 'node:fs/promises'
+import { cp, mkdir, rm } from 'node:fs/promises'
 import path from 'node:path'
 import type {
 	AgentEvent,
@@ -9,6 +9,7 @@ import type {
 	RoomStatus,
 } from '@multiclaude/shared'
 import { and, asc, eq } from 'drizzle-orm'
+import { copySessionTo } from '../agent/sessions.ts'
 import { config } from '../config.ts'
 import { db } from '../db/index.ts'
 import { attachments, events, messages, rooms } from '../db/schema.ts'
@@ -21,6 +22,7 @@ const toRoom = (r: RoomRow): Room => ({
 	title: r.title,
 	sessionId: r.sessionId,
 	model: r.model,
+	forkedFrom: r.forkedFrom,
 	workdir: r.workdir,
 	status: r.status,
 	createdAt: r.createdAt,
@@ -50,6 +52,8 @@ export const RoomService = {
 			title: title?.trim() || 'Nouvelle conversation',
 			sessionId: null,
 			model: null,
+			forkedFrom: null,
+			forkPending: false,
 			workdir,
 			status: 'idle' as const,
 			createdAt: ts,
@@ -78,6 +82,62 @@ export const RoomService = {
 	async setModel(id: string, model: string | null): Promise<Room | null> {
 		await db.update(rooms).set({ model, updatedAt: now() }).where(eq(rooms.id, id))
 		return RoomService.get(id)
+	},
+
+	/**
+	 * Duplique la room : mêmes fichiers, et la session parente sera dérivée au
+	 * prochain lancement pour que les deux avancent sans se marcher dessus.
+	 */
+	async fork(sourceId: string, title?: string): Promise<Room | null> {
+		const source = await RoomService.get(sourceId)
+		if (!source) return null
+
+		const id = newId()
+		const workdir = path.join(config.roomsDir, id, 'workdir')
+		await mkdir(path.dirname(workdir), { recursive: true })
+		await cp(source.workdir, workdir, { recursive: true })
+
+		// La transcription doit suivre : --resume ne cherche que dans le projet
+		// courant. Sans elle, le fork repartirait sans le contexte hérité.
+		const inherited = source.sessionId
+			? await copySessionTo(source.workdir, workdir, source.sessionId)
+			: false
+
+		const ts = now()
+		const row = {
+			id,
+			title: title?.trim() || `${source.title} (fork)`,
+			sessionId: inherited ? source.sessionId : null,
+			model: source.model,
+			forkedFrom: source.id,
+			forkPending: inherited,
+			workdir,
+			status: 'idle' as const,
+			createdAt: ts,
+			updatedAt: ts,
+		}
+		await db.insert(rooms).values(row)
+
+		// L'historique visible est recopié : le fil doit être lisible dès l'ouverture.
+		const history = await RoomService.messages(sourceId)
+		for (const message of history) {
+			await db.insert(messages).values({ ...message, id: newId(), roomId: id })
+		}
+
+		return toRoom(row)
+	},
+
+	async isForkPending(id: string) {
+		const [row] = await db
+			.select({ forkPending: rooms.forkPending })
+			.from(rooms)
+			.where(eq(rooms.id, id))
+			.limit(1)
+		return row?.forkPending ?? false
+	},
+
+	async clearForkPending(id: string) {
+		await db.update(rooms).set({ forkPending: false }).where(eq(rooms.id, id))
 	},
 
 	async remove(id: string) {

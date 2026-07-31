@@ -187,6 +187,7 @@ export function App() {
 							self={store.pseudo}
 							following={store.following}
 							onFollow={store.follow}
+							onFork={() => void store.forkRoom(store.room!.id)}
 						/>
 
 						{store.following && (

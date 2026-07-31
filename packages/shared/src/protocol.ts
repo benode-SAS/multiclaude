@@ -10,6 +10,8 @@ export type Room = {
 	sessionId: string | null
 	/** `claude --model` alias; null keeps the account default. */
 	model: string | null
+	/** Room d'origine quand celle-ci est un fork. */
+	forkedFrom: string | null
 	workdir: string
 	status: RoomStatus
 	createdAt: number

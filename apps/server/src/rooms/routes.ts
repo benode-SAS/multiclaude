@@ -70,6 +70,17 @@ HEAD : ${result.head}`
 		{ body: t.Object({ title: t.String() }) },
 	)
 
+	.post(
+		'/:id/fork',
+		async ({ params, body }) => {
+			const room = await RoomService.fork(params.id, body?.title)
+			if (!room) return status(404, 'Not Found')
+			await getRuntime(room.id)
+			return room
+		},
+		{ body: t.Optional(t.Object({ title: t.Optional(t.String()) })) },
+	)
+
 	.get('/:id/export', async ({ params, set }) => {
 		const result = await exportRoom(params.id)
 		if (!result) return status(404, 'Not Found')

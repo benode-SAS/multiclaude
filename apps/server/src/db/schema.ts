@@ -6,6 +6,13 @@ export const rooms = sqliteTable('rooms', {
 	sessionId: text('session_id'),
 	/** Alias passed to `claude --model`; null keeps the account default. */
 	model: text('model'),
+	/** Room dont celle-ci est issue, pour l'afficher dans la liste. */
+	forkedFrom: text('forked_from'),
+	/**
+	 * Le prochain lancement doit dériver la session parente au lieu de la
+	 * reprendre : sans ça les deux rooms écriraient dans la même session.
+	 */
+	forkPending: integer('fork_pending', { mode: 'boolean' }).notNull().default(false),
 	workdir: text('workdir').notNull(),
 	status: text('status', { enum: ['idle', 'running'] })
 		.notNull()

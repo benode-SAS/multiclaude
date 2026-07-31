@@ -29,6 +29,13 @@
       "when": 1785451694249,
       "tag": "0003_blue_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1785488714941,
+      "tag": "0004_simple_satana",
+      "breakpoints": true
     }
   ]
 }

@@ -322,6 +322,7 @@ export class RoomRuntime {
 
 		let sessionId = room.sessionId
 		const resumable = Boolean(sessionId)
+		const forkSession = resumable && (await RoomService.isForkPending(room.id))
 		if (!sessionId) {
 			sessionId = crypto.randomUUID()
 			await RoomService.setSessionId(room.id, sessionId)
@@ -333,6 +334,7 @@ export class RoomRuntime {
 			sessionId,
 			model: room.model,
 			resumable,
+			forkSession,
 			onMessage: (message) => {
 				this.handle(message).catch((err) => console.error('[cli]', err))
 			},
@@ -349,7 +351,10 @@ export class RoomRuntime {
 		if (message.type === 'system') {
 			if (message.subtype === 'init') {
 				if (typeof message.session_id === 'string') {
+					// Un fork rend une nouvelle session : la retenir et lever le drapeau,
+					// sinon le lancement suivant re-dériverait la parente.
 					await RoomService.setSessionId(this.roomId, message.session_id)
+					await RoomService.clearForkPending(this.roomId)
 				}
 				if (typeof message.model === 'string') this.activeModel = message.model
 			}
