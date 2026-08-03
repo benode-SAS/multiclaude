@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"@multiclaude/shared": "workspace:*",
+		"better-auth": "^1.6.25",
 		"clsx": "latest",
 		"react": "latest",
 		"react-dom": "latest",

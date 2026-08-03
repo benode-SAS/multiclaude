@@ -11,9 +11,11 @@ import type {
 	Room,
 	RoomStatus,
 	ServerMessage,
+	SessionInfo,
 } from '@multiclaude/shared'
 import { create } from 'zustand'
 import { api } from './lib/api.ts'
+import { fetchSession, signIn, signOut, signUp } from './lib/auth-client.ts'
 import { createSocket, type Socket } from './lib/socket.ts'
 import {
 	flashTitle,
@@ -27,7 +29,10 @@ import {
 import { applyTheme, storedTheme, type Theme } from './lib/theme.ts'
 
 type State = {
+	/** Nom affiché, tiré de la session : plus aucun pseudo choisi côté client. */
 	pseudo: string
+	session: SessionInfo | null
+	authReady: boolean
 	connected: boolean
 	rooms: Room[]
 	activeRoomId: string | null
@@ -61,8 +66,10 @@ type State = {
 }
 
 type Actions = {
-	init: (pseudo: string) => Promise<void>
-	setPseudo: (pseudo: string) => void
+	init: () => Promise<void>
+	signIn: (email: string, password: string) => Promise<void>
+	signUp: (email: string, password: string, name: string) => Promise<void>
+	signOut: () => Promise<void>
 	refreshRooms: () => Promise<void>
 	selectRoom: (roomId: string) => void
 	createRoom: (input?: { title?: string; repoUrl?: string; branch?: string }) => Promise<void>
@@ -268,13 +275,15 @@ export const useStore = create<State & Actions>((set, get) => {
 	}
 
 	const join = () => {
-		const { activeRoomId, pseudo } = get()
+		const { activeRoomId } = get()
 		if (!activeRoomId || !socket) return
-		socket.send({ type: 'join', roomId: activeRoomId, pseudo })
+		socket.send({ type: 'join', roomId: activeRoomId })
 	}
 
 	return {
 		pseudo: '',
+		session: null,
+		authReady: false,
 		connected: false,
 		rooms: [],
 		activeRoomId: null,
@@ -287,9 +296,11 @@ export const useStore = create<State & Actions>((set, get) => {
 		notify: notifyEnabled(),
 		...empty,
 
-		async init(pseudo) {
-			set({ pseudo })
-			localStorage.setItem('multiclaude:pseudo', pseudo)
+		async init() {
+			const session = await fetchSession().catch(() => null)
+			set({ session, authReady: true, pseudo: session?.user?.name ?? '' })
+			if (!session?.user) return
+
 			if (!socket) {
 				socket = createSocket({
 					onMessage: applyServerMessage,
@@ -301,13 +312,24 @@ export const useStore = create<State & Actions>((set, get) => {
 			await get().refreshRooms()
 			const first = get().rooms[0]
 			if (first) get().selectRoom(first.id)
-			else await get().createRoom()
 		},
 
-		setPseudo(pseudo) {
-			set({ pseudo })
-			localStorage.setItem('multiclaude:pseudo', pseudo)
-			join()
+		async signIn(email, password) {
+			await signIn(email, password)
+			await get().init()
+		},
+
+		async signUp(email, password, name) {
+			await signUp(email, password, name)
+			await get().init()
+		},
+
+		async signOut() {
+			await signOut()
+			socket?.close()
+			socket = null
+			set({ session: null, pseudo: '', activeRoomId: null, rooms: [], ...empty })
+			await get().init()
 		},
 
 		async refreshRooms() {
@@ -352,10 +374,10 @@ export const useStore = create<State & Actions>((set, get) => {
 		},
 
 		sendMessage(content, attachmentIds) {
-			const { activeRoomId, pseudo } = get()
+			const { activeRoomId } = get()
 			if (!activeRoomId || !socket) return
 			set({ draft: '' })
-			socket.send({ type: 'message', roomId: activeRoomId, pseudo, content, attachmentIds })
+			socket.send({ type: 'message', roomId: activeRoomId, content, attachmentIds })
 		},
 
 		editMessage(messageId, content) {
@@ -394,9 +416,9 @@ export const useStore = create<State & Actions>((set, get) => {
 		},
 
 		setTyping(isTyping) {
-			const { activeRoomId, pseudo } = get()
+			const { activeRoomId } = get()
 			if (!activeRoomId || !socket) return
-			socket.send({ type: 'typing', roomId: activeRoomId, pseudo, typing: isTyping })
+			socket.send({ type: 'typing', roomId: activeRoomId, typing: isTyping })
 		},
 
 		approve(requestId, allow) {
@@ -463,5 +485,3 @@ export const useStore = create<State & Actions>((set, get) => {
 		},
 	}
 })
-
-export const storedPseudo = () => localStorage.getItem('multiclaude:pseudo') ?? ''

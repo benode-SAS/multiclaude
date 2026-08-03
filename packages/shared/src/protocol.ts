@@ -168,12 +168,12 @@ export type AuthState = {
 }
 
 export type ClientMessage =
-	| { type: 'join'; roomId: string; pseudo: string }
-	| { type: 'message'; roomId: string; pseudo: string; content: string; attachmentIds?: string[] }
+	| { type: 'join'; roomId: string }
+	| { type: 'message'; roomId: string; content: string; attachmentIds?: string[] }
 	| { type: 'approve'; roomId: string; requestId: string; allow: boolean }
 	| { type: 'rename'; roomId: string; title: string }
 	| { type: 'set_model'; roomId: string; model: string | null }
-	| { type: 'typing'; roomId: string; pseudo: string; typing: boolean }
+	| { type: 'typing'; roomId: string; typing: boolean }
 	| { type: 'stop'; roomId: string }
 	| { type: 'edit_message'; roomId: string; messageId: string; content: string }
 	| { type: 'cancel_queued'; roomId: string; messageId: string }

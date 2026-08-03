@@ -1,6 +1,7 @@
 import type { Room, SelectionAnchor } from '@multiclaude/shared'
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { AuthGate } from './components/AuthGate.tsx'
 import { AuthPanel } from './components/AuthPanel.tsx'
 import { Composer } from './components/Composer.tsx'
 import { ConfirmDialog } from './components/ConfirmDialog.tsx'
@@ -8,7 +9,6 @@ import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
 import { FollowBar } from './components/FollowBar.tsx'
 import { NewRoomDialog } from './components/NewRoomDialog.tsx'
-import { PseudoGate } from './components/PseudoGate.tsx'
 import { ResizeHandle } from './components/ResizeHandle.tsx'
 import { RoomHeader } from './components/RoomHeader.tsx'
 import { Sidebar } from './components/Sidebar.tsx'
@@ -17,11 +17,11 @@ import { useDockWidth, useIsDesktop } from './lib/layout.ts'
 import { usePresenceReporter } from './lib/presence.ts'
 import { describeSelection, paintSelections, previewHighlights } from './lib/selection.ts'
 import { applyTheme, storedTheme, watchSystemTheme } from './lib/theme.ts'
-import { storedPseudo, useStore } from './store.ts'
+import { useStore } from './store.ts'
 
 export function App() {
 	const store = useStore()
-	const [gate, setGate] = useState(!storedPseudo())
+
 	const [filesOpen, setFilesOpen] = useState(false)
 	const [viewing, setViewing] = useState<ViewerTarget | null>(null)
 	const [navOpen, setNavOpen] = useState(false)
@@ -36,9 +36,12 @@ export function App() {
 	const isDesktop = useIsDesktop()
 	const [dockWidth, setDockWidth, resetDockWidth] = useDockWidth()
 
+	// Une seule tentative : init() décide seul s'il y a une session exploitable.
+	const started = useRef(false)
 	useEffect(() => {
-		const pseudo = storedPseudo()
-		if (pseudo && !store.pseudo) void store.init(pseudo)
+		if (started.current) return
+		started.current = true
+		void store.init()
 	}, [store])
 
 	// 'system' must follow the OS while the app stays open.
@@ -82,15 +85,20 @@ export function App() {
 		store.reportPresence,
 	)
 
-	if (gate || !store.pseudo) {
+	if (!store.authReady) {
 		return (
-			<PseudoGate
-				initial={storedPseudo()}
-				onSubmit={(pseudo) => {
-					setGate(false)
-					if (store.pseudo) store.setPseudo(pseudo)
-					else void store.init(pseudo)
-				}}
+			<div className="flex min-h-dvh items-center justify-center bg-canvas text-[13px] text-muted">
+				Chargement…
+			</div>
+		)
+	}
+
+	if (!store.session?.user) {
+		return (
+			<AuthGate
+				session={store.session ?? { user: null, needsSetup: false, signupEnabled: false }}
+				onSignIn={store.signIn}
+				onSignUp={store.signUp}
 			/>
 		)
 	}
@@ -145,7 +153,9 @@ export function App() {
 					}}
 					onRename={(id, title) => void store.renameRoom(id, title)}
 					onDelete={(id) => setPendingDelete(store.rooms.find((room) => room.id === id) ?? null)}
-					onChangePseudo={() => setGate(true)}
+					onSignOut={() => void store.signOut()}
+					role={store.session.user.role}
+					email={store.session.user.email}
 					theme={store.theme}
 					onSetTheme={store.setTheme}
 					sound={store.sound}
@@ -188,6 +198,7 @@ export function App() {
 							following={store.following}
 							onFollow={store.follow}
 							onFork={() => void store.forkRoom(store.room!.id)}
+							canManage={store.session.user.role === 'admin'}
 						/>
 
 						{store.following && (

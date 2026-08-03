@@ -20,6 +20,7 @@ export function RoomHeader({
 	following,
 	onFollow,
 	onFork,
+	canManage,
 }: {
 	room: Room
 	status: RoomStatus
@@ -35,6 +36,7 @@ export function RoomHeader({
 	following: string | null
 	onFollow: (pseudo: string | null) => void
 	onFork: () => void
+	canManage: boolean
 }) {
 	const [editing, setEditing] = useState(false)
 	const [draft, setDraft] = useState(room.title)
@@ -61,7 +63,7 @@ export function RoomHeader({
 				☰
 			</button>
 
-			{editing ? (
+			{editing && canManage ? (
 				<input
 					autoFocus
 					value={draft}
@@ -81,20 +83,22 @@ export function RoomHeader({
 				<div className="group flex min-w-0 flex-1 items-center gap-1">
 					<button
 						type="button"
-						onDoubleClick={startEditing}
+						onDoubleClick={() => canManage && startEditing()}
 						className="min-w-0 truncate text-[15px] font-semibold"
 						title="Double-clic pour renommer"
 					>
 						{room.title}
 					</button>
-					<button
-						type="button"
-						onClick={startEditing}
-						title="Renommer la conversation"
-						className="shrink-0 rounded px-1 py-0.5 text-[12px] text-muted opacity-100 transition hover:bg-panel hover:text-ink md:opacity-0 md:group-hover:opacity-100"
-					>
-						✎
-					</button>
+					{canManage && (
+						<button
+							type="button"
+							onClick={startEditing}
+							title="Renommer la conversation"
+							className="shrink-0 rounded px-1 py-0.5 text-[12px] text-muted opacity-100 transition hover:bg-panel hover:text-ink md:opacity-0 md:group-hover:opacity-100"
+						>
+							✎
+						</button>
+					)}
 				</div>
 			)}
 

@@ -21,7 +21,9 @@ export function Sidebar({
 	onCreate,
 	onRename,
 	onDelete,
-	onChangePseudo,
+	onSignOut,
+	role,
+	email,
 	theme,
 	onSetTheme,
 	sound,
@@ -50,7 +52,9 @@ export function Sidebar({
 	onCreate: () => void
 	onRename: (id: string, title: string) => void
 	onDelete: (id: string) => void
-	onChangePseudo: () => void
+	onSignOut: () => void
+	role: 'admin' | 'member'
+	email: string
 }) {
 	const [editingId, setEditingId] = useState<string | null>(null)
 	const [draft, setDraft] = useState('')
@@ -99,7 +103,7 @@ export function Sidebar({
 							room.id === activeRoomId ? 'bg-surface shadow-sm' : 'hover:bg-surface/60',
 						)}
 					>
-						{editingId === room.id ? (
+						{editingId === room.id && role === 'admin' ? (
 							<input
 								autoFocus
 								value={draft}
@@ -119,6 +123,7 @@ export function Sidebar({
 									onNavigate()
 								}}
 								onDoubleClick={() => {
+									if (role !== 'admin') return
 									setEditingId(room.id)
 									setDraft(room.title)
 								}}
@@ -138,27 +143,31 @@ export function Sidebar({
 						<span className="shrink-0 text-[11px] text-muted max-md:hidden group-hover:hidden">
 							{formatDay(room.updatedAt)}
 						</span>
-						<span className="shrink-0 items-center gap-1 max-md:flex hidden group-hover:flex">
-							<button
-								type="button"
-								onClick={() => {
-									setEditingId(room.id)
-									setDraft(room.title)
-								}}
-								className="text-[12px] text-muted hover:text-ink"
-								title="Renommer"
-							>
-								✎
-							</button>
-							<button
-								type="button"
-								onClick={() => onDelete(room.id)}
-								className="text-[12px] text-muted hover:text-danger"
-								title="Supprimer"
-							>
-								🗑
-							</button>
-						</span>
+						{/* Renommer et supprimer touchent tout le monde : réservé aux
+						    administrateurs, et le serveur refuse de son côté. */}
+						{role === 'admin' && (
+							<span className="shrink-0 items-center gap-1 max-md:flex hidden group-hover:flex">
+								<button
+									type="button"
+									onClick={() => {
+										setEditingId(room.id)
+										setDraft(room.title)
+									}}
+									className="text-[12px] text-muted hover:text-ink"
+									title="Renommer"
+								>
+									✎
+								</button>
+								<button
+									type="button"
+									onClick={() => onDelete(room.id)}
+									className="text-[12px] text-muted hover:text-danger"
+									title="Supprimer"
+								>
+									🗑
+								</button>
+							</span>
+						)}
 					</div>
 				))}
 			</nav>
@@ -226,15 +235,23 @@ export function Sidebar({
 				</button>
 			</div>
 
-			<button
-				type="button"
-				onClick={onChangePseudo}
-				className="flex items-center gap-2 border-t border-line px-4 py-3 text-left text-[13px] transition hover:bg-surface/60"
-			>
+			<div className="flex items-center gap-2 border-t border-line px-3 py-3 text-[13px]">
 				<Avatar author={pseudo} size={26} />
-				<span className="truncate font-medium">{pseudo}</span>
-				<span className="ml-auto text-muted">changer</span>
-			</button>
+				<span className="min-w-0 flex-1">
+					<span className="block truncate font-medium">{pseudo}</span>
+					<span className="block truncate text-[11px] text-muted">
+						{role === 'admin' ? 'administrateur' : email}
+					</span>
+				</span>
+				<button
+					type="button"
+					onClick={onSignOut}
+					title="Se déconnecter"
+					className="shrink-0 rounded-lg border border-line bg-surface px-2 py-1 text-[12px] text-muted transition hover:text-ink"
+				>
+					⏻
+				</button>
+			</div>
 		</aside>
 	)
 }

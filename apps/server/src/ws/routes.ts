@@ -1,5 +1,6 @@
 import type { ClientMessage, ServerMessage, Snapshot } from '@multiclaude/shared'
 import { Elysia, t } from 'elysia'
+import { currentUser } from '../accounts/guard.ts'
 import { getRuntime } from '../agent/runtime.ts'
 import { AuthService } from '../auth/service.ts'
 import { DraftService } from '../rooms/drafts.ts'
@@ -8,7 +9,7 @@ import { hub } from './hub.ts'
 import { presence } from './presence.ts'
 import { typing } from './typing.ts'
 
-type Session = { roomId: string; pseudo: string }
+type Session = { roomId: string; pseudo: string; userId: string; role: 'admin' | 'member' }
 
 const sessions = new Map<string, Session>()
 
@@ -39,6 +40,11 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 
 			case 'join': {
+				// L'identité vient de la session, jamais du client : un pseudo libre
+				// laisserait n'importe qui se faire passer pour un autre.
+				const account = await currentUser(ws.data.request)
+				if (!account) return send({ type: 'error', message: 'connexion requise' })
+
 				const previous = sessions.get(ws.id)
 				if (previous) {
 					typing.clear(previous.roomId, previous.pseudo)
@@ -49,8 +55,8 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				const room = await RoomService.get(payload.roomId)
 				if (!room) return send({ type: 'error', message: 'room introuvable' })
 
-				const pseudo = payload.pseudo.trim() || 'anonyme'
-				sessions.set(ws.id, { roomId: room.id, pseudo })
+				const pseudo = account.name
+				sessions.set(ws.id, { roomId: room.id, pseudo, userId: account.id, role: account.role })
 				hub.join({ id: ws.id, roomId: room.id, pseudo, send })
 
 				const runtime = await getRuntime(room.id)
@@ -91,7 +97,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				)
 				const runtime = await getRuntime(payload.roomId)
 				await runtime?.submit({
-					pseudo: payload.pseudo.trim() || session.pseudo,
+					pseudo: session.pseudo,
 					content: payload.content.trim(),
 					attachmentIds: payload.attachmentIds,
 				})
@@ -107,6 +113,9 @@ export const wsRoutes = new Elysia().ws('/ws', {
 			}
 
 			case 'rename': {
+				const session = sessions.get(ws.id)
+				// Renommer touche tout le monde : réservé aux administrateurs.
+				if (session?.role !== 'admin') return
 				const room = await RoomService.rename(payload.roomId, payload.title)
 				if (room) hub.broadcast(room.id, { type: 'room_updated', room })
 				return

@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import { Elysia, status, t } from 'elysia'
+import { requireUser } from '../accounts/guard.ts'
 import { config } from '../config.ts'
 import { mimeOf, safeJoin } from '../lib/paths.ts'
 import { RoomService } from '../rooms/service.ts'
@@ -14,7 +15,9 @@ const sanitize = (name: string) =>
 		.slice(0, 120) || 'fichier'
 
 export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
-	.get('/files', async ({ params }) => {
+	.get('/files', async ({ request, params }) => {
+		const denied = await requireUser(request)
+		if (denied) return denied
 		const room = await RoomService.get(params.id)
 		if (!room) return status(404, 'Not Found')
 		return listFiles(room.workdir)
@@ -22,7 +25,9 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 
 	.get(
 		'/files/content',
-		async ({ params, query, set }) => {
+		async ({ request, params, query, set }) => {
+			const denied = await requireUser(request)
+			if (denied) return denied
 			const room = await RoomService.get(params.id)
 			if (!room) return status(404, 'Not Found')
 
@@ -56,7 +61,9 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 	 * rendue a besoin d'un <base> sur lequel ses ressources relatives résolvent,
 	 * ce qu'une URL à paramètre de requête ne permet pas.
 	 */
-	.get('/raw/*', async ({ params, set }) => {
+	.get('/raw/*', async ({ request, params, set }) => {
+		const denied = await requireUser(request)
+		if (denied) return denied
 		const room = await RoomService.get(params.id)
 		if (!room) return status(404, 'Not Found')
 
@@ -81,7 +88,9 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 
 	.post(
 		'/upload',
-		async ({ params, body }) => {
+		async ({ request, params, body }) => {
+			const denied = await requireUser(request)
+			if (denied) return denied
 			const room = await RoomService.get(params.id)
 			if (!room) return status(404, 'Not Found')
 			if (body.file.size > config.maxUploadBytes) return status(413, 'File Too Large')
