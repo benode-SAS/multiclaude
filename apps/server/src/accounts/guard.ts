@@ -3,7 +3,7 @@ import { status } from 'elysia'
 import { auth } from './auth.ts'
 import { AccountService } from './service.ts'
 
-/** Résout la session depuis les cookies de la requête, ou null. */
+/** Resolves the session from the request cookies, or null. */
 export async function currentUser(request: Request): Promise<AccountSummary | null> {
 	try {
 		const session = await auth.api.getSession({ headers: request.headers })
@@ -14,7 +14,7 @@ export async function currentUser(request: Request): Promise<AccountSummary | nu
 	}
 }
 
-/** Renvoie une réponse d'erreur si l'appelant n'est pas connecté, sinon null. */
+/** Error response when the caller has no session, null otherwise. */
 export async function requireUser(request: Request) {
 	const user = await currentUser(request)
 	return user ? null : status(401, 'Connexion requise')

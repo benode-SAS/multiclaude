@@ -5,9 +5,8 @@ const STEP = 24
 const BIG_STEP = 96
 
 /**
- * Splitter between the chat and the right dock. Reports the dock width, derived
- * from the pointer's distance to the right edge; pointer capture keeps the drag
- * alive even when the cursor outruns the 6 px handle. Arrow keys do the same job
+ * Splitter between the chat and the right dock. Pointer capture keeps the drag
+ * alive when the cursor outruns the 6 px handle; arrow keys do the same job
  * without a pointer.
  */
 export function ResizeHandle({

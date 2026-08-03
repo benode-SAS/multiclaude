@@ -47,8 +47,8 @@ export function Thread({
 
 	const queuedIds = useMemo(() => new Set(queue.map((q) => q.id)), [queue])
 
-	// Les messages en attente sont épinglés au-dessus de la saisie : les laisser
-	// aussi dans le fil les ferait disparaître sous la réponse en cours.
+	// Queued messages are pinned above the input; leaving them in the thread too
+	// would bury them under the running answer.
 	const timeline = useMemo(
 		() =>
 			groupTimeline(
@@ -73,7 +73,7 @@ export function Thread({
 	}, [attachments])
 
 	useEffect(() => {
-		// Suivre quelqu'un prime sur le collage en bas, sinon les deux se battent.
+		// Following someone wins over sticking to the bottom, or the two fight.
 		if (followScroll !== null) return
 		if (stickyRef.current) bottomRef.current?.scrollIntoView({ block: 'end' })
 	}, [timeline.length, liveText, pending.length, followScroll])

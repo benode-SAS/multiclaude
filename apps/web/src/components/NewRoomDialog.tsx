@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 /**
- * Le clone se fait avant que la room soit rendue : un turn lancé sur un dossier
- * à moitié cloné donnerait n'importe quoi. D'où l'état occupé, qui peut durer.
+ * The clone runs before the room is handed over: a turn started on a half
+ * cloned directory would produce nonsense. Hence the busy state, which can
+ * last a while.
  */
 export function NewRoomDialog({
 	busy,

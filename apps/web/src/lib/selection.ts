@@ -53,8 +53,8 @@ export function describeSelection(): SelectionAnchor | null {
 	const container = element?.closest(CONTAINER)
 	if (!container) return null
 
-	// Un triple clic déborde souvent sur le bloc suivant : on borne au conteneur
-	// plutôt que d'abandonner la sélection.
+	// A triple click often spills into the next block; clamp to the container
+	// rather than dropping the selection.
 	const from = offsetIn(container, range.startContainer, range.startOffset) ?? 0
 	const to =
 		offsetIn(container, range.endContainer, range.endOffset) ?? container.textContent?.length ?? 0
@@ -95,8 +95,8 @@ function resolveRange(anchor: SelectionAnchor): Range | null {
 	}
 
 	if (!started) return null
-	// La borne de fin dépassait le contenu : coller à la fin plutôt que de
-	// renvoyer un intervalle vide, invisible à l'écran.
+	// The end boundary ran past the content: stick to the end instead of
+	// returning an empty range, which would show nothing.
 	const last = nodes.at(-1)
 	if (!last) return null
 	range.setEnd(last, last.data.length)
@@ -144,7 +144,7 @@ export function paintSelections(presences: Presence[]) {
 
 export const selectionsSupported = supported
 
-/** Sélections visant le document ouvert, prêtes à être envoyées dans l'aperçu. */
+/** Selections aimed at the open document, ready to send into the preview. */
 export function previewHighlights(presences: Presence[], filePath: string | null) {
 	if (!filePath) return []
 	return presences.flatMap((presence) => {

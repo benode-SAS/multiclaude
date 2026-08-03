@@ -18,9 +18,9 @@ const describeTool = (payload: ToolUsePayload) => {
 }
 
 /**
- * Rend la conversation en markdown lisible hors de l'app : messages et actions
- * dans l'ordre, les résultats d'outils restant hors du document — ils pèsent
- * lourd et n'ont d'intérêt qu'à l'écran.
+ * Renders the conversation as markdown readable outside the app: messages and
+ * actions in order. Tool results stay out — they are bulky and only useful on
+ * screen.
  */
 export async function exportRoom(roomId: string) {
 	const room = await RoomService.get(roomId)

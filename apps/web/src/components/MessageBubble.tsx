@@ -64,8 +64,8 @@ export function MessageBubble({
 				</div>
 
 				<div
-					// Ancre des sélections partagées : le conteneur du seul texte,
-					// pour que les décalages ne bougent pas avec l'entête.
+					// Anchor for shared selections: the text container alone, so the
+					// offsets do not shift with the header.
 					data-selection-scope="message"
 					data-selection-key={message.id}
 					className={clsx(
@@ -106,8 +106,8 @@ export function MessageBubble({
 								>
 									Annuler
 								</button>
-								{/* La session de Claude garde l'original : le dire évite de
-								    croire que la correction change ce qu'il a compris. */}
+								{/* Claude's session keeps the original, and saying so avoids the
+								    belief that an edit changes what it understood. */}
 								<span className="text-muted">Claude garde la version déjà reçue</span>
 							</div>
 						</div>

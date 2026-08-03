@@ -4,9 +4,9 @@ import path from 'node:path'
 import { claudeEnv } from '../config.ts'
 
 /**
- * Le CLI range les transcriptions par répertoire de projet, sous un nom dérivé
- * du chemin de travail. C'est une disposition interne, non documentée : elle
- * est isolée ici pour n'avoir qu'un endroit à corriger si elle change.
+ * The CLI stores transcripts per project directory, named after the workdir
+ * path. Undocumented internal layout, kept in one place so a change to it has
+ * a single site to fix.
  */
 const projectSlug = (workdir: string) => path.resolve(workdir).replace(/[^a-zA-Z0-9]/g, '-')
 
@@ -17,9 +17,9 @@ export const sessionFile = (workdir: string, sessionId: string) =>
 	path.join(projectsRoot(), projectSlug(workdir), `${sessionId}.jsonl`)
 
 /**
- * Rend la session lisible depuis un autre dossier de travail. Sans cette copie,
- * `--resume` ne trouve rien : il ne cherche que dans le projet courant, et un
- * fork démarrerait sans le contexte qu'il est censé hériter.
+ * Makes a session readable from another workdir. `--resume` only looks in the
+ * current project, so without this copy a fork starts without the context it
+ * is supposed to inherit.
  */
 export async function copySessionTo(
 	fromWorkdir: string,

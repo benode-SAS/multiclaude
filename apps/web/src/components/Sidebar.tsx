@@ -141,12 +141,12 @@ export function Sidebar({
 							<span className="size-1.5 shrink-0 animate-pulse rounded-full bg-accent" />
 						)}
 
-						{/* Sans survol sur mobile, les actions y sont toujours visibles. */}
+						{/* No hover on mobile, so the actions stay visible there. */}
 						<span className="shrink-0 text-[11px] text-muted max-md:hidden group-hover:hidden">
 							{formatDay(room.updatedAt)}
 						</span>
-						{/* Renommer et supprimer touchent tout le monde : réservé aux
-						    administrateurs, et le serveur refuse de son côté. */}
+						{/* Rename and delete affect everyone: admins only, and the server
+						    refuses on its side too. */}
 						{role === 'admin' && (
 							<span className="shrink-0 items-center gap-1 max-md:flex hidden group-hover:flex">
 								<button
@@ -194,8 +194,8 @@ export function Sidebar({
 					))}
 				</div>
 
-				{/* Toujours accessible : une reconnexion ne doit pas dépendre de la
-				    détection d'un échec pour être atteignable. */}
+				{/* Always reachable: re-logging in must not depend on a failure being
+				    detected first. */}
 				<button
 					type="button"
 					onClick={onRelogin}
@@ -219,7 +219,7 @@ export function Sidebar({
 					{sound ? '🔔' : '🔕'}
 				</button>
 
-				{/* Le carillon ne sert à rien onglet fermé, d'où la notification système. */}
+				{/* The chime is useless with the tab closed, hence system notifications. */}
 				<button
 					type="button"
 					onClick={onToggleNotify}

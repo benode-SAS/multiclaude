@@ -26,7 +26,7 @@ describe('commandes courantes, sans confirmation', () => {
 		'node script.js',
 		'make test',
 		'ls -la && cat rapport.md',
-		// Le cwd est le workdir isolé : une suppression relative n'atteint que lui.
+		// cwd is the isolated workdir, so a relative delete only reaches it.
 		'rm -rf node_modules',
 		'rm -rf dist build',
 		'rm tmp.txt',
@@ -62,7 +62,7 @@ describe('commandes qui demandent une confirmation', () => {
 		['mkfs.ext4 /dev/sdb1', /disque/],
 		['echo x > /etc/hosts', /système/],
 		['crontab -e', /système/],
-		// Sortir du dossier de travail, quelle que soit la forme.
+		// Leaving the workdir, in any shape.
 		['rm -rf /var/www', /hors du dossier/],
 		['rm -rf ~/data', /hors du dossier/],
 		['rm ../../secret.txt', /hors du dossier/],

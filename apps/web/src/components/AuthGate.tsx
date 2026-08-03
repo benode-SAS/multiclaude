@@ -4,9 +4,9 @@ import { useState } from 'react'
 type Mode = 'sign-in' | 'sign-up'
 
 /**
- * Écran d'entrée. Sans aucun compte, il n'y a rien à choisir : on demande
- * directement la création de l'administrateur, sinon l'instance resterait
- * inutilisable même inscriptions fermées.
+ * Entry screen. With no account there is nothing to choose: it asks straight
+ * for the admin account, or a fresh instance with signups closed would stay
+ * unusable.
  */
 export function AuthGate({
 	session,

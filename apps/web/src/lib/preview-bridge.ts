@@ -29,8 +29,8 @@ export const BRIDGE_SCRIPT = `
     return list
   }
 
-  // Sonde plutôt que parcours de nœuds texte : un double ou triple clic renvoie
-  // des bornes qui sont des éléments, qu'aucun parcours ne ferait correspondre.
+  // A probe range rather than a text-node walk: a double or triple click yields
+  // element boundaries that no walk would ever match.
   var offsetOf = function (node, offset) {
     var probe = document.createRange()
     probe.selectNodeContents(document.body)
@@ -121,7 +121,7 @@ export const BRIDGE_SCRIPT = `
 
 /** Wraps the raw file so relative assets still resolve, then instruments it. */
 export function buildPreviewDocument(html: string, baseHref: string) {
-	// `</script>` échappé : sans ça, la balise fermerait sur place à l'injection.
+	// `</script>` is escaped, or the tag would close right here on injection.
 	const bridge = BRIDGE_SCRIPT.replace(/<\/script/gi, '<\\/script')
 	return `<!doctype html><base href="${baseHref}">${html}<script>${bridge}</script>`
 }

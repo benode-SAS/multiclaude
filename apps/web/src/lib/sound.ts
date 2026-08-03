@@ -55,7 +55,7 @@ export const notifyEnabled = () =>
 
 export const notifySupported = () => typeof Notification !== 'undefined'
 
-/** Demande l'autorisation système, puis retient le choix de l'utilisateur. */
+/** Asks for the system permission, then remembers the user's choice. */
 export async function toggleNotifications(on: boolean) {
 	if (!notifySupported()) return false
 	localStorage.setItem(NOTIFY_KEY, on ? 'on' : 'off')
@@ -65,8 +65,8 @@ export async function toggleNotifications(on: boolean) {
 }
 
 /**
- * Le carillon ne sert à rien onglet fermé, et une demande non vue fait
- * expirer le turn au bout du délai du hook.
+ * The chime is useless with the tab closed, and an unseen request expires the
+ * turn once the hook times out.
  */
 export function notifyPermission(room: string, tool: string, reason: string) {
 	if (!notifyEnabled()) return
@@ -82,7 +82,7 @@ export function notifyPermission(room: string, tool: string, reason: string) {
 			notification.close()
 		}
 	} catch {
-		// notifications refusées entre-temps
+		// permission revoked in the meantime
 	}
 }
 

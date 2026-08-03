@@ -5,9 +5,8 @@ const compact = (tokens: number) =>
 	tokens >= 1000 ? `${(tokens / 1000).toFixed(tokens >= 100_000 ? 0 : 1)}k` : String(tokens)
 
 /**
- * Claude Code compacts on its own around 90 % of the window, so the bar is a
- * heads-up rather than a limit: past that point the conversation continues on
- * a summary instead of the full history.
+ * Claude Code compacts on its own around 90 % of the window, so this is a
+ * heads-up rather than a limit.
  */
 export function ContextGauge({ usage }: { usage: ContextUsage }) {
 	const ratio = usage.window > 0 ? Math.min(usage.tokens / usage.window, 1) : 0

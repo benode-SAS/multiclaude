@@ -1,11 +1,9 @@
 import { hub } from './hub.ts'
 
 /**
- * Typing state is ephemeral and never persisted. Each signal refreshes an
- * expiry so a client that disconnects mid-sentence stops showing as typing.
- *
- * Confortablement au-dessus du battement du client : l'expiration n'est là que
- * pour les onglets morts, pas pour arbitrer une pause dans la frappe.
+ * Typing state is ephemeral and never persisted. Each signal refreshes this
+ * expiry, set well above the client heartbeat: it only catches dead tabs, it
+ * does not arbitrate a pause in the typing.
  */
 const EXPIRY_MS = 15_000
 

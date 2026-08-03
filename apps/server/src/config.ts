@@ -79,7 +79,7 @@ export const config = {
 
 	maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 50) * 1024 * 1024,
 
-	/** URL publique, utilisée par les cookies de session et les origines de confiance. */
+	/** Public URL, used by the session cookies and the trusted origins. */
 	get publicUrl() {
 		return process.env.PUBLIC_URL ?? `http://localhost:${port}`
 	},
@@ -90,16 +90,16 @@ export const config = {
 			.filter(Boolean)
 		return [config.publicUrl, ...extra]
 	},
-	/** Secret de signature des sessions, voir resolveAuthSecret plus bas. */
+	/** Session signing secret, see resolveAuthSecret below. */
 	authSecret: '',
-	/** Inscription ouverte à tous, ou réservée à ce que crée un administrateur. */
+	/** Signups open to anyone, or accounts created by an admin only. */
 	signupEnabled: bool(process.env.SIGNUP_ENABLED, true),
-	/** Crée ce compte administrateur au démarrage s'il n'existe encore personne. */
+	/** Admin account created at boot while no account exists yet. */
 	adminEmail: process.env.ADMIN_EMAIL?.trim() ?? '',
 	adminPassword: process.env.ADMIN_PASSWORD ?? '',
 	adminName: process.env.ADMIN_NAME?.trim() || 'Admin',
 
-	/** Profondeur du clone : 0 pour un historique complet. */
+	/** Clone depth; 0 for the full history. */
 	cloneDepth: Number(process.env.CLONE_DEPTH ?? 1),
 	cloneTimeoutMs: Number(process.env.CLONE_TIMEOUT ?? 180) * 1000,
 }
@@ -113,9 +113,9 @@ export const claudeEnv: Record<string, string> = {
 }
 
 /**
- * Un secret absent invaliderait toutes les sessions à chaque redémarrage. On en
- * fabrique un et on le garde dans DATA_DIR : l'app démarre sans configuration,
- * et les sessions survivent quand même.
+ * A missing secret would invalidate every session on each restart. One is
+ * generated and kept in DATA_DIR instead: the app starts with no configuration
+ * at all, and sessions still survive.
  */
 function resolveAuthSecret() {
 	const fromEnv = process.env.AUTH_SECRET?.trim()

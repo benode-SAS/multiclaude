@@ -7,10 +7,7 @@ import { TypingIndicator } from './TypingIndicator.tsx'
 
 /** Silence after the last keystroke before we declare the typing over. */
 const TYPING_IDLE_MS = 20_000
-/**
- * Le signal « je tape » n'était émis qu'à la première touche : le serveur
- * l'expirait donc en pleine frappe. On le rafraîchit tant que ça tape.
- */
+/** Refreshed while typing, or the server expires the signal mid-sentence. */
 const TYPING_HEARTBEAT_MS = 5_000
 /** Drafts are shared and persisted, but not on every keystroke. */
 const DRAFT_DEBOUNCE_MS = 500
@@ -146,9 +143,9 @@ export function Composer({
 	uploadRef.current = upload
 
 	/**
-	 * Dépôt sur toute la fenêtre, pas seulement sur la zone de saisie : viser un
-	 * champ étroit avec un fichier est pénible. Le compteur d'entrées évite que
-	 * le survol d'un enfant ne fasse clignoter l'incrustation.
+	 * Drop anywhere in the window, not just on the input: aiming a file at a
+	 * narrow field is tedious. The depth counter keeps the overlay from
+	 * flickering as the pointer crosses child elements.
 	 */
 	useEffect(() => {
 		let depth = 0
@@ -265,8 +262,8 @@ export function Composer({
 							flushDraft(value)
 						}}
 						onPaste={(e) => {
-							// Une capture d'écran collée arrive en fichier, sans texte :
-							// on ne bloque le collage que s'il y a vraiment des fichiers.
+							// A pasted screenshot arrives as a file with no text, so only
+							// swallow the paste when files are actually present.
 							const files = e.clipboardData.files
 							if (files.length === 0) return
 							e.preventDefault()

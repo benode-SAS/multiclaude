@@ -31,8 +31,8 @@ export async function searchMessages(query: string, roomId?: string): Promise<Se
 	const term = query.trim()
 	if (term.length < 2) return []
 
-	// %, _ et \ sont des jokers SQL. Les échapper ne suffit pas : sans clause
-	// ESCAPE, SQLite lit l'antislash comme un caractère ordinaire.
+	// %, _ and \ are SQL wildcards. Escaping them is not enough: without an
+	// ESCAPE clause, SQLite reads the backslash as an ordinary character.
 	const escaped = term.replace(/[\\%_]/g, (character) => `${ESCAPE_CHAR}${character}`)
 	const pattern = `%${escaped}%`
 	const matches = (column: SQLiteColumn) => sql`${column} LIKE ${pattern} ESCAPE ${ESCAPE_CHAR}`

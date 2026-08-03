@@ -53,7 +53,7 @@ export function RoomHeader({
 
 	return (
 		<header className="flex min-w-0 items-center gap-2 overflow-hidden border-b border-line bg-canvas/80 px-3 py-2.5 backdrop-blur md:gap-3 md:px-6 md:py-3">
-			{/* Ouvre le tiroir : la sidebar est masquée sous md. */}
+			{/* Opens the drawer: the sidebar is hidden below md. */}
 			<button
 				type="button"
 				onClick={onOpenNav}
@@ -126,7 +126,7 @@ export function RoomHeader({
 				</div>
 			)}
 
-			{/* Borné en largeur : « Défaut du compte » suffit à faire déborder un iPhone. */}
+			{/* Width-capped: the longest label alone overflows an iPhone header. */}
 			<label className="flex shrink-0 items-center gap-1.5 text-[12px] text-muted">
 				<span className="hidden lg:inline">Modèle</span>
 				<select
@@ -142,7 +142,7 @@ export function RoomHeader({
 				</select>
 			</label>
 
-			{/* Cliquer un badge met la vue en miroir de la sienne. */}
+			{/* Clicking a badge mirrors that person's view. */}
 			<div className="hidden shrink-0 items-center -space-x-2 lg:flex">
 				{participants.map((participant) => (
 					<button
@@ -168,7 +168,7 @@ export function RoomHeader({
 				))}
 			</div>
 
-			{/* Dérive la session : avancer sans abîmer le contexte partagé. */}
+			{/* Branches the session off: move ahead without spoiling the shared context. */}
 			<button
 				type="button"
 				onClick={onFork}

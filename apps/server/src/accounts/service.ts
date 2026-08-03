@@ -36,7 +36,7 @@ export const AccountService = {
 		await db.delete(user).where(eq(user.id, id))
 	},
 
-	/** Le tout premier inscrit administre : sans lui personne ne pourrait rien régler. */
+	/** The very first account administers, otherwise nobody can set anything up. */
 	async promoteIfFirst(id: string) {
 		if ((await AccountService.count()) !== 1) return
 		await db.update(user).set({ role: 'admin' }).where(eq(user.id, id))

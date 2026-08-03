@@ -38,7 +38,7 @@ export function App() {
 	const isDesktop = useIsDesktop()
 	const [dockWidth, setDockWidth, resetDockWidth] = useDockWidth()
 
-	// Une seule tentative : init() décide seul s'il y a une session exploitable.
+	// Once only: init() decides on its own whether there is a usable session.
 	const started = useRef(false)
 	useEffect(() => {
 		if (started.current) return
@@ -55,8 +55,8 @@ export function App() {
 		return () => document.removeEventListener('selectionchange', onSelectionChange)
 	}, [])
 
-	// Les sélections des autres sont peintes en permanence, pas seulement en
-	// mode suivi : c'est ce qui rend la présence lisible à la Google Docs.
+	// Everyone's selection is painted at all times, not only while following:
+	// that is what makes presence readable.
 	useEffect(() => {
 		paintSelections(Object.values(store.presence))
 	}, [store.presence, store.messages, viewing])
@@ -135,7 +135,7 @@ export function App() {
 
 	return (
 		<div className="relative flex h-dvh overflow-hidden">
-			{/* Colonne fixe à partir de md, tiroir coulissant en dessous. */}
+			{/* Fixed column from md up, sliding drawer below. */}
 			<div
 				className={clsx(
 					'z-[60] transition-transform duration-200 md:static md:z-auto md:translate-x-0',
@@ -270,7 +270,7 @@ export function App() {
 				)}
 			</main>
 
-			{/* Panneau redimensionnable sur desktop, plein écran sur mobile. */}
+			{/* Resizable dock on desktop, full screen on mobile. */}
 			{dockContent &&
 				(isDesktop ? (
 					<>
@@ -296,7 +296,7 @@ export function App() {
 							setCreating(false)
 							setNavOpen(false)
 						} catch (error) {
-							// Le serveur renvoie la raison exacte de l'échec du clone.
+							// The server returns the exact reason the clone failed.
 							const detail = error instanceof Error ? error.message : String(error)
 							setCreateError(detail.replace(/^\d+\s*/, ''))
 						} finally {

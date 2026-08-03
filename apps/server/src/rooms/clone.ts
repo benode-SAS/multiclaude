@@ -2,7 +2,7 @@ import { config } from '../config.ts'
 
 export type CloneResult = { ok: true; head: string } | { ok: false; error: string }
 
-/** git@host:path, ssh://, https:// et http:// — rien d'autre. */
+/** git@host:path, ssh://, https:// and http://, nothing else. */
 const GIT_URL = /^(https?:\/\/[^\s]+|ssh:\/\/[^\s]+|[\w.-]+@[\w.-]+:[^\s]+)$/
 
 export const isCloneUrl = (url: string) => GIT_URL.test(url.trim())
@@ -15,12 +15,12 @@ const lastLine = (text: string) =>
 		.at(-1) ?? ''
 
 /**
- * Clone dans le workdir de la room, qui doit être vide — la room devient le
- * dépôt plutôt que d'en contenir un, pour que l'agent travaille à la racine.
+ * Clones into the room's workdir, which must be empty: the room becomes the
+ * repository rather than containing one, so the agent works at its root.
  *
- * `--` sépare les options de l'URL : sans lui, une URL commençant par un tiret
- * serait lue comme une option de git. L'argv est passé sans shell, donc rien
- * n'est interprété.
+ * `--` separates the options from the URL, or a URL starting with a dash would
+ * be read as a git option. argv is passed without a shell, so nothing else is
+ * interpreted.
  */
 export async function cloneInto(
 	workdir: string,
@@ -30,8 +30,8 @@ export async function cloneInto(
 	const url = repoUrl.trim()
 	if (!isCloneUrl(url)) return { ok: false, error: 'URL de dépôt non reconnue' }
 
-	// `credential.helper=` vide neutralise tout gestionnaire d'identifiants : sans
-	// ça un dépôt privé ouvre une invite et la requête reste suspendue.
+	// An empty `credential.helper` disables any credential manager: a private
+	// repository would otherwise open a prompt and hang the request.
 	const args = ['-c', 'credential.helper=', '-c', 'core.askPass=', 'clone', '--progress']
 	if (config.cloneDepth > 0) args.push('--depth', String(config.cloneDepth))
 	if (branch?.trim()) args.push('--branch', branch.trim())
@@ -46,7 +46,7 @@ export async function cloneInto(
 			stderr: 'pipe',
 			env: {
 				...process.env,
-				// Sans ça, un dépôt privé bloquerait le serveur sur une invite.
+				// Same reason: no interactive prompt, ever.
 				GIT_TERMINAL_PROMPT: '0',
 				GIT_ASKPASS: 'echo',
 			},

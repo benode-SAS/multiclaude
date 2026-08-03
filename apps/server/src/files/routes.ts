@@ -57,9 +57,9 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 	)
 
 	/**
-	 * Même contenu que /files/content, mais adressé par chemin : une page HTML
-	 * rendue a besoin d'un <base> sur lequel ses ressources relatives résolvent,
-	 * ce qu'une URL à paramètre de requête ne permet pas.
+	 * Same content as /files/content, addressed by path: a rendered HTML page
+	 * needs a <base> its relative assets can resolve against, which a query
+	 * parameter URL cannot provide.
 	 */
 	.get('/raw/*', async ({ request, params, set }) => {
 		const denied = await requireUser(request)
@@ -79,7 +79,7 @@ export const fileRoutes = new Elysia({ prefix: '/rooms/:id' })
 		set.headers['content-type'] = meta.mime
 		set.headers['cache-control'] = 'no-cache'
 		set.headers['x-content-type-options'] = 'nosniff'
-		// Servi tel quel, il reste inerte : seul l'aperçu instrumenté exécute du script.
+		// Served raw it stays inert; only the instrumented preview runs scripts.
 		if (meta.mime === 'text/html' || meta.mime === 'image/svg+xml') {
 			set.headers['content-security-policy'] = 'sandbox'
 		}

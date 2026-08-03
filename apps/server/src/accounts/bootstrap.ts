@@ -3,9 +3,9 @@ import { auth } from './auth.ts'
 import { AccountService } from './service.ts'
 
 /**
- * Crée le compte administrateur depuis l'environnement, pour un déploiement
- * sans intervention. Ne fait rien si un compte existe déjà : on ne veut pas
- * qu'un redémarrage réécrive un mot de passe changé depuis.
+ * Creates the admin account from the environment, for unattended deployments.
+ * Skipped as soon as one account exists, so a restart never overwrites a
+ * password changed since.
  */
 export async function bootstrapAdmin() {
 	if (!config.adminEmail || !config.adminPassword) return

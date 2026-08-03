@@ -33,8 +33,8 @@ export function TypingIndicator({
 						))}
 					</div>
 
-					{/* Le contenu reste caché par défaut : l'afficher en continu prendrait
-					    toute la place sous le champ de saisie. */}
+					{/* Hidden by default: showing it permanently would eat the space
+					    under the input. */}
 					<button
 						type="button"
 						onMouseEnter={() => setPeeking(true)}

@@ -1,9 +1,6 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
-/**
- * Réglages modifiés depuis l'interface d'administration. Table clé/valeur :
- * une ligne par réglage renseigné, l'absence signifiant « garde le `.env` ».
- */
+/** Admin overrides. A missing key means "keep whatever the `.env` says". */
 export const settings = sqliteTable('settings', {
 	key: text('key').primaryKey(),
 	value: text('value').notNull(),

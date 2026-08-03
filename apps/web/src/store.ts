@@ -29,7 +29,7 @@ import {
 import { applyTheme, storedTheme, type Theme } from './lib/theme.ts'
 
 type State = {
-	/** Nom affiché, tiré de la session : plus aucun pseudo choisi côté client. */
+	/** Display name, taken from the session; never chosen client-side. */
 	pseudo: string
 	session: SessionInfo | null
 	authReady: boolean
@@ -184,8 +184,8 @@ export const useStore = create<State & Actions>((set, get) => {
 				return
 			}
 			case 'file_change': {
-				// Une modification garde le même chemin : c'est la version qui dit
-				// à la liseuse ouverte qu'il faut relire.
+				// An edit keeps the same path, so the version is what tells an open
+				// viewer to refetch.
 				set({
 					filesRevision: state.filesRevision + 1,
 					fileVersions: {
@@ -216,7 +216,7 @@ export const useStore = create<State & Actions>((set, get) => {
 				set({ status: message.status })
 				return
 			case 'queued': {
-				// Sert aussi de mise à jour quand un message en file est corrigé.
+				// Doubles as an update when a queued message is corrected.
 				const others = state.queue.filter((q) => q.id !== message.item.id)
 				set({ queue: [...others, message.item] })
 				return

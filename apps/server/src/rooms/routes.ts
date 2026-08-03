@@ -13,8 +13,8 @@ export const roomRoutes = new Elysia({ prefix: '/rooms' })
 	.post(
 		'/',
 		async ({ request, body }) => {
-			// Créer une conversation lance un agent sur la machine : réservé aux
-			// comptes, et la suppression aux administrateurs.
+			// Creating a conversation spawns an agent on the host, so accounts
+			// only; deleting one is admins only.
 			const denied = await requireUser(request)
 			if (denied) return denied
 
@@ -23,8 +23,8 @@ export const roomRoutes = new Elysia({ prefix: '/rooms' })
 
 			const room = await RoomService.create(body?.title)
 
-			// Cloné avant de rendre la main : un turn lancé sur un dossier à
-			// moitié cloné donnerait des résultats incohérents.
+			// Cloned before handing the room back: a turn started on a half cloned
+			// directory would produce inconsistent results.
 			if (repoUrl) {
 				const result = await cloneInto(room.workdir, repoUrl, body?.branch)
 				if (!result.ok) {

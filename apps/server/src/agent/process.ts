@@ -10,7 +10,7 @@ type Options = {
 	model: string | null
 	/** True when the session already exists on disk and must be resumed. */
 	resumable: boolean
-	/** Dérive la session parente au lieu de la reprendre : cas d'un fork. */
+	/** Branches off the parent session instead of resuming it, for a fork. */
 	forkSession: boolean
 	onMessage: (message: CliMessage) => void
 	onExit: (code: number | null, stderr: string) => void

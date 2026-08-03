@@ -134,7 +134,7 @@ export class RoomRuntime {
 		return true
 	}
 
-	/** Un message encore en file n'est pas parti : le corriger a un effet réel. */
+	/** A queued message has not been sent yet, so editing it still changes what Claude sees. */
 	editQueued(messageId: string, content: string) {
 		const submission = this.queue.find((item) => item.messageId === messageId)
 		if (!submission) return false
@@ -351,8 +351,8 @@ export class RoomRuntime {
 		if (message.type === 'system') {
 			if (message.subtype === 'init') {
 				if (typeof message.session_id === 'string') {
-					// Un fork rend une nouvelle session : la retenir et lever le drapeau,
-					// sinon le lancement suivant re-dériverait la parente.
+					// A fork returns a new session; keep it and clear the flag, or the
+					// next spawn would branch off the parent again.
 					await RoomService.setSessionId(this.roomId, message.session_id)
 					await RoomService.clearForkPending(this.roomId)
 				}

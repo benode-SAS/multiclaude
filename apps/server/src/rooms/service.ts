@@ -44,8 +44,8 @@ export const RoomService = {
 	async create(title?: string): Promise<Room> {
 		const id = newId()
 		const workdir = path.join(config.roomsDir, id, 'workdir')
-		// Laissé vide : git clone refuse un dossier non vide. uploads/ est créé
-		// au premier envoi de fichier.
+		// Left empty: git clone refuses a non-empty directory. uploads/ is created
+		// on the first upload.
 		await mkdir(workdir, { recursive: true })
 		const ts = now()
 		const row = {
@@ -86,8 +86,8 @@ export const RoomService = {
 	},
 
 	/**
-	 * Duplique la room : mêmes fichiers, et la session parente sera dérivée au
-	 * prochain lancement pour que les deux avancent sans se marcher dessus.
+	 * Duplicates the room: same files, and the parent session is branched off on
+	 * the next spawn so both threads move on without colliding.
 	 */
 	async fork(sourceId: string, title?: string): Promise<Room | null> {
 		const source = await RoomService.get(sourceId)
@@ -98,8 +98,8 @@ export const RoomService = {
 		await mkdir(path.dirname(workdir), { recursive: true })
 		await cp(source.workdir, workdir, { recursive: true })
 
-		// La transcription doit suivre : --resume ne cherche que dans le projet
-		// courant. Sans elle, le fork repartirait sans le contexte hérité.
+		// The transcript has to follow: --resume only looks in the current
+		// project, so without it the fork starts without the inherited context.
 		const inherited = source.sessionId
 			? await copySessionTo(source.workdir, workdir, source.sessionId)
 			: false
@@ -119,7 +119,8 @@ export const RoomService = {
 		}
 		await db.insert(rooms).values(row)
 
-		// L'historique visible est recopié : le fil doit être lisible dès l'ouverture.
+		// The visible history is copied too, so the fork reads as a thread from
+		// the moment it opens.
 		const history = await RoomService.messages(sourceId)
 		for (const message of history) {
 			await db.insert(messages).values({ ...message, id: newId(), roomId: id })

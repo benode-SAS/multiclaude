@@ -6,11 +6,11 @@ export const rooms = sqliteTable('rooms', {
 	sessionId: text('session_id'),
 	/** Alias passed to `claude --model`; null keeps the account default. */
 	model: text('model'),
-	/** Room dont celle-ci est issue, pour l'afficher dans la liste. */
+	/** Room this one was forked from, shown in the list. */
 	forkedFrom: text('forked_from'),
 	/**
-	 * Le prochain lancement doit dériver la session parente au lieu de la
-	 * reprendre : sans ça les deux rooms écriraient dans la même session.
+	 * The next spawn must branch off the parent session instead of resuming it,
+	 * or both rooms would write into the same one.
 	 */
 	forkPending: integer('fork_pending', { mode: 'boolean' }).notNull().default(false),
 	workdir: text('workdir').notNull(),
@@ -32,7 +32,7 @@ export const messages = sqliteTable(
 		role: text('role', { enum: ['user', 'assistant', 'system'] }).notNull(),
 		content: text('content').notNull(),
 		createdAt: integer('created_at').notNull(),
-		/** Marque une correction : le fil doit rester honnête sur ce qui a changé. */
+		/** Set when the message was corrected, so the thread stays honest. */
 		editedAt: integer('edited_at'),
 	},
 	(t) => [index('messages_room_created_idx').on(t.roomId, t.createdAt)],

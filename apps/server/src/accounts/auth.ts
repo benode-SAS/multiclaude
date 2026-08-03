@@ -8,8 +8,8 @@ import { AccountService } from './service.ts'
 import { SettingsService } from './settings.ts'
 
 /**
- * Comptes locaux : e-mail et mot de passe, sessions en base, aucun service
- * externe. Une instance auto-hébergée doit fonctionner sans dépendance réseau.
+ * Local accounts: email and password, sessions in the database, no external
+ * service. A self-hosted instance has to work without a network dependency.
  */
 export const auth = betterAuth({
 	appName: 'multiclaude',
@@ -22,7 +22,7 @@ export const auth = betterAuth({
 
 	emailAndPassword: {
 		enabled: true,
-		// Pas de service d'e-mail à configurer pour se lancer.
+		// No mail service to configure before getting started.
 		requireEmailVerification: false,
 		minPasswordLength: 8,
 	},
@@ -41,8 +41,8 @@ export const auth = betterAuth({
 	databaseHooks: {
 		user: {
 			create: {
-				// Le drapeau ne peut pas être statique : même inscription fermée, il
-				// faut pouvoir créer le tout premier compte depuis l'interface.
+				// Cannot be a static flag: the very first account must be creatable
+				// from the UI even with signups closed.
 				before: async () => {
 					const existing = await AccountService.count()
 					if (existing > 0 && !SettingsService.signupEnabled()) {
@@ -58,8 +58,8 @@ export const auth = betterAuth({
 	},
 
 	advanced: {
-		// Cookie non sécurisé en clair : une instance de labo tourne souvent en
-		// http sur un réseau interne, où `secure` empêcherait toute connexion.
+		// A lab instance often runs over http on an internal network, where a
+		// `secure` cookie would make signing in impossible.
 		useSecureCookies: config.publicUrl.startsWith('https://'),
 	},
 })

@@ -6,9 +6,9 @@ import { settings } from '../db/settings-schema.ts'
 import { now } from '../lib/ids.ts'
 
 /**
- * Le `.env` donne la valeur de départ, l'administrateur peut la changer à
- * chaud. Un cache mémoire évite une requête à chaque inscription ou création
- * de room ; il n'y a qu'un process serveur, donc rien à invalider ailleurs.
+ * The `.env` gives the starting value, an admin can change it at runtime. The
+ * in-memory cache saves a query on every sign-up and room creation; there is
+ * only one server process, so nothing to invalidate elsewhere.
  */
 let cache: AdminSettings | null = null
 
@@ -47,7 +47,7 @@ export const SettingsService = {
 		return load()
 	},
 
-	/** Revient à ce que dit le `.env` en effaçant les surcharges. */
+	/** Drops the overrides and falls back to the `.env`. */
 	reset(): AdminSettings {
 		db.delete(settings).where(eq(settings.key, 'signupEnabled')).run()
 		db.delete(settings).where(eq(settings.key, 'defaultModel')).run()

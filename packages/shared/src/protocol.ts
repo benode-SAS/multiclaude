@@ -10,7 +10,7 @@ export type Room = {
 	sessionId: string | null
 	/** `claude --model` alias; null keeps the account default. */
 	model: string | null
-	/** Room d'origine quand celle-ci est un fork. */
+	/** Room this one was forked from, if any. */
 	forkedFrom: string | null
 	workdir: string
 	status: RoomStatus
@@ -146,24 +146,24 @@ export type AccountSummary = {
 	createdAt: number
 }
 
-/** Ce que le front doit savoir avant même d'afficher un écran de connexion. */
+/** What the front needs before it can even render a sign-in screen. */
 export type SessionInfo = {
 	user: AccountSummary | null
-	/** Aucun compte n'existe : le premier créé sera administrateur. */
+	/** No account exists yet: the first one created will be an admin. */
 	needsSetup: boolean
 	signupEnabled: boolean
 }
 
 export const isAdmin = (user: AccountSummary | null | undefined) => user?.role === 'admin'
 
-/** Réglages modifiables depuis l'interface : ils priment sur le `.env`. */
+/** Settings editable from the UI; they take precedence over the `.env`. */
 export type AdminSettings = {
 	signupEnabled: boolean
-	/** Modèle appliqué aux nouvelles conversations ; null garde celui du compte. */
+	/** Applied to new conversations; null keeps the account default. */
 	defaultModel: string | null
 }
 
-/** Ce qui vient de l'environnement : affiché pour diagnostic, non modifiable ici. */
+/** Environment-derived, shown for diagnosis and not editable from the UI. */
 export type AdminRuntime = {
 	publicUrl: string
 	dataDir: string

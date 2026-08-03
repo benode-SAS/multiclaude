@@ -10,9 +10,8 @@ import { AccountService } from './service.ts'
 import { SettingsService } from './settings.ts'
 
 /**
- * Better Auth gère lui-même /api/auth/* (inscription, connexion, session).
- * Le reste ici sert à ce que le front sait avant d'afficher quoi que ce soit,
- * et à l'administration des comptes.
+ * Better Auth owns /api/auth/* (sign-up, sign-in, session). The rest is what
+ * the front needs before rendering anything, plus account administration.
  */
 export const accountRoutes = new Elysia({ prefix: '/api' })
 	.mount(auth.handler)
@@ -21,7 +20,7 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 		const total = await AccountService.count()
 		return {
 			user: await currentUser(request),
-			// Personne encore : le front propose la création du compte administrateur.
+			// Nobody yet: the front offers to create the admin account.
 			needsSetup: total === 0,
 			signupEnabled: SettingsService.signupEnabled(),
 		}
@@ -80,8 +79,7 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 			if (denied) return denied
 
 			const me = await currentUser(request)
-			// Se retirer soi-même le dernier rôle admin fermerait la porte à clé
-			// de l'intérieur : plus personne ne pourrait régler quoi que ce soit.
+			// Dropping the last admin role locks everyone out of the settings.
 			if (
 				me?.id === params.id &&
 				body.role === 'member' &&

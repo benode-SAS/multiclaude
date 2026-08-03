@@ -21,8 +21,8 @@ const duration = (seconds: number) => {
 }
 
 /**
- * Administration : comptes et réglages. En surcouche plutôt qu'en route
- * dédiée — l'app n'a pas de routeur, et on y passe pour un aller-retour court.
+ * Accounts and settings. An overlay rather than a dedicated route: the app has
+ * no router, and this is a short round trip.
  */
 export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () => void }) {
 	const [tab, setTab] = useState<Tab>('accounts')
@@ -46,7 +46,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 				setAccounts(list)
 				setConfig(cfg)
 			})
-			// Le serveur renvoie le motif, préfixé du code HTTP : il ne sert à rien ici.
+			// The server states the reason, prefixed by the HTTP code we drop here.
 			.catch((cause: unknown) => setError(clean(cause)))
 	}, [])
 
@@ -229,8 +229,8 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 
 							<section className="rounded-xl border border-line bg-surface p-3">
 								<h3 className="text-[13px] font-medium">État du serveur</h3>
-								{/* Le reste vient du .env : le montrer évite d'aller lire le fichier
-								    sur le serveur pour diagnostiquer un comportement. */}
+								{/* Showing what the .env resolved to saves a trip to the server
+								    when diagnosing a behaviour. */}
 								<dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
 									<Row label="Compte Claude">
 										{config.runtime.claudeLoggedIn ? 'connecté' : 'non connecté'}

@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { Avatar } from './Avatar.tsx'
 
 /**
- * Épinglé au-dessus de la saisie plutôt que laissé dans le fil : ces messages
- * ne sont pas encore partis, et le flot de Claude les enterrait aussitôt.
+ * Pinned above the input rather than left in the thread: these messages have
+ * not been sent yet, and Claude's stream buried them instantly.
  */
 export function QueuedStrip({
 	items,

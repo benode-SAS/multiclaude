@@ -1,7 +1,7 @@
 import type { SessionInfo } from '@multiclaude/shared'
 import { createAuthClient } from 'better-auth/client'
 
-/** Même origine que l'app : le proxy de dev comme la prod servent /api/auth. */
+/** Same origin as the app: dev proxy and production both serve /api/auth. */
 export const authClient = createAuthClient({ basePath: '/api/auth' })
 
 const readError = (error: unknown) => {

@@ -1,9 +1,9 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 /**
- * Tables attendues par Better Auth, déclarées ici plutôt que gérées par son
- * propre outil : le projet garde une seule commande de migration, et tout vit
- * dans le même fichier SQLite que les conversations.
+ * Tables Better Auth expects, declared here instead of through its own CLI:
+ * the project keeps a single migration command, and everything lives in the
+ * same SQLite file as the conversations.
  */
 export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
@@ -11,7 +11,7 @@ export const user = sqliteTable('user', {
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull().default(false),
 	image: text('image'),
-	/** 'admin' ou 'member' — le premier compte créé est administrateur. */
+	/** The first account created is an admin. */
 	role: text('role', { enum: ['admin', 'member'] })
 		.notNull()
 		.default('member'),

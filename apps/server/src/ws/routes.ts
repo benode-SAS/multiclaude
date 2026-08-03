@@ -40,8 +40,8 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				return
 
 			case 'join': {
-				// L'identité vient de la session, jamais du client : un pseudo libre
-				// laisserait n'importe qui se faire passer pour un autre.
+				// Identity comes from the session, never from the client: a free-form
+				// pseudo would let anyone pass for someone else.
 				const account = await currentUser(ws.data.request)
 				if (!account) return send({ type: 'error', message: 'connexion requise' })
 
@@ -114,7 +114,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 
 			case 'rename': {
 				const session = sessions.get(ws.id)
-				// Renommer touche tout le monde : réservé aux administrateurs.
+				// A rename affects everyone, so admins only.
 				if (session?.role !== 'admin') return
 				const room = await RoomService.rename(payload.roomId, payload.title)
 				if (room) hub.broadcast(room.id, { type: 'room_updated', room })
@@ -136,7 +136,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				if (!content) return
 
 				const existing = await RoomService.message(payload.messageId)
-				// On ne corrige que ses propres messages, et jamais ceux de Claude.
+				// Only your own messages, and never Claude's.
 				if (!existing || existing.roomId !== session.roomId) return
 				if (existing.role !== 'user' || existing.author !== session.pseudo) return
 
@@ -144,7 +144,7 @@ export const wsRoutes = new Elysia().ws('/ws', {
 				if (!updated) return
 
 				const runtime = await getRuntime(session.roomId)
-				// Encore en file : la version corrigée est celle qui partira.
+				// Still queued: the corrected version is the one that will be sent.
 				if (runtime?.editQueued(payload.messageId, content)) {
 					hub.broadcast(session.roomId, {
 						type: 'queued',

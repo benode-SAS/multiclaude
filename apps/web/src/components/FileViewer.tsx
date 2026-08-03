@@ -41,7 +41,7 @@ export function FileViewer({
 	followScroll?: number | null
 	onSelection?: (anchor: SelectionAnchor | null) => void
 	highlights?: Array<{ name: string; bg: string; fg: string; start: number; end: number }>
-	/** Incrémenté quand le fichier change sur disque : relit et casse le cache. */
+	/** Bumped when the file changes on disk: refetches and busts the cache. */
 	version?: number
 }) {
 	const bodyRef = useRef<HTMLDivElement>(null)
@@ -79,7 +79,8 @@ export function FileViewer({
 		if (bodyRef.current) applyScrollRatio(bodyRef.current, followScroll)
 	}, [followScroll, content, rendered])
 
-	// Le document rendu vit dans une origine opaque : tout passe par postMessage.
+	// The rendered document sits in an opaque origin, so everything goes through
+	// postMessage.
 	useEffect(() => {
 		if (!rendered) return
 		const onMessage = (event: MessageEvent) => {
@@ -115,8 +116,7 @@ export function FileViewer({
 	useEffect(() => {
 		if (!needsContent) return
 		let cancelled = false
-		// Une relecture ne doit pas renvoyer en haut du document : on retient la
-		// position pour la rendre après.
+		// A refetch must not jump back to the top, so the position is restored.
 		const keep = bodyRef.current ? scrollRatio(bodyRef.current) : 0
 		setError(null)
 		fetch(`${api.fileUrl(roomId, target.relPath)}&v=${version}`)
@@ -138,7 +138,7 @@ export function FileViewer({
 		}
 	}, [roomId, target.relPath, needsContent, version])
 
-	// Repartir de zéro en changeant de fichier, pas en le relisant.
+	// Reset on a different file, not on a refetch of the same one.
 	useEffect(() => {
 		setContent(null)
 	}, [target.relPath])
@@ -211,9 +211,9 @@ export function FileViewer({
 				)}
 
 				{rendered && content !== null && (
-					// allow-scripts sans allow-same-origin : la page s'exécute dans une
-					// origine opaque — assez pour s'instrumenter, pas pour atteindre le
-					// DOM, le stockage ni l'API de l'app. Dialogue par postMessage.
+					// allow-scripts without allow-same-origin: the page runs in an opaque
+					// origin, enough to instrument itself, not enough to reach this app's
+					// DOM, storage or API. It talks back over postMessage.
 					<iframe
 						key={`${target.relPath}#${version}`}
 						ref={frameRef}
