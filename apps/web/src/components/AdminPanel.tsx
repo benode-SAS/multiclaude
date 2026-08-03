@@ -31,6 +31,12 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 	const [error, setError] = useState<string | null>(null)
 	const [busy, setBusy] = useState<string | null>(null)
 	const [confirmDelete, setConfirmDelete] = useState<AccountSummary | null>(null)
+	const [adding, setAdding] = useState(false)
+	const [newName, setNewName] = useState('')
+	const [newEmail, setNewEmail] = useState('')
+	const [newAdmin, setNewAdmin] = useState(false)
+	/** Shown once, per account: it is never retrievable afterwards. */
+	const [issued, setIssued] = useState<{ email: string; password: string } | null>(null)
 
 	useEffect(() => {
 		const onKey = (event: KeyboardEvent) => {
@@ -73,6 +79,31 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 			await api.removeAccount(account.id)
 			setAccounts((list) => list?.filter((a) => a.id !== account.id) ?? null)
 			setConfirmDelete(null)
+		})
+
+	const create = () =>
+		run('create', async () => {
+			const { account, temporaryPassword } = await api.createAccount({
+				email: newEmail.trim(),
+				name: newName.trim() || newEmail.trim().split('@')[0]!,
+				role: newAdmin ? 'admin' : 'member',
+			})
+			setAccounts((list) => [...(list ?? []), account])
+			setIssued({ email: account.email, password: temporaryPassword })
+			setAdding(false)
+			setNewName('')
+			setNewEmail('')
+			setNewAdmin(false)
+		})
+
+	const resetPassword = (account: AccountSummary) =>
+		run(account.id, async () => {
+			const { temporaryPassword } = await api.resetAccountPassword(account.id)
+			setIssued({ email: account.email, password: temporaryPassword })
+			setAccounts(
+				(list) =>
+					list?.map((a) => (a.id === account.id ? { ...a, mustChangePassword: true } : a)) ?? null,
+			)
 		})
 
 	const save = (patch: { signupEnabled?: boolean; defaultModel?: string | null }) =>
@@ -150,6 +181,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											</div>
 											<div className="truncate text-[11px] text-muted">
 												{account.email} · inscrit le {formatDay(account.createdAt)}
+												{account.mustChangePassword && ' · mot de passe à changer'}
 											</div>
 										</div>
 
@@ -162,6 +194,16 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											<option value="admin">Administrateur</option>
 											<option value="member">Membre</option>
 										</select>
+
+										<button
+											type="button"
+											disabled={busy === account.id}
+											onClick={() => void resetPassword(account)}
+											title="Régénérer le mot de passe"
+											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] text-muted transition enabled:hover:text-ink disabled:opacity-40"
+										>
+											🔑
+										</button>
 
 										<button
 											type="button"
@@ -178,6 +220,71 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 										</button>
 									</li>
 								))}
+
+								<li className="mt-2">
+									{adding ? (
+										<form
+											onSubmit={(e) => {
+												e.preventDefault()
+												void create()
+											}}
+											className="rounded-xl border border-line bg-surface p-3"
+										>
+											<div className="flex flex-col gap-2 sm:flex-row">
+												<input
+													autoFocus
+													value={newName}
+													onChange={(e) => setNewName(e.target.value)}
+													placeholder="Nom affiché"
+													className="min-w-0 flex-1 rounded-lg border border-line bg-canvas px-2.5 py-2 text-[14px] outline-none focus:border-accent/60"
+												/>
+												<input
+													type="email"
+													required
+													value={newEmail}
+													onChange={(e) => setNewEmail(e.target.value)}
+													placeholder="adresse@exemple.fr"
+													className="min-w-0 flex-1 rounded-lg border border-line bg-canvas px-2.5 py-2 text-[14px] outline-none focus:border-accent/60"
+												/>
+											</div>
+
+											<label className="mt-2 flex items-center gap-2 text-[12px] text-muted">
+												<input
+													type="checkbox"
+													checked={newAdmin}
+													onChange={(e) => setNewAdmin(e.target.checked)}
+													className="size-4 accent-[var(--color-accent)]"
+												/>
+												Administrateur
+											</label>
+
+											<div className="mt-3 flex justify-end gap-2">
+												<button
+													type="button"
+													onClick={() => setAdding(false)}
+													className="rounded-lg border border-line bg-canvas px-3 py-1.5 text-[13px] transition hover:bg-panel"
+												>
+													Annuler
+												</button>
+												<button
+													type="submit"
+													disabled={busy === 'create'}
+													className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-60"
+												>
+													{busy === 'create' ? '…' : 'Créer le compte'}
+												</button>
+											</div>
+										</form>
+									) : (
+										<button
+											type="button"
+											onClick={() => setAdding(true)}
+											className="w-full rounded-xl border border-line border-dashed bg-surface px-3 py-2.5 text-[13px] text-muted transition hover:border-accent/50 hover:text-ink"
+										>
+											+ Ajouter un membre
+										</button>
+									)}
+								</li>
 							</ul>
 						)
 					) : !config ? (
@@ -266,6 +373,37 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 					)}
 				</div>
 			</div>
+
+			{issued && (
+				<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 p-4">
+					<div className="w-full max-w-sm rounded-2xl border border-line bg-canvas p-5 shadow-2xl">
+						<h3 className="text-[15px] font-semibold">Mot de passe temporaire</h3>
+						<p className="mt-2 text-[13px] text-muted">
+							Transmets-le à {issued.email}. Il sera demandé de le changer à la connexion, et il ne
+							sera plus affiché ici.
+						</p>
+						<code className="mt-3 block break-all rounded-xl border border-line bg-surface px-3 py-2.5 text-center font-mono text-[15px]">
+							{issued.password}
+						</code>
+						<div className="mt-4 flex justify-end gap-2">
+							<button
+								type="button"
+								onClick={() => void navigator.clipboard?.writeText(issued.password)}
+								className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] transition hover:bg-panel"
+							>
+								Copier
+							</button>
+							<button
+								type="button"
+								onClick={() => setIssued(null)}
+								className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition hover:brightness-95"
+							>
+								J'ai noté
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{confirmDelete && (
 				<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 p-4">

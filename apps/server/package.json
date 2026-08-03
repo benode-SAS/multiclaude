@@ -9,6 +9,7 @@
 		"typecheck": "tsc --noEmit",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "bun --env-file=../../.env src/db/migrate.ts",
+		"cli": "bun --env-file=../../.env src/cli.ts",
 		"test": "bun test"
 	},
 	"dependencies": {

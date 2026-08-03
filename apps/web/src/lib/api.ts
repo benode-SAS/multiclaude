@@ -4,6 +4,7 @@ import type {
 	AdminSettings,
 	Attachment,
 	AuthState,
+	CreatedAccount,
 	FileEntry,
 	Role,
 	Room,
@@ -41,6 +42,15 @@ export const api = {
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
 
 	accounts: () => json<AccountSummary[]>('/accounts'),
+	createAccount: (input: { email: string; name: string; role: Role }) =>
+		json<CreatedAccount>('/accounts', { method: 'POST', body: JSON.stringify(input) }),
+	resetAccountPassword: (id: string) =>
+		json<{ temporaryPassword: string }>(`/accounts/${id}/password`, { method: 'POST' }),
+	changePassword: (currentPassword: string, newPassword: string) =>
+		json<{ ok: boolean }>('/account/password', {
+			method: 'POST',
+			body: JSON.stringify({ currentPassword, newPassword }),
+		}),
 	setAccountRole: (id: string, role: Role) =>
 		json<AccountSummary>(`/accounts/${id}/role`, {
 			method: 'PATCH',

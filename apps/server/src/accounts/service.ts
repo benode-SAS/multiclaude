@@ -9,6 +9,7 @@ const toSummary = (row: typeof user.$inferSelect): AccountSummary => ({
 	email: row.email,
 	role: row.role,
 	createdAt: row.createdAt.getTime(),
+	mustChangePassword: row.mustChangePassword,
 })
 
 export const AccountService = {
@@ -30,6 +31,22 @@ export const AccountService = {
 	async setRole(id: string, role: 'admin' | 'member') {
 		await db.update(user).set({ role, updatedAt: new Date() }).where(eq(user.id, id))
 		return AccountService.get(id)
+	},
+
+	async setMustChangePassword(id: string, value: boolean) {
+		await db
+			.update(user)
+			.set({ mustChangePassword: value, updatedAt: new Date() })
+			.where(eq(user.id, id))
+	},
+
+	async findByEmail(email: string): Promise<AccountSummary | null> {
+		const [row] = await db
+			.select()
+			.from(user)
+			.where(eq(user.email, email.trim().toLowerCase()))
+			.limit(1)
+		return row ? toSummary(row) : null
 	},
 
 	async remove(id: string) {

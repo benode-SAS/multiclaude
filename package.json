@@ -16,6 +16,7 @@
 		"fix": "biome check --write .",
 		"db:generate": "bun run --filter @multiclaude/server db:generate",
 		"db:migrate": "bun run --filter @multiclaude/server db:migrate",
+		"cli": "bun run --filter @multiclaude/server cli --",
 		"test": "bun run --filter '*' test"
 	},
 	"devDependencies": {

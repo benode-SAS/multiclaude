@@ -144,7 +144,12 @@ export type AccountSummary = {
 	email: string
 	role: Role
 	createdAt: number
+	/** Signed in with a temporary password: nothing else until it is replaced. */
+	mustChangePassword: boolean
 }
+
+/** The temporary password is returned once, for the admin to pass on. */
+export type CreatedAccount = { account: AccountSummary; temporaryPassword: string }
 
 /** What the front needs before it can even render a sign-in screen. */
 export type SessionInfo = {

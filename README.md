@@ -91,6 +91,32 @@ redéploiement repart de zéro.
 
 ---
 
+## Gérer les comptes
+
+Le premier compte créé est administrateur. Il ouvre ensuite ⚙ → **Utilisateurs** pour
+ajouter quelqu'un : l'application génère un mot de passe temporaire, affiché une seule
+fois, que l'intéressé remplace obligatoirement à sa première connexion. La clé 🔑 en
+regard d'un compte régénère ce mot de passe — même règle ensuite.
+
+Cela fonctionne quel que soit le réglage des inscriptions : `SIGNUP_ENABLED` ne
+concerne que le formulaire public.
+
+Les mêmes opérations existent en ligne de commande, utile quand plus personne ne peut
+se connecter :
+
+```bash
+bun run cli users list
+bun run cli users add alice@example.com "Alice Martin" --admin
+bun run cli users password alice@example.com    # régénère le mot de passe
+bun run cli users role alice@example.com member
+bun run cli users remove alice@example.com
+```
+
+Le CLI applique les mêmes garde-fous que l'interface : il refuse de retirer le dernier
+administrateur, et applique les migrations si la base n'est pas à jour.
+
+---
+
 ## Configuration
 
 Tout se règle dans un `.env` à la racine ; `.env.example` documente chaque variable.
@@ -101,7 +127,7 @@ Les plus structurantes :
 | `PORT` | Port de l'API et de l'interface |
 | `PUBLIC_URL` | URL publique — sert aux cookies de session |
 | `DATA_DIR` | Base, dossiers de travail, identifiants. Le seul dossier à sauvegarder |
-| `SIGNUP_ENABLED` | Inscription ouverte, ou comptes créés par un administrateur |
+| `SIGNUP_ENABLED` | Formulaire public d'inscription. Un administrateur crée des comptes dans tous les cas |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Crée l'administrateur au démarrage, sans intervention |
 | `CLAUDE_CONFIG_DIR` | Où le CLI range ses identifiants. Le pointer dans `DATA_DIR` rend le déploiement autonome |
 | `ALWAYS_ASK_TOOLS` | Outils qui demandent toujours confirmation. `Bash` pour tout verrouiller |

@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
@@ -6,6 +7,12 @@ import * as authSchema from '../db/auth-schema.ts'
 import { db } from '../db/index.ts'
 import { AccountService } from './service.ts'
 import { SettingsService } from './settings.ts'
+
+/**
+ * Marks the sign-up as coming from an admin. Scoped to the call rather than a
+ * module flag, so a public sign-up running at the same moment is unaffected.
+ */
+export const adminCreation = new AsyncLocalStorage<boolean>()
 
 /**
  * Local accounts: email and password, sessions in the database, no external
@@ -44,6 +51,7 @@ export const auth = betterAuth({
 				// Cannot be a static flag: the very first account must be creatable
 				// from the UI even with signups closed.
 				before: async () => {
+					if (adminCreation.getStore()) return undefined
 					const existing = await AccountService.count()
 					if (existing > 0 && !SettingsService.signupEnabled()) {
 						throw new APIError('FORBIDDEN', { message: 'Les inscriptions sont fermées' })

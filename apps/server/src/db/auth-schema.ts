@@ -15,6 +15,8 @@ export const user = sqliteTable('user', {
 	role: text('role', { enum: ['admin', 'member'] })
 		.notNull()
 		.default('member'),
+	/** Set on accounts an admin created: the temporary password must be replaced. */
+	mustChangePassword: integer('must_change_password', { mode: 'boolean' }).notNull().default(false),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 })

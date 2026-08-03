@@ -6,6 +6,7 @@ import { config } from '../config.ts'
 import { RoomService } from '../rooms/service.ts'
 import { auth } from './auth.ts'
 import { currentUser, requireAdmin } from './guard.ts'
+import { createAccount, resetPassword } from './provisioning.ts'
 import { AccountService } from './service.ts'
 import { SettingsService } from './settings.ts'
 
@@ -71,6 +72,61 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 		if (denied) return denied
 		return AccountService.list()
 	})
+
+	/** Creating an account by hand is the way in when signups are closed. */
+	.post(
+		'/accounts',
+		async ({ request, body }) => {
+			const denied = await requireAdmin(request)
+			if (denied) return denied
+
+			const created = await createAccount(body)
+			return 'error' in created ? status(409, created.error) : created
+		},
+		{
+			body: t.Object({
+				email: t.String({ format: 'email' }),
+				name: t.String({ minLength: 1 }),
+				role: t.Optional(t.Union([t.Literal('admin'), t.Literal('member')])),
+			}),
+		},
+	)
+
+	/** Reset: hands back a temporary password, to be replaced on next sign-in. */
+	.post('/accounts/:id/password', async ({ request, params }) => {
+		const denied = await requireAdmin(request)
+		if (denied) return denied
+
+		const password = await resetPassword(params.id)
+		return password ? { temporaryPassword: password } : status(404, 'Not Found')
+	})
+
+	/** Changing one's own password, which is what clears mustChangePassword. */
+	.post(
+		'/account/password',
+		async ({ request, body }) => {
+			const me = await currentUser(request)
+			if (!me) return status(401, 'Connexion requise')
+
+			try {
+				await auth.api.changePassword({
+					headers: request.headers,
+					body: { currentPassword: body.currentPassword, newPassword: body.newPassword },
+				})
+			} catch {
+				return status(400, 'Mot de passe actuel incorrect')
+			}
+
+			await AccountService.setMustChangePassword(me.id, false)
+			return { ok: true }
+		},
+		{
+			body: t.Object({
+				currentPassword: t.String({ minLength: 1 }),
+				newPassword: t.String({ minLength: 8 }),
+			}),
+		},
+	)
 
 	.patch(
 		'/accounts/:id/role',

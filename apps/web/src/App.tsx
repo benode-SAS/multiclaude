@@ -10,6 +10,7 @@ import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
 import { FollowBar } from './components/FollowBar.tsx'
 import { NewRoomDialog } from './components/NewRoomDialog.tsx'
+import { PasswordGate } from './components/PasswordGate.tsx'
 import { ResizeHandle } from './components/ResizeHandle.tsx'
 import { RoomHeader } from './components/RoomHeader.tsx'
 import { Sidebar } from './components/Sidebar.tsx'
@@ -103,6 +104,11 @@ export function App() {
 				onSignUp={store.signUp}
 			/>
 		)
+	}
+
+	// A temporary password gets nobody further than this screen.
+	if (store.session.user.mustChangePassword) {
+		return <PasswordGate name={store.session.user.name} onDone={() => void store.init()} />
 	}
 
 	// One dock on the right, and the viewer takes precedence over the file list:
