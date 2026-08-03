@@ -4,6 +4,16 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 		<title>multiclaude</title>
+
+		<!-- SVG first for the browsers that take it, .ico as the fallback. -->
+		<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+		<link rel="icon" href="/favicon.ico" sizes="32x32" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+
+		<!-- Tints the iOS status bar and the Android task switcher, per theme. -->
+		<meta name="theme-color" content="#f7f6f3" media="(prefers-color-scheme: light)" />
+		<meta name="theme-color" content="#101214" media="(prefers-color-scheme: dark)" />
 	</head>
 	<body>
 		<div id="root"></div>

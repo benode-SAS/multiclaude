@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="multiclaude">
+	<title>multiclaude</title>
+	<rect width="64" height="64" rx="14" fill="#052e16" />
+	<path
+		d="M17 22 L27 32 L17 42"
+		fill="none"
+		stroke="#f97316"
+		stroke-width="7.5"
+		stroke-linecap="round"
+		stroke-linejoin="round"
+	/>
+	<path d="M34 42 H48" stroke="#f97316" stroke-width="7.5" stroke-linecap="round" />
+</svg>

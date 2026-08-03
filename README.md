@@ -1,7 +1,7 @@
 # multiclaude
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-f97316)](LICENSE)
-[![by Benode](https://img.shields.io/badge/by-Benode-052e16)](https://www.benode.fr)
+[![by benode](https://img.shields.io/badge/by-benode-052e16)](https://www.benode.fr)
 
 Real-time multi-user chat on top of **Claude Code**. Several people talk to one agent in
 one conversation, and the agent works in an isolated directory: streamed answers, visible
@@ -200,7 +200,7 @@ Comments in this codebase explain *why* a decision was made when it is not obvio
 
 ## Origin and licence
 
-multiclaude is built and maintained by **[Benode](https://www.benode.fr)**, and released
+multiclaude is built and maintained by **[benode](https://www.benode.fr)**, and released
 under the **MIT** licence — see [LICENSE](LICENSE).
 
 MIT allows everything: private or commercial use, modification, redistribution, bundling
@@ -209,5 +209,5 @@ the licence text in copies and derived works. In other words, do what you like w
 but do not strip the authorship.
 
 Concretely, if you redistribute this code or a product derived from it, keep the `LICENSE`
-file as is. A note along the lines of "based on multiclaude, by Benode" is appreciated
+file as is. A note along the lines of "based on multiclaude, by benode" is appreciated
 without being required.

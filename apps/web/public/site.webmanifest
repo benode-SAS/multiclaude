@@ -1,0 +1,14 @@
+{
+	"name": "multiclaude",
+	"short_name": "multiclaude",
+	"description": "Real-time multi-user chat on top of Claude Code",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#101214",
+	"theme_color": "#052e16",
+	"icons": [
+		{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+		{ "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+		{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+	]
+}
