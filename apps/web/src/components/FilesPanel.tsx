@@ -22,8 +22,10 @@ export function FilesPanel({
 	onClose: () => void
 }) {
 	const [files, setFiles] = useState<FileEntry[]>([])
+	// L'arborescence par défaut : elle situe un fichier dans le projet, là où la
+	// liste ne répond qu'à « qu'est-ce qui vient de bouger ».
 	const [view, setView] = useState<View>(
-		() => (localStorage.getItem(VIEW_KEY) as View | null) ?? 'list',
+		() => (localStorage.getItem(VIEW_KEY) as View | null) ?? 'tree',
 	)
 
 	const tree = useMemo(() => buildTree(files), [files])
@@ -51,8 +53,8 @@ export function FilesPanel({
 				<div className="ml-auto flex overflow-hidden rounded-lg border border-line">
 					{(
 						[
-							['list', '☰', 'Liste, du plus récent au plus ancien'],
 							['tree', '⌗', 'Arborescence du dossier'],
+							['list', '☰', 'Liste, du plus récent au plus ancien'],
 						] as Array<[View, string, string]>
 					).map(([id, icon, label]) => (
 						<button

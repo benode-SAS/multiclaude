@@ -31,7 +31,7 @@ divergent — pour explorer sans abîmer le travail de l'autre.
 aux secrets demandent un clic, avec le motif affiché. La politique est testée.
 
 **Voir le travail.** Les fichiers écrits par l'agent apparaissent dans le fil et dans un
-panneau latéral redimensionnable, en liste chronologique ou en arborescence. Markdown,
+panneau latéral redimensionnable, en arborescence ou en liste chronologique. Markdown,
 code et HTML sont rendus, avec défilement et sélections partagés entre participants. Un
 document modifié pendant sa lecture se rafraîchit sans perdre la position.
 
