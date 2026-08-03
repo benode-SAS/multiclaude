@@ -28,9 +28,14 @@ divergent — pour explorer sans abîmer le travail de l'autre.
 aux secrets demandent un clic, avec le motif affiché. La politique est testée.
 
 **Voir le travail.** Les fichiers écrits par l'agent apparaissent dans le fil et dans un
-panneau latéral redimensionnable. Markdown, code et HTML sont rendus, avec défilement et
-sélections partagés entre participants. Un document modifié pendant sa lecture se
-rafraîchit sans perdre la position.
+panneau latéral redimensionnable, en liste chronologique ou en arborescence. Markdown,
+code et HTML sont rendus, avec défilement et sélections partagés entre participants. Un
+document modifié pendant sa lecture se rafraîchit sans perdre la position.
+
+**Partir d'un dépôt.** Une conversation peut cloner un dépôt qui devient son dossier de
+travail. Pour un dépôt privé : un jeton d'accès saisi à la création — utilisé pour le
+clone puis oublié, le remote étant remis sur l'URL sans identifiants — ou une URL SSH
+si le serveur détient la clé.
 
 ---
 
@@ -133,6 +138,7 @@ Les plus structurantes :
 | `ALWAYS_ASK_TOOLS` | Outils qui demandent toujours confirmation. `Bash` pour tout verrouiller |
 | `ASK_PATTERNS` | Motifs supplémentaires déclenchant une demande, ex. `prod,deploy\.sh` |
 | `CLONE_DEPTH` | Profondeur du clone à la création d'une room. `0` pour l'historique complet |
+| `GIT_TOKEN` / `GIT_SSH_KEY` | Accès par défaut aux dépôts privés, si personne ne saisit de jeton |
 
 ---
 

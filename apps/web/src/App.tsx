@@ -9,6 +9,7 @@ import { ConfirmDialog } from './components/ConfirmDialog.tsx'
 import { FilesPanel } from './components/FilesPanel.tsx'
 import { FileViewer, type ViewerTarget } from './components/FileViewer.tsx'
 import { FollowBar } from './components/FollowBar.tsx'
+import { ForkDialog } from './components/ForkDialog.tsx'
 import { NewRoomDialog } from './components/NewRoomDialog.tsx'
 import { PasswordGate } from './components/PasswordGate.tsx'
 import { ResizeHandle } from './components/ResizeHandle.tsx'
@@ -30,6 +31,8 @@ export function App() {
 	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
 	const [creating, setCreating] = useState(false)
 	const [adminOpen, setAdminOpen] = useState(false)
+	const [forking, setForking] = useState(false)
+	const [forkBusy, setForkBusy] = useState(false)
 	const [createBusy, setCreateBusy] = useState(false)
 	const [createError, setCreateError] = useState<string | null>(null)
 	const [chatScroll, setChatScroll] = useState(0)
@@ -206,7 +209,7 @@ export function App() {
 							self={store.pseudo}
 							following={store.following}
 							onFollow={store.follow}
-							onFork={() => void store.forkRoom(store.room!.id)}
+							onFork={() => setForking(true)}
 							canManage={store.session.user.role === 'admin'}
 						/>
 
@@ -307,6 +310,23 @@ export function App() {
 							setCreateError(detail.replace(/^\d+\s*/, ''))
 						} finally {
 							setCreateBusy(false)
+						}
+					}}
+				/>
+			)}
+
+			{forking && store.room && (
+				<ForkDialog
+					sourceTitle={store.room.title}
+					busy={forkBusy}
+					onCancel={() => setForking(false)}
+					onFork={async (title) => {
+						setForkBusy(true)
+						try {
+							await store.forkRoom(store.room!.id, title)
+							setForking(false)
+						} finally {
+							setForkBusy(false)
 						}
 					}}
 				/>

@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
+/** An SSH URL authenticates with the host's key; a token would be pointless. */
+const isHttp = (url: string) => /^https?:\/\//i.test(url.trim())
+
 /**
  * The clone runs before the room is handed over: a turn started on a half
  * cloned directory would produce nonsense. Hence the busy state, which can
@@ -13,12 +16,13 @@ export function NewRoomDialog({
 }: {
 	busy: boolean
 	error: string | null
-	onCreate: (input: { title?: string; repoUrl?: string; branch?: string }) => void
+	onCreate: (input: { title?: string; repoUrl?: string; branch?: string; token?: string }) => void
 	onCancel: () => void
 }) {
 	const [title, setTitle] = useState('')
 	const [repoUrl, setRepoUrl] = useState('')
 	const [branch, setBranch] = useState('')
+	const [token, setToken] = useState('')
 	const titleRef = useRef<HTMLInputElement>(null)
 
 	useEffect(() => {
@@ -36,6 +40,7 @@ export function NewRoomDialog({
 			title: title.trim() || undefined,
 			repoUrl: repoUrl.trim() || undefined,
 			branch: branch.trim() || undefined,
+			token: token.trim() || undefined,
 		})
 	}
 
@@ -83,22 +88,40 @@ export function NewRoomDialog({
 				</label>
 
 				{repoUrl.trim() && (
-					<label className="mt-3 block text-[12px] text-muted" htmlFor="room-branch">
-						Branche — optionnel
-						<input
-							id="room-branch"
-							value={branch}
-							onChange={(e) => setBranch(e.target.value)}
-							placeholder="main"
-							disabled={busy}
-							className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-accent/60 disabled:opacity-50"
-						/>
-					</label>
+					<>
+						<label className="mt-3 block text-[12px] text-muted" htmlFor="room-branch">
+							Branche — optionnel
+							<input
+								id="room-branch"
+								value={branch}
+								onChange={(e) => setBranch(e.target.value)}
+								placeholder="main"
+								disabled={busy}
+								className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-accent/60 disabled:opacity-50"
+							/>
+						</label>
+
+						{isHttp(repoUrl) && (
+							<label className="mt-3 block text-[12px] text-muted" htmlFor="room-token">
+								Jeton d'accès — dépôt privé
+								<input
+									id="room-token"
+									type="password"
+									value={token}
+									onChange={(e) => setToken(e.target.value)}
+									placeholder="ghp_… / glpat_…"
+									autoComplete="off"
+									disabled={busy}
+									className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-accent/60 disabled:opacity-50"
+								/>
+							</label>
+						)}
+					</>
 				)}
 
 				<p className="mt-3 text-[12px] text-muted">
-					Le dépôt devient le dossier de travail de la conversation. Seuls les dépôts accessibles
-					sans identifiants depuis le serveur peuvent être clonés.
+					Le dépôt devient le dossier de travail de la conversation. Pour un dépôt privé : un jeton
+					en lecture, utilisé pour le clone puis oublié — ou une URL SSH, si le serveur a la clé.
 				</p>
 
 				{error && <p className="mt-3 text-[12px] text-danger">{error}</p>}

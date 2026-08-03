@@ -26,7 +26,10 @@ export const roomRoutes = new Elysia({ prefix: '/rooms' })
 			// Cloned before handing the room back: a turn started on a half cloned
 			// directory would produce inconsistent results.
 			if (repoUrl) {
-				const result = await cloneInto(room.workdir, repoUrl, body?.branch)
+				const result = await cloneInto(room.workdir, repoUrl, {
+					branch: body?.branch,
+					token: body?.token,
+				})
 				if (!result.ok) {
 					await RoomService.remove(room.id)
 					return status(422, result.error)
@@ -54,6 +57,8 @@ HEAD : ${result.head}`
 					title: t.Optional(t.String()),
 					repoUrl: t.Optional(t.String()),
 					branch: t.Optional(t.String()),
+					/** Used for the clone, then dropped: never written anywhere. */
+					token: t.Optional(t.String()),
 				}),
 			),
 		},

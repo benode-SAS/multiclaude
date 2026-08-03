@@ -102,6 +102,22 @@ export const config = {
 	/** Clone depth; 0 for the full history. */
 	cloneDepth: Number(process.env.CLONE_DEPTH ?? 1),
 	cloneTimeoutMs: Number(process.env.CLONE_TIMEOUT ?? 180) * 1000,
+	/** Fallback token for private https repositories, when none is typed in. */
+	gitToken: process.env.GIT_TOKEN?.trim() ?? '',
+	/** SSH key used for private repositories over ssh, e.g. a deploy key. */
+	gitSshKey: process.env.GIT_SSH_KEY?.trim() ?? '',
+}
+
+/**
+ * Kept out of the agent's environment. It runs shell commands on request, so
+ * anything left in there is readable by anyone who can type in the chat.
+ */
+const SECRET_ENV = ['AUTH_SECRET', 'ADMIN_PASSWORD', 'GIT_TOKEN']
+
+export function agentEnv(): Record<string, string | undefined> {
+	const env = { ...process.env }
+	for (const key of SECRET_ENV) delete env[key]
+	return env
 }
 
 /** Passed to every spawned `claude` process (agent turns, auth, status). */
