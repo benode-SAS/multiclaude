@@ -9,3 +9,6 @@ data*/
 .DS_Store
 .idea/
 logs/
+
+# Réglages Claude Code, propres à chaque poste
+.claude/
