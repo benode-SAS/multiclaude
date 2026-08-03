@@ -1,9 +1,13 @@
-import type { SessionInfo } from '@multiclaude/shared'
+import type { AdminConfig, SessionInfo } from '@multiclaude/shared'
 import { Elysia, status, t } from 'elysia'
+import { claudeBin } from '../agent/claude-bin.ts'
+import { AuthService } from '../auth/service.ts'
 import { config } from '../config.ts'
+import { RoomService } from '../rooms/service.ts'
 import { auth } from './auth.ts'
 import { currentUser, requireAdmin } from './guard.ts'
 import { AccountService } from './service.ts'
+import { SettingsService } from './settings.ts'
 
 /**
  * Better Auth gère lui-même /api/auth/* (inscription, connexion, session).
@@ -19,9 +23,49 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 			user: await currentUser(request),
 			// Personne encore : le front propose la création du compte administrateur.
 			needsSetup: total === 0,
-			signupEnabled: config.signupEnabled,
+			signupEnabled: SettingsService.signupEnabled(),
 		}
 	})
+
+	.get('/admin/config', async ({ request }) => {
+		const denied = await requireAdmin(request)
+		if (denied) return denied
+		const payload: AdminConfig = {
+			settings: SettingsService.all(),
+			runtime: {
+				publicUrl: config.publicUrl,
+				dataDir: config.dataDir,
+				serveWeb: config.serveWeb,
+				signupFromEnv: config.signupEnabled,
+				permissionTimeoutSec: config.permissionTimeoutSec,
+				alwaysAskTools: [...config.alwaysAskTools],
+				askPatterns: config.askPatterns.map((p) => p.source),
+				cloneDepth: config.cloneDepth,
+				maxUploadMb: Math.round(config.maxUploadBytes / 1024 / 1024),
+				claudeBin,
+				claudeLoggedIn: (await AuthService.status()).loggedIn,
+				accounts: await AccountService.count(),
+				rooms: (await RoomService.list()).length,
+				uptimeSec: Math.round(process.uptime()),
+			},
+		}
+		return payload
+	})
+
+	.patch(
+		'/admin/config',
+		async ({ request, body }) => {
+			const denied = await requireAdmin(request)
+			if (denied) return denied
+			return SettingsService.update(body)
+		},
+		{
+			body: t.Object({
+				signupEnabled: t.Optional(t.Boolean()),
+				defaultModel: t.Optional(t.Union([t.String(), t.Null()])),
+			}),
+		},
+	)
 
 	.get('/accounts', async ({ request }) => {
 		const denied = await requireAdmin(request)

@@ -9,6 +9,7 @@ import type {
 	RoomStatus,
 } from '@multiclaude/shared'
 import { and, asc, eq } from 'drizzle-orm'
+import { SettingsService } from '../accounts/settings.ts'
 import { copySessionTo } from '../agent/sessions.ts'
 import { config } from '../config.ts'
 import { db } from '../db/index.ts'
@@ -51,7 +52,7 @@ export const RoomService = {
 			id,
 			title: title?.trim() || 'Nouvelle conversation',
 			sessionId: null,
-			model: null,
+			model: SettingsService.defaultModel(),
 			forkedFrom: null,
 			forkPending: false,
 			workdir,

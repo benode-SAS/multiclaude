@@ -33,6 +33,7 @@ export function Sidebar({
 	authEmail,
 	onRelogin,
 	onNavigate,
+	onOpenAdmin,
 }: {
 	rooms: Room[]
 	activeRoomId: string | null
@@ -53,6 +54,7 @@ export function Sidebar({
 	onRename: (id: string, title: string) => void
 	onDelete: (id: string) => void
 	onSignOut: () => void
+	onOpenAdmin: () => void
 	role: 'admin' | 'member'
 	email: string
 }) {
@@ -243,6 +245,19 @@ export function Sidebar({
 						{role === 'admin' ? 'administrateur' : email}
 					</span>
 				</span>
+				{role === 'admin' && (
+					<button
+						type="button"
+						onClick={() => {
+							onOpenAdmin()
+							onNavigate()
+						}}
+						title="Administration — comptes et configuration"
+						className="shrink-0 rounded-lg border border-line bg-surface px-2 py-1 text-[12px] text-muted transition hover:text-ink"
+					>
+						⚙
+					</button>
+				)}
 				<button
 					type="button"
 					onClick={onSignOut}

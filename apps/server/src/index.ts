@@ -3,6 +3,7 @@ import { Elysia } from 'elysia'
 import { bootstrapAdmin } from './accounts/bootstrap.ts'
 import { accountRoutes } from './accounts/routes.ts'
 import { AccountService } from './accounts/service.ts'
+import { SettingsService } from './accounts/settings.ts'
 import { claudeBin, claudeBinResolved } from './agent/claude-bin.ts'
 import { internalRoutes } from './agent/routes.ts'
 import { disposeAll } from './agent/runtime.ts'
@@ -79,7 +80,7 @@ async function bootstrap() {
 	console.log(`claude auth  ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
 	console.log(
 		`comptes      ${accounts === 0 ? 'aucun — le premier créé sera administrateur' : `${accounts}`}` +
-			`${config.signupEnabled ? '' : ' · inscription fermée'}`,
+			`${SettingsService.signupEnabled() ? '' : ' · inscription fermée'}`,
 	)
 }
 

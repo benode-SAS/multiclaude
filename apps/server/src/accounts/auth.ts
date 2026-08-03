@@ -5,6 +5,7 @@ import { config } from '../config.ts'
 import * as authSchema from '../db/auth-schema.ts'
 import { db } from '../db/index.ts'
 import { AccountService } from './service.ts'
+import { SettingsService } from './settings.ts'
 
 /**
  * Comptes locaux : e-mail et mot de passe, sessions en base, aucun service
@@ -44,7 +45,7 @@ export const auth = betterAuth({
 				// faut pouvoir créer le tout premier compte depuis l'interface.
 				before: async () => {
 					const existing = await AccountService.count()
-					if (existing > 0 && !config.signupEnabled) {
+					if (existing > 0 && !SettingsService.signupEnabled()) {
 						throw new APIError('FORBIDDEN', { message: 'Les inscriptions sont fermées' })
 					}
 					return undefined

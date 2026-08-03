@@ -1,4 +1,13 @@
-import type { Attachment, AuthState, FileEntry, Room } from '@multiclaude/shared'
+import type {
+	AccountSummary,
+	AdminConfig,
+	AdminSettings,
+	Attachment,
+	AuthState,
+	FileEntry,
+	Role,
+	Room,
+} from '@multiclaude/shared'
 
 export type SearchHit = {
 	roomId: string
@@ -30,6 +39,17 @@ export const api = {
 		json<AuthState>('/auth/code', { method: 'POST', body: JSON.stringify({ code }) }),
 	cancelLogin: () => json<AuthState>('/auth/cancel', { method: 'POST' }),
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
+
+	accounts: () => json<AccountSummary[]>('/accounts'),
+	setAccountRole: (id: string, role: Role) =>
+		json<AccountSummary>(`/accounts/${id}/role`, {
+			method: 'PATCH',
+			body: JSON.stringify({ role }),
+		}),
+	removeAccount: (id: string) => json<{ ok: boolean }>(`/accounts/${id}`, { method: 'DELETE' }),
+	adminConfig: () => json<AdminConfig>('/admin/config'),
+	saveAdminConfig: (patch: Partial<AdminSettings>) =>
+		json<AdminSettings>('/admin/config', { method: 'PATCH', body: JSON.stringify(patch) }),
 
 	rooms: () => json<Room[]>('/rooms'),
 	search: (q: string, roomId?: string) =>

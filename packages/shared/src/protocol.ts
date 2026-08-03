@@ -156,6 +156,33 @@ export type SessionInfo = {
 
 export const isAdmin = (user: AccountSummary | null | undefined) => user?.role === 'admin'
 
+/** Réglages modifiables depuis l'interface : ils priment sur le `.env`. */
+export type AdminSettings = {
+	signupEnabled: boolean
+	/** Modèle appliqué aux nouvelles conversations ; null garde celui du compte. */
+	defaultModel: string | null
+}
+
+/** Ce qui vient de l'environnement : affiché pour diagnostic, non modifiable ici. */
+export type AdminRuntime = {
+	publicUrl: string
+	dataDir: string
+	serveWeb: boolean
+	signupFromEnv: boolean
+	permissionTimeoutSec: number
+	alwaysAskTools: string[]
+	askPatterns: string[]
+	cloneDepth: number
+	maxUploadMb: number
+	claudeBin: string
+	claudeLoggedIn: boolean
+	accounts: number
+	rooms: number
+	uptimeSec: number
+}
+
+export type AdminConfig = { settings: AdminSettings; runtime: AdminRuntime }
+
 export type AuthState = {
 	loggedIn: boolean
 	email: string | null

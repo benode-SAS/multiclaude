@@ -1,6 +1,7 @@
 import type { Room, SelectionAnchor } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
+import { AdminPanel } from './components/AdminPanel.tsx'
 import { AuthGate } from './components/AuthGate.tsx'
 import { AuthPanel } from './components/AuthPanel.tsx'
 import { Composer } from './components/Composer.tsx'
@@ -27,6 +28,7 @@ export function App() {
 	const [navOpen, setNavOpen] = useState(false)
 	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
 	const [creating, setCreating] = useState(false)
+	const [adminOpen, setAdminOpen] = useState(false)
 	const [createBusy, setCreateBusy] = useState(false)
 	const [createError, setCreateError] = useState<string | null>(null)
 	const [chatScroll, setChatScroll] = useState(0)
@@ -154,6 +156,7 @@ export function App() {
 					onRename={(id, title) => void store.renameRoom(id, title)}
 					onDelete={(id) => setPendingDelete(store.rooms.find((room) => room.id === id) ?? null)}
 					onSignOut={() => void store.signOut()}
+					onOpenAdmin={() => setAdminOpen(true)}
 					role={store.session.user.role}
 					email={store.session.user.email}
 					theme={store.theme}
@@ -301,6 +304,10 @@ export function App() {
 						}
 					}}
 				/>
+			)}
+
+			{adminOpen && store.session.user.role === 'admin' && (
+				<AdminPanel selfId={store.session.user.id} onClose={() => setAdminOpen(false)} />
 			)}
 
 			{pendingDelete && (
