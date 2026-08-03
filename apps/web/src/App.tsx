@@ -94,7 +94,7 @@ export function App() {
 	if (!store.authReady) {
 		return (
 			<div className="flex min-h-dvh items-center justify-center bg-canvas text-[13px] text-muted">
-				Chargement…
+				Loading…
 			</div>
 		)
 	}
@@ -183,7 +183,7 @@ export function App() {
 			{navOpen && (
 				<button
 					type="button"
-					aria-label="Fermer le menu"
+					aria-label="Close the menu"
 					onClick={() => setNavOpen(false)}
 					className="fixed inset-0 z-[55] bg-black/40 md:hidden"
 				/>
@@ -274,7 +274,7 @@ export function App() {
 					</>
 				) : (
 					<div className="flex flex-1 items-center justify-center text-[14px] text-muted">
-						{store.loading ? 'Chargement…' : 'Sélectionne une conversation'}
+						{store.loading ? 'Loading…' : 'Pick a conversation'}
 					</div>
 				)}
 			</main>
@@ -338,10 +338,10 @@ export function App() {
 
 			{pendingDelete && (
 				<ConfirmDialog
-					title="Supprimer la conversation ?"
-					message="L'historique et le dossier de travail de cette room sont effacés définitivement."
+					title="Delete this conversation?"
+					message="The history and working directory of this room are erased for good."
 					detail={pendingDelete.title}
-					confirmLabel="Supprimer"
+					confirmLabel="Delete"
 					onCancel={() => setPendingDelete(null)}
 					onConfirm={() => {
 						void store.deleteRoom(pendingDelete.id)

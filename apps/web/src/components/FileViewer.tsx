@@ -132,7 +132,7 @@ export function FileViewer({
 				}
 			})
 			.catch(() => {
-				if (!cancelled) setError('lecture impossible')
+				if (!cancelled) setError('could not be read')
 			})
 		return () => {
 			cancelled = true
@@ -161,7 +161,7 @@ export function FileViewer({
 
 				{html && inline && (
 					<div className="flex overflow-hidden rounded-lg border border-line">
-						{(['aperçu', 'source'] as const).map((label, index) => (
+						{(['preview', 'source'] as const).map((label, index) => (
 							<button
 								key={label}
 								type="button"
@@ -181,10 +181,10 @@ export function FileViewer({
 
 				<a
 					href={api.fileUrl(roomId, target.relPath, true)}
-					title="Télécharger"
+					title="Download"
 					className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 				>
-					<span className="hidden lg:inline">Télécharger</span>
+					<span className="hidden lg:inline">Download</span>
 					<Icon name="download" size={14} className="lg:hidden" />
 				</a>
 				<button
@@ -192,7 +192,7 @@ export function FileViewer({
 					onClick={onClose}
 					className="rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
 				>
-					<Icon name="close" size={15} label="Fermer" />
+					<Icon name="close" size={15} label="Close" />
 				</button>
 			</header>
 
@@ -230,7 +230,7 @@ export function FileViewer({
 
 				{!image && !inline && (
 					<p className="py-10 text-center text-[13px] text-muted">
-						Aperçu indisponible pour ce type de fichier — utilise le téléchargement.
+						No preview for this file type — use the download.
 					</p>
 				)}
 
@@ -239,7 +239,7 @@ export function FileViewer({
 				)}
 
 				{needsContent && content === null && !error && (
-					<p className="py-10 text-center text-[13px] text-muted">Chargement…</p>
+					<p className="py-10 text-center text-[13px] text-muted">Loading…</p>
 				)}
 
 				{needsContent && content !== null && !rendered && (

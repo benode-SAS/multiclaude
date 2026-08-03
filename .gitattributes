@@ -1,7 +1,7 @@
-# Fins de ligne normalisées en LF dans le dépôt, quel que soit l'OS de travail.
+# Line endings normalised to LF in the repository, whatever the working OS.
 * text=auto eol=lf
 
-# Fichiers binaires : aucune conversion.
+# Binary files: no conversion.
 *.png binary
 *.jpg binary
 *.jpeg binary
@@ -12,5 +12,5 @@
 *.zip binary
 *.db binary
 
-# Le lockfile est généré : le sortir des diffs de revue.
+# The lockfile is generated: keep it out of review diffs.
 bun.lock linguist-generated=true

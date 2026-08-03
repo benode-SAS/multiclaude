@@ -12,7 +12,7 @@ export async function bootstrapAdmin() {
 	if ((await AccountService.count()) > 0) return
 
 	if (config.adminPassword.length < 8) {
-		console.warn('[accounts] ADMIN_PASSWORD trop court (8 caractères minimum), compte non créé')
+		console.warn('[accounts] ADMIN_PASSWORD too short (8 characters minimum), account not created')
 		return
 	}
 
@@ -26,11 +26,11 @@ export async function bootstrapAdmin() {
 		})
 		if (created?.user?.id) {
 			await AccountService.setRole(created.user.id, 'admin')
-			console.log(`[accounts] administrateur créé : ${config.adminEmail}`)
+			console.log(`[accounts] admin created: ${config.adminEmail}`)
 		}
 	} catch (error) {
 		console.error(
-			'[accounts] création du compte administrateur impossible :',
+			'[accounts] could not create the admin account:',
 			error instanceof Error ? error.message : error,
 		)
 	}

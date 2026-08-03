@@ -53,15 +53,15 @@ export function AuthGate({
 				<h1 className="text-lg font-semibold tracking-tight">multiclaude</h1>
 				<p className="mt-1 mb-5 text-[13px] text-muted">
 					{setup
-						? 'Aucun compte pour l’instant : celui-ci sera administrateur.'
+						? 'No account yet — this one will be the admin.'
 						: registering
-							? 'Créer un compte pour rejoindre les conversations.'
-							: 'Connecte-toi pour accéder aux conversations.'}
+							? 'Create an account to join the conversations.'
+							: 'Sign in to reach the conversations.'}
 				</p>
 
 				{registering && (
 					<label className="mb-3 block text-[12px] text-muted" htmlFor="auth-name">
-						Nom affiché
+						Display name
 						<input
 							id="auth-name"
 							value={name}
@@ -74,7 +74,7 @@ export function AuthGate({
 				)}
 
 				<label className="mb-3 block text-[12px] text-muted" htmlFor="auth-email">
-					E-mail
+					Email
 					<input
 						id="auth-email"
 						type="email"
@@ -87,7 +87,7 @@ export function AuthGate({
 				</label>
 
 				<label className="block text-[12px] text-muted" htmlFor="auth-password">
-					Mot de passe
+					Password
 					<input
 						id="auth-password"
 						type="password"
@@ -98,7 +98,7 @@ export function AuthGate({
 						autoComplete={registering ? 'new-password' : 'current-password'}
 						className="mt-1 w-full rounded-xl border border-line bg-canvas px-3 py-2.5 text-[15px] text-ink outline-none focus:border-accent/60"
 					/>
-					{registering && <span className="mt-1 block text-[11px]">8 caractères minimum</span>}
+					{registering && <span className="mt-1 block text-[11px]">8 characters minimum</span>}
 				</label>
 
 				{error && <p className="mt-3 text-[12px] text-danger">{error}</p>}
@@ -111,10 +111,10 @@ export function AuthGate({
 					{busy
 						? '…'
 						: setup
-							? 'Créer le compte administrateur'
+							? 'Create the admin account'
 							: registering
-								? 'Créer le compte'
-								: 'Se connecter'}
+								? 'Create the account'
+								: 'Sign in'}
 				</button>
 
 				{!setup && canRegister && (
@@ -126,13 +126,13 @@ export function AuthGate({
 						}}
 						className="mt-3 w-full text-[12px] text-muted transition hover:text-ink"
 					>
-						{mode === 'sign-in' ? 'Pas encore de compte ? En créer un' : 'J’ai déjà un compte'}
+						{mode === 'sign-in' ? 'No account yet? Create one' : 'I already have an account'}
 					</button>
 				)}
 
 				{!setup && !session.signupEnabled && mode === 'sign-in' && (
 					<p className="mt-3 text-center text-[11px] text-muted">
-						Les inscriptions sont fermées : demande un compte à un administrateur.
+						Signups are closed — ask an admin for an account.
 					</p>
 				)}
 			</form>

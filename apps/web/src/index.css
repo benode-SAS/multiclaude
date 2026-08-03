@@ -30,10 +30,10 @@
 	--font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
 }
 
-/* Marque Benode : orange #f97316, vert #052e16. Les surfaces restent neutres —
-   une interface de travail se lit toute la journée, la couleur y sert à
-   distinguer, pas à décorer. Le vert n'apparaît donc qu'en signal, et l'orange
-   que sur ce qui s'actionne. */
+/* Benode brand: orange #f97316, green #052e16. Surfaces stay neutral — a work
+   interface is read all day long, and colour there serves to distinguish, not to
+   decorate. Green therefore only appears as a signal, and orange only on what can
+   be acted upon. */
 :root {
 	--canvas: #f7f6f3;
 	--panel: #efede8;
@@ -57,8 +57,8 @@
 	color-scheme: light;
 }
 
-/* Le sombre n'est pas l'inverse du clair : teintes désaturées, écarts de
-   luminance resserrés, et un fond neutre pour que le code reste lisible. */
+/* Dark is not the inverse of light: desaturated hues, tighter luminance steps,
+   and a neutral background so code stays readable. */
 [data-theme="dark"] {
 	--canvas: #101214;
 	--panel: #16191c;
@@ -82,8 +82,8 @@
 	color-scheme: dark;
 }
 
-/* Colonne de navigation : un cran plus sombre que le contenu dans les deux
-   thèmes, pour la mettre en retrait sans la colorer. */
+/* Navigation column: one notch darker than the content in both themes, which
+   sets it back without colouring it. */
 .rail {
 	--panel: #edeae3;
 	--surface: #ffffff;
@@ -99,8 +99,8 @@
 html,
 body,
 #root {
-	/* dvh suit la barre d'outils mobile : avec 100%, la page dépasse la fenêtre
-	   visible et le layout entier se met à défiler. */
+	/* dvh follows the mobile toolbar: with 100%, the page overflows the visible
+	   window and the whole layout starts scrolling. */
 	height: 100dvh;
 	overflow: hidden;
 	overscroll-behavior: none;
@@ -111,17 +111,17 @@ body {
 	-webkit-text-size-adjust: 100%;
 }
 
-/* Un anneau unique pour toute l'app : la navigation au clavier doit se voir
-   sans que chaque composant redéfinisse son propre style de focus. */
+/* One ring for the whole app: keyboard navigation has to be visible without
+   every component redefining its own focus style. */
 :focus-visible {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
 	border-radius: 6px;
 }
 
-/* Les seules choses qui bougent en continu : les pastilles d'activité et le
-   curseur de frappe. Elles se figent quand le système demande moins d'animation
-   — les transitions au survol, elles, restent, elles ne clignotent pas. */
+/* The only things moving continuously: the activity dots and the typing caret.
+   They freeze when the system asks for less motion — hover transitions stay, they
+   do not blink. */
 @media (prefers-reduced-motion: reduce) {
 	.animate-pulse,
 	.caret::after {
@@ -129,8 +129,8 @@ body {
 	}
 }
 
-/* iOS zoome sur un champ de moins de 16 px, ce qui décale toute la mise en
-   page au moment de la saisie. */
+/* iOS zooms into a field under 16px, which shifts the whole layout the moment
+   someone types. */
 @media (max-width: 767px) {
 	input,
 	textarea,
@@ -139,7 +139,7 @@ body {
 	}
 }
 
-/* Un chemin ou une URL sans espace suffit à faire déborder la page. */
+/* A path or a URL without spaces is enough to overflow the page. */
 .break-anywhere {
 	overflow-wrap: anywhere;
 	word-break: break-word;

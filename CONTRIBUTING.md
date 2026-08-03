@@ -1,8 +1,8 @@
-# Contribuer
+# Contributing
 
-Merci de l'intérêt. Les issues et les pull requests sont ouvertes.
+Thanks for the interest. Issues and pull requests are open.
 
-## Mettre en place
+## Setting up
 
 ```bash
 bun install
@@ -11,36 +11,37 @@ bun run db:migrate
 bun run dev
 ```
 
-Il faut le CLI `claude` dans le `PATH` : sans lui le serveur démarre, mais aucune
-conversation ne répond.
+The `claude` CLI must be on the `PATH`: without it the server starts, but no conversation
+answers.
 
-## Avant d'ouvrir une PR
+## Before opening a PR
 
 ```bash
-bun run check      # Biome, lint et formatage
+bun run check      # Biome, lint and formatting
 bun run typecheck
 bun run test
 ```
 
-La CI lance exactement ces trois commandes, plus le build. Si `check` râle,
-`bun run fix` corrige ce qui est corrigeable automatiquement.
+CI runs exactly these three, plus the build. If `check` complains, `bun run fix` handles
+whatever is auto-fixable.
 
 ## Conventions
 
-- **Commentaires** : ils expliquent *pourquoi*, jamais *quoi*. Un commentaire qui
-  paraphrase la ligne suivante sera retiré ; celui qui documente une contrainte non
-  évidente (un contournement du CLI, un piège de SQLite, un comportement iOS) est
-  précieux — gardez-le.
-- **Types partagés** : tout ce qui traverse le réseau vit dans
-  `packages/shared/src/protocol.ts`. Le serveur et le front ne se parlent que par là.
-- **Migrations** : modifiez le schéma Drizzle puis `bun run db:generate`. Les fichiers
-  de `apps/server/drizzle/` ne se retouchent pas à la main.
-- **Politique de permissions** : toute évolution de `apps/server/src/agent/policy.ts`
-  s'accompagne de tests dans `policy.test.ts`. C'est ce qui sépare une commande anodine
-  d'une commande destructrice — ça ne se modifie pas sans filet.
-- **Messages de commit** : en français, à l'impératif, une ligne qui dit l'effet
-  obtenu, pas les fichiers touchés.
+- **Language**: everything in the repository is English — code, comments, commit messages,
+  documentation, and the interface strings.
+- **Comments** explain *why*, never *what*. A comment paraphrasing the next line gets
+  removed; one that records a non-obvious constraint (a CLI quirk, a SQLite trap, an iOS
+  behaviour) is worth keeping.
+- **Shared types**: anything crossing the network lives in
+  `packages/shared/src/protocol.ts`. The server and the front only talk through it.
+- **Migrations**: change the Drizzle schema, then run `bun run db:generate`. Files under
+  `apps/server/drizzle/` are never edited by hand.
+- **Permission policy**: any change to `apps/server/src/agent/policy.ts` comes with tests
+  in `policy.test.ts`. It is what separates a harmless command from a destructive one —
+  it does not change without a net.
+- **Commit messages**: conventional prefix, imperative, one line stating the effect, not
+  the files touched.
 
-## Signaler un problème de sécurité
+## Reporting a security problem
 
-Une faille ne s'ouvre pas en issue publique : écrivez à benjamin@benode.fr.
+A vulnerability does not go in a public issue: write to benjamin@benode.fr.

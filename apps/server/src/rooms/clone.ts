@@ -58,7 +58,7 @@ export async function cloneInto(
 	options: { branch?: string; token?: string } = {},
 ): Promise<CloneResult> {
 	const url = repoUrl.trim()
-	if (!isCloneUrl(url)) return { ok: false, error: 'URL de dépôt non reconnue' }
+	if (!isCloneUrl(url)) return { ok: false, error: 'Unrecognised repository URL' }
 
 	const token = options.token?.trim() || config.gitToken
 	const authenticated = token && isHttp(url) ? authenticatedUrl(url, token) : url
@@ -93,7 +93,7 @@ export async function cloneInto(
 			},
 		})
 	} catch (error) {
-		return { ok: false, error: error instanceof Error ? error.message : 'git introuvable' }
+		return { ok: false, error: error instanceof Error ? error.message : 'git not found' }
 	}
 
 	const timeout = setTimeout(() => proc.kill(), config.cloneTimeoutMs)
@@ -103,7 +103,7 @@ export async function cloneInto(
 	if (code !== 0) {
 		// git echoes the URL it was given, credentials included, on failure.
 		const detail = token ? stderr.replaceAll(token, '***') : stderr
-		return { ok: false, error: lastLine(detail) || `git clone a échoué (code ${code})` }
+		return { ok: false, error: lastLine(detail) || `git clone failed (code ${code})` }
 	}
 
 	if (authenticated !== url) {

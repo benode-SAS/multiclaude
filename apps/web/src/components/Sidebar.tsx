@@ -8,9 +8,9 @@ import { Icon, type IconName } from './Icon.tsx'
 import { SearchBox } from './SearchBox.tsx'
 
 const THEMES: Array<{ id: Theme; icon: IconName; label: string }> = [
-	{ id: 'light', icon: 'sun', label: 'Clair' },
-	{ id: 'dark', icon: 'moon', label: 'Sombre' },
-	{ id: 'system', icon: 'monitor', label: 'Système' },
+	{ id: 'light', icon: 'sun', label: 'Light' },
+	{ id: 'dark', icon: 'moon', label: 'Dark' },
+	{ id: 'system', icon: 'monitor', label: 'System' },
 ]
 
 export function Sidebar({
@@ -79,7 +79,7 @@ export function Sidebar({
 							'ml-auto size-2 rounded-full',
 							connected ? 'bg-ok' : 'bg-warn animate-pulse',
 						)}
-						title={connected ? 'Connecté' : 'Reconnexion…'}
+						title={connected ? 'Connected' : 'Reconnecting…'}
 					/>
 				</div>
 				<button
@@ -88,7 +88,7 @@ export function Sidebar({
 					className="flex w-full items-center gap-2 rounded-xl bg-accent px-3 py-2.5 text-left text-[14px] font-medium text-on-accent transition hover:brightness-105"
 				>
 					<Icon name="plus" size={16} />
-					Nouvelle conversation
+					New conversation
 				</button>
 			</div>
 
@@ -133,7 +133,7 @@ export function Sidebar({
 									setDraft(room.title)
 								}}
 								className="min-w-0 flex-1 truncate text-left"
-								title={room.forkedFrom ? `${room.title} — issue d'un fork` : room.title}
+								title={room.forkedFrom ? `${room.title} — from a fork` : room.title}
 							>
 								{room.forkedFrom && (
 									<Icon name="fork" size={12} className="mr-1 inline shrink-0 text-muted" />
@@ -161,17 +161,17 @@ export function Sidebar({
 										setDraft(room.title)
 									}}
 									className="rounded p-1 text-muted transition hover:bg-panel hover:text-ink"
-									title="Renommer"
+									title="Rename"
 								>
-									<Icon name="pencil" size={14} label="Renommer" />
+									<Icon name="pencil" size={14} label="Rename" />
 								</button>
 								<button
 									type="button"
 									onClick={() => onDelete(room.id)}
 									className="rounded p-1 text-muted transition hover:bg-panel hover:text-danger"
-									title="Supprimer"
+									title="Delete"
 								>
-									<Icon name="trash" size={14} label="Supprimer" />
+									<Icon name="trash" size={14} label="Delete" />
 								</button>
 							</span>
 						)}
@@ -206,24 +206,24 @@ export function Sidebar({
 					type="button"
 					onClick={onRelogin}
 					title={
-						authEmail ? `Compte Claude : ${authEmail} — reconnecter` : 'Connecter un compte Claude'
+						authEmail ? `Claude account: ${authEmail} — reconnect` : 'Connect a Claude account'
 					}
 					className="flex size-8 items-center justify-center rounded-lg border border-line bg-surface text-muted transition hover:text-ink"
 				>
-					<Icon name="key" size={15} label="Compte Claude" />
+					<Icon name="key" size={15} label="Claude account" />
 				</button>
 
 				<button
 					type="button"
 					onClick={onToggleSound}
 					aria-pressed={sound}
-					title={sound ? 'Son des demandes : activé' : 'Son des demandes : coupé'}
+					title={sound ? 'Permission sound: on' : 'Permission sound: off'}
 					className={clsx(
 						'flex size-8 items-center justify-center rounded-lg border border-line bg-surface transition',
 						sound ? 'text-ink' : 'text-muted hover:text-ink',
 					)}
 				>
-					<Icon name={sound ? 'bell' : 'bell-off'} size={15} label="Son des demandes" />
+					<Icon name={sound ? 'bell' : 'bell-off'} size={15} label="Permission sound" />
 				</button>
 
 				{/* The chime is useless with the tab closed, hence system notifications. */}
@@ -233,15 +233,15 @@ export function Sidebar({
 					aria-pressed={notify}
 					title={
 						notify
-							? 'Notifications système : activées'
-							: 'Notifications système : désactivées — une demande non vue expire'
+							? 'System notifications: on'
+							: 'System notifications: off — an unseen request expires'
 					}
 					className={clsx(
 						'flex size-8 items-center justify-center rounded-lg border border-line bg-surface transition',
 						notify ? 'text-ink' : 'text-muted hover:text-ink',
 					)}
 				>
-					<Icon name="screen" size={15} label="Notifications système" />
+					<Icon name="screen" size={15} label="System notifications" />
 				</button>
 			</div>
 
@@ -250,7 +250,7 @@ export function Sidebar({
 				<span className="min-w-0 flex-1">
 					<span className="block truncate font-medium">{pseudo}</span>
 					<span className="block truncate text-[11px] text-muted">
-						{role === 'admin' ? 'administrateur' : email}
+						{role === 'admin' ? 'admin' : email}
 					</span>
 				</span>
 				{role === 'admin' && (
@@ -260,7 +260,7 @@ export function Sidebar({
 							onOpenAdmin()
 							onNavigate()
 						}}
-						title="Administration — comptes et configuration"
+						title="Administration — accounts and settings"
 						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 					>
 						<Icon name="settings" size={15} label="Administration" />
@@ -269,10 +269,10 @@ export function Sidebar({
 				<button
 					type="button"
 					onClick={onSignOut}
-					title="Se déconnecter"
+					title="Sign out"
 					className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-danger"
 				>
-					<Icon name="power" size={15} label="Se déconnecter" />
+					<Icon name="power" size={15} label="Sign out" />
 				</button>
 			</div>
 		</aside>

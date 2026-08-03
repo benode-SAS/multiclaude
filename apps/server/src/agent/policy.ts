@@ -14,54 +14,54 @@ const ask = (reason: string): Decision => ({ allow: false, reason })
  * backticks or a pipeline.
  */
 const SHELL_RULES: Array<{ reason: string; test: RegExp }> = [
-	{ reason: 'élévation de privilèges', test: /\b(sudo|doas|su)\b/i },
+	{ reason: 'privilege escalation', test: /\b(sudo|doas|su)\b/i },
 	{
-		reason: 'exécution d’un script téléchargé',
+		reason: 'running a downloaded script',
 		test: /\b(curl|wget)\b[^|]*\|\s*(sudo\s+)?(ba|z|k)?sh\b/i,
 	},
 	{
-		reason: 'effacement disque ou périphérique',
+		reason: 'wiping a disk or device',
 		test: /\b(shred|mkfs\w*|fdisk|parted|dd)\b|\btruncate\b/i,
 	},
 	{
-		reason: 'base de données',
+		reason: 'database access',
 		test: /\b(pg_dump|pg_restore|pg_dumpall|psql|mysql|mysqldump|mongodump|mongorestore|redis-cli)\b/i,
 	},
 	{
-		reason: 'requête SQL destructive',
+		reason: 'destructive SQL statement',
 		test: /\b(drop\s+(table|database|schema|index)|truncate\s+table|delete\s+from|alter\s+table)\b/i,
 	},
 	{
-		reason: 'opération git destructive ou publiante',
+		reason: 'destructive or publishing git operation',
 		test: /\bgit\s+(push|reset\s+--hard|clean\s+-\w*f|filter-branch|rebase\s+--onto)\b/i,
 	},
 	{
-		reason: 'gestion du système',
+		reason: 'system administration',
 		test: /\b(systemctl|service|reboot|shutdown|halt|poweroff|crontab|useradd|usermod|userdel|passwd|mount|umount|iptables|ufw)\b/i,
 	},
 	{
-		reason: 'gestion de paquets système',
+		reason: 'system package management',
 		test: /\b(apt|apt-get|aptitude|yum|dnf|pacman|zypper|snap|brew)\s+(install|remove|purge|upgrade|update)\b/i,
 	},
-	{ reason: 'publication de paquet', test: /\b(npm|pnpm|yarn|bun)\s+publish\b/i },
-	{ reason: 'arrêt de processus', test: /\b(kill|pkill|killall)\b/i },
+	{ reason: 'package publication', test: /\b(npm|pnpm|yarn|bun)\s+publish\b/i },
+	{ reason: 'killing a process', test: /\b(kill|pkill|killall)\b/i },
 	{
-		reason: 'accès à une machine distante',
+		reason: 'access to a remote machine',
 		test: /\b(ssh|scp|sftp|rsync)\b.*[\w.-]+@|\b(ssh|scp|sftp)\b\s+[\w.-]+@/i,
 	},
 	{
-		reason: 'infrastructure ou déploiement',
+		reason: 'infrastructure or deployment',
 		test: /\b(docker|docker-compose|kubectl|helm|terraform|ansible|aws|gcloud|az|flyctl|vercel)\b/i,
 	},
 	{
-		reason: 'accès à des secrets',
+		reason: 'access to secrets',
 		test: /(\.ssh\/|\.aws\/|\.gnupg\/|id_[rd]sa|\.pgpass|\.npmrc|\/etc\/(shadow|sudoers))/i,
 	},
 	{
-		reason: 'écriture dans un répertoire système',
+		reason: 'writing to a system directory',
 		test: />\s*\/(etc|usr|bin|sbin|boot|lib|var)\//,
 	},
-	{ reason: 'bombe de processus', test: /:\(\)\s*\{.*\}\s*;?\s*:/ },
+	{ reason: 'fork bomb', test: /:\(\)\s*\{.*\}\s*;?\s*:/ },
 ]
 
 /**
@@ -72,13 +72,13 @@ const SHELL_RULES: Array<{ reason: string; test: RegExp }> = [
 function checkRemove(command: string): Decision {
 	if (!/\b(rm|rmdir)\b/i.test(command)) return ALLOW
 	if (/\b(rm|rmdir)\b[^|;&]*\s+[~/]/i.test(command)) {
-		return ask('suppression hors du dossier de travail')
+		return ask('delete outside the working directory')
 	}
 	if (/\b(rm|rmdir)\b[^|;&]*\.\.\//i.test(command)) {
-		return ask('suppression hors du dossier de travail')
+		return ask('delete outside the working directory')
 	}
 	if (/\b(rm|rmdir)\b[^|;&]*\s\*|\brm\b[^|;&]*\s-[a-z]*[rf][a-z]*\s+\*/i.test(command)) {
-		return ask('suppression par motif')
+		return ask('pattern-based delete')
 	}
 	return ALLOW
 }
@@ -87,10 +87,10 @@ function checkRemove(command: string): Decision {
 function checkPermissions(command: string): Decision {
 	if (!/\b(chmod|chown|chgrp)\b/i.test(command)) return ALLOW
 	if (/\b(chmod|chown|chgrp)\b[^|;&]*\s-[a-z]*R/i.test(command)) {
-		return ask('changement de permissions récursif')
+		return ask('recursive permission change')
 	}
 	if (/\b(chmod|chown|chgrp)\b[^|;&]*\s+[~/]/i.test(command)) {
-		return ask('changement de permissions hors du dossier de travail')
+		return ask('permission change outside the working directory')
 	}
 	return ALLOW
 }
@@ -100,7 +100,7 @@ export function checkCommand(command: string, extraPatterns: RegExp[] = []): Dec
 		if (rule.test.test(command)) return ask(rule.reason)
 	}
 	for (const pattern of extraPatterns) {
-		if (pattern.test(command)) return ask('motif interdit par la configuration')
+		if (pattern.test(command)) return ask('pattern blocked by the configuration')
 	}
 	const removal = checkRemove(command)
 	if (!removal.allow) return removal
@@ -124,7 +124,7 @@ export function classify(
 	input: Record<string, unknown>,
 	options: { workdir: string; alwaysAsk: Set<string>; extraPatterns: RegExp[] },
 ): Decision {
-	if (options.alwaysAsk.has(tool)) return ask('outil marqué à confirmer')
+	if (options.alwaysAsk.has(tool)) return ask('tool flagged for confirmation')
 
 	if (tool === 'Bash' || tool === 'BashOutput') {
 		const command = asString(input.command)
@@ -135,14 +135,14 @@ export function classify(
 	if (tool === 'Write' || tool === 'Edit' || tool === 'NotebookEdit') {
 		const target = asString(input.file_path) ?? asString(input.notebook_path)
 		if (target && escapesWorkdir(target, options.workdir)) {
-			return ask('écriture hors du dossier de travail')
+			return ask('writing outside the working directory')
 		}
 		return ALLOW
 	}
 
 	if (tool === 'Read') {
 		const target = asString(input.file_path)
-		if (target && SECRET_PATH.test(target)) return ask('lecture d’un fichier sensible')
+		if (target && SECRET_PATH.test(target)) return ask('reading a sensitive file')
 		return ALLOW
 	}
 

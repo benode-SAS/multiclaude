@@ -15,10 +15,10 @@ import { Icon } from './Icon.tsx'
 type Tab = 'accounts' | 'config'
 
 const duration = (seconds: number) => {
-	if (seconds < 60) return `${seconds} s`
-	if (seconds < 3600) return `${Math.round(seconds / 60)} min`
-	if (seconds < 86400) return `${Math.round(seconds / 3600)} h`
-	return `${Math.round(seconds / 86400)} j`
+	if (seconds < 60) return `${seconds}s`
+	if (seconds < 3600) return `${Math.round(seconds / 60)}min`
+	if (seconds < 86400) return `${Math.round(seconds / 3600)}h`
+	return `${Math.round(seconds / 86400)}d`
 }
 
 /**
@@ -117,7 +117,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 		<div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-0 sm:p-4">
 			<button
 				type="button"
-				aria-label="Fermer"
+				aria-label="Close"
 				onClick={onClose}
 				className="absolute inset-0 cursor-default"
 			/>
@@ -130,15 +130,15 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 						onClick={onClose}
 						className="rounded-lg px-2 py-1 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
 					>
-						<Icon name="close" size={16} label="Fermer" />
+						<Icon name="close" size={16} label="Close" />
 					</button>
 				</header>
 
 				<nav className="flex shrink-0 gap-1 border-b border-line px-3 py-2">
 					{(
 						[
-							['accounts', 'Utilisateurs'],
-							['config', 'Configuration'],
+							['accounts', 'Users'],
+							['config', 'Settings'],
 						] as Array<[Tab, string]>
 					).map(([id, label]) => (
 						<button
@@ -164,7 +164,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 				<div className="min-h-0 flex-1 overflow-y-auto p-4">
 					{tab === 'accounts' ? (
 						!accounts ? (
-							<p className="text-[13px] text-muted">Chargement…</p>
+							<p className="text-[13px] text-muted">Loading…</p>
 						) : (
 							<ul className="flex flex-col gap-1.5">
 								{accounts.map((account) => (
@@ -177,12 +177,12 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											<div className="truncate text-[14px] font-medium">
 												{account.name}
 												{account.id === selfId && (
-													<span className="ml-1.5 text-[11px] text-muted">— toi</span>
+													<span className="ml-1.5 text-[11px] text-muted">— you</span>
 												)}
 											</div>
 											<div className="truncate text-[11px] text-muted">
-												{account.email} · inscrit le {formatDay(account.createdAt)}
-												{account.mustChangePassword && ' · mot de passe à changer'}
+												{account.email} · joined {formatDay(account.createdAt)}
+												{account.mustChangePassword && ' · password to change'}
 											</div>
 										</div>
 
@@ -192,18 +192,18 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											onChange={(e) => void setRole(account, e.target.value as Role)}
 											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] outline-none focus:border-accent/60 disabled:opacity-50"
 										>
-											<option value="admin">Administrateur</option>
-											<option value="member">Membre</option>
+											<option value="admin">Admin</option>
+											<option value="member">Member</option>
 										</select>
 
 										<button
 											type="button"
 											disabled={busy === account.id}
 											onClick={() => void resetPassword(account)}
-											title="Régénérer le mot de passe"
+											title="Regenerate the password"
 											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] text-muted transition enabled:hover:text-ink disabled:opacity-40"
 										>
-											<Icon name="key" size={14} label="Régénérer le mot de passe" />
+											<Icon name="key" size={14} label="Regenerate the password" />
 										</button>
 
 										<button
@@ -212,12 +212,12 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											onClick={() => setConfirmDelete(account)}
 											title={
 												account.id === selfId
-													? 'On ne supprime pas son propre compte'
-													: 'Supprimer le compte'
+													? 'You cannot delete your own account'
+													: 'Delete the account'
 											}
 											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] text-muted transition enabled:hover:border-danger/50 enabled:hover:text-danger disabled:opacity-40"
 										>
-											<Icon name="trash" size={14} label="Supprimer le compte" />
+											<Icon name="trash" size={14} label="Delete the account" />
 										</button>
 									</li>
 								))}
@@ -236,7 +236,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 													autoFocus
 													value={newName}
 													onChange={(e) => setNewName(e.target.value)}
-													placeholder="Nom affiché"
+													placeholder="Display name"
 													className="min-w-0 flex-1 rounded-lg border border-line bg-canvas px-2.5 py-2 text-[14px] outline-none focus:border-accent/60"
 												/>
 												<input
@@ -244,7 +244,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 													required
 													value={newEmail}
 													onChange={(e) => setNewEmail(e.target.value)}
-													placeholder="adresse@exemple.fr"
+													placeholder="name@example.com"
 													className="min-w-0 flex-1 rounded-lg border border-line bg-canvas px-2.5 py-2 text-[14px] outline-none focus:border-accent/60"
 												/>
 											</div>
@@ -256,7 +256,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 													onChange={(e) => setNewAdmin(e.target.checked)}
 													className="size-4 accent-[var(--color-accent)]"
 												/>
-												Administrateur
+												Admin
 											</label>
 
 											<div className="mt-3 flex justify-end gap-2">
@@ -265,14 +265,14 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 													onClick={() => setAdding(false)}
 													className="rounded-lg border border-line bg-canvas px-3 py-1.5 text-[13px] transition hover:bg-panel"
 												>
-													Annuler
+													Cancel
 												</button>
 												<button
 													type="submit"
 													disabled={busy === 'create'}
 													className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-60"
 												>
-													{busy === 'create' ? '…' : 'Créer le compte'}
+													{busy === 'create' ? '…' : 'Create the account'}
 												</button>
 											</div>
 										</form>
@@ -282,18 +282,18 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											onClick={() => setAdding(true)}
 											className="w-full rounded-xl border border-line border-dashed bg-surface px-3 py-2.5 text-[13px] text-muted transition hover:border-accent/50 hover:text-ink"
 										>
-											+ Ajouter un membre
+											+ Add a member
 										</button>
 									)}
 								</li>
 							</ul>
 						)
 					) : !config ? (
-						<p className="text-[13px] text-muted">Chargement…</p>
+						<p className="text-[13px] text-muted">Loading…</p>
 					) : (
 						<div className="flex flex-col gap-4">
 							<section className="rounded-xl border border-line bg-surface p-3">
-								<h3 className="text-[13px] font-medium">Inscriptions</h3>
+								<h3 className="text-[13px] font-medium">Signups</h3>
 								<label className="mt-2 flex items-start gap-2 text-[13px]">
 									<input
 										type="checkbox"
@@ -303,12 +303,11 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 										className="mt-0.5 size-4 accent-[var(--color-accent)]"
 									/>
 									<span>
-										Ouvertes à tous
+										Open to anyone
 										<span className="block text-[11px] text-muted">
-											Fermées, seul un administrateur peut créer des comptes. Ce réglage prime sur{' '}
+											Closed, only an admin creates accounts. This setting overrides{' '}
 											<code>SIGNUP_ENABLED</code> (
-											{config.runtime.signupFromEnv ? 'ouvertes' : 'fermées'} dans le{' '}
-											<code>.env</code>
+											{config.runtime.signupFromEnv ? 'open' : 'closed'} in the <code>.env</code>
 											).
 										</span>
 									</span>
@@ -316,7 +315,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 							</section>
 
 							<section className="rounded-xl border border-line bg-surface p-3">
-								<h3 className="text-[13px] font-medium">Modèle des nouvelles conversations</h3>
+								<h3 className="text-[13px] font-medium">Model for new conversations</h3>
 								<select
 									value={config.settings.defaultModel ?? ''}
 									disabled={busy === 'config'}
@@ -330,44 +329,42 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 									))}
 								</select>
 								<p className="mt-1.5 text-[11px] text-muted">
-									Chaque conversation reste réglable individuellement ; ceci ne fixe que la valeur
-									de départ.
+									Every conversation stays individually adjustable; this only sets the starting
+									value.
 								</p>
 							</section>
 
 							<section className="rounded-xl border border-line bg-surface p-3">
-								<h3 className="text-[13px] font-medium">État du serveur</h3>
+								<h3 className="text-[13px] font-medium">Server state</h3>
 								{/* Showing what the .env resolved to saves a trip to the server
 								    when diagnosing a behaviour. */}
 								<dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-[12px]">
-									<Row label="Compte Claude">
-										{config.runtime.claudeLoggedIn ? 'connecté' : 'non connecté'}
+									<Row label="Claude account">
+										{config.runtime.claudeLoggedIn ? 'connected' : 'not connected'}
 									</Row>
-									<Row label="Binaire">{config.runtime.claudeBin}</Row>
-									<Row label="URL publique">{config.runtime.publicUrl}</Row>
-									<Row label="Données">{config.runtime.dataDir}</Row>
-									<Row label="Front servi">{config.runtime.serveWeb ? 'oui' : 'non'}</Row>
-									<Row label="Comptes">{config.runtime.accounts}</Row>
+									<Row label="Binary">{config.runtime.claudeBin}</Row>
+									<Row label="Public URL">{config.runtime.publicUrl}</Row>
+									<Row label="Data">{config.runtime.dataDir}</Row>
+									<Row label="Front served">{config.runtime.serveWeb ? 'yes' : 'no'}</Row>
+									<Row label="Accounts">{config.runtime.accounts}</Row>
 									<Row label="Conversations">{config.runtime.rooms}</Row>
-									<Row label="En ligne depuis">{duration(config.runtime.uptimeSec)}</Row>
-									<Row label="Modèle par défaut">{modelLabel(config.settings.defaultModel)}</Row>
-									<Row label="Attente d'autorisation">
+									<Row label="Uptime">{duration(config.runtime.uptimeSec)}</Row>
+									<Row label="Default model">{modelLabel(config.settings.defaultModel)}</Row>
+									<Row label="Permission timeout">
 										{duration(config.runtime.permissionTimeoutSec)}
 									</Row>
-									<Row label="Outils toujours confirmés">
-										{config.runtime.alwaysAskTools.join(', ') || 'aucun — politique par commande'}
+									<Row label="Always-confirmed tools">
+										{config.runtime.alwaysAskTools.join(', ') || 'none — per-command policy'}
 									</Row>
-									<Row label="Motifs à confirmer">
-										{config.runtime.askPatterns.join(', ') || 'aucun'}
+									<Row label="Patterns to confirm">
+										{config.runtime.askPatterns.join(', ') || 'none'}
 									</Row>
-									<Row label="Profondeur de clone">
-										{config.runtime.cloneDepth || 'historique complet'}
-									</Row>
-									<Row label="Envoi maximum">{config.runtime.maxUploadMb} Mo</Row>
+									<Row label="Clone depth">{config.runtime.cloneDepth || 'full history'}</Row>
+									<Row label="Upload limit">{config.runtime.maxUploadMb} MB</Row>
 								</dl>
 								<p className="mt-2 text-[11px] text-muted">
-									Ces valeurs viennent de l'environnement : elles se changent dans le{' '}
-									<code>.env</code>, puis au redémarrage.
+									These values come from the environment: change them in the <code>.env</code>, then
+									restart.
 								</p>
 							</section>
 						</div>
@@ -378,10 +375,10 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 			{issued && (
 				<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 p-4">
 					<div className="w-full max-w-sm rounded-2xl border border-line bg-canvas p-5 shadow-2xl">
-						<h3 className="text-[15px] font-semibold">Mot de passe temporaire</h3>
+						<h3 className="text-[15px] font-semibold">Temporary password</h3>
 						<p className="mt-2 text-[13px] text-muted">
-							Transmets-le à {issued.email}. Il sera demandé de le changer à la connexion, et il ne
-							sera plus affiché ici.
+							Pass it on to {issued.email}. They will be asked to change it at sign-in, and it will
+							not be shown here again.
 						</p>
 						<code className="mt-3 block break-all rounded-xl border border-line bg-surface px-3 py-2.5 text-center font-mono text-[15px]">
 							{issued.password}
@@ -392,14 +389,14 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 								onClick={() => void navigator.clipboard?.writeText(issued.password)}
 								className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] transition hover:bg-panel"
 							>
-								Copier
+								Copy
 							</button>
 							<button
 								type="button"
 								onClick={() => setIssued(null)}
 								className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition hover:brightness-95"
 							>
-								J'ai noté
+								Got it
 							</button>
 						</div>
 					</div>
@@ -409,10 +406,10 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 			{confirmDelete && (
 				<div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 p-4">
 					<div className="w-full max-w-sm rounded-2xl border border-line bg-canvas p-5 shadow-2xl">
-						<h3 className="text-[15px] font-semibold">Supprimer ce compte ?</h3>
+						<h3 className="text-[15px] font-semibold">Delete this account?</h3>
 						<p className="mt-2 text-[13px] text-muted">
-							{confirmDelete.name} ({confirmDelete.email}) perdra l'accès immédiatement. Les
-							conversations et les messages restent en place.
+							{confirmDelete.name} ({confirmDelete.email}) loses access immediately. Conversations
+							and messages stay in place.
 						</p>
 						<div className="mt-5 flex justify-end gap-2">
 							<button
@@ -420,7 +417,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 								onClick={() => setConfirmDelete(null)}
 								className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] transition hover:bg-panel"
 							>
-								Annuler
+								Cancel
 							</button>
 							<button
 								type="button"
@@ -428,7 +425,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 								onClick={() => void remove(confirmDelete)}
 								className="rounded-lg bg-danger px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-60"
 							>
-								Supprimer
+								Delete
 							</button>
 						</div>
 					</div>

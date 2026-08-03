@@ -1,12 +1,12 @@
 ---
-name: Proposition
-about: Une idée d'amélioration
+name: Proposal
+about: An idea for an improvement
 labels: enhancement
 ---
 
-**Le besoin**
-Ce qui coince aujourd'hui, dans l'usage.
+**The need**
+What gets in the way today, in actual use.
 
-**Ce que ça donnerait**
+**What it would look like**
 
-**Alternatives envisagées**
+**Alternatives considered**

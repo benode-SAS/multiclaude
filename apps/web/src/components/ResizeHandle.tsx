@@ -26,12 +26,12 @@ export function ResizeHandle({
 		<div
 			role="separator"
 			aria-orientation="vertical"
-			aria-label="Redimensionner le panneau"
+			aria-label="Resize the panel"
 			aria-valuenow={Math.round(width)}
 			aria-valuemin={DOCK_MIN}
 			aria-valuemax={Math.round(window.innerWidth * 0.75)}
 			tabIndex={0}
-			title="Glisser pour redimensionner · double-clic pour réinitialiser"
+			title="Drag to resize · double-click to reset"
 			onPointerDown={(event) => {
 				dragging.current = true
 				event.currentTarget.setPointerCapture(event.pointerId)

@@ -100,9 +100,9 @@ export function Thread({
 			<div className="mx-auto flex max-w-3xl flex-col gap-5">
 				{timeline.length === 0 && !running && (
 					<div className="py-20 text-center">
-						<p className="text-[15px] font-medium">Conversation vide</p>
+						<p className="text-[15px] font-medium">Empty conversation</p>
 						<p className="mt-1 text-[13px] text-muted">
-							Écris un message — Claude travaille dans le workdir isolé de cette room.
+							Write a message — Claude works in this room's isolated workdir.
 						</p>
 					</div>
 				)}
@@ -131,7 +131,7 @@ export function Thread({
 						<div key={item.key} className="flex items-center gap-2 md:ml-[42px]">
 							<span className="flex items-center gap-1.5 text-[12px] text-muted">
 								<Icon name="package" size={13} />
-								fichier
+								file
 							</span>
 							<FileChip attachment={item.attachment} roomId={roomId} onOpen={onOpen} />
 						</div>

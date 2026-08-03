@@ -48,7 +48,7 @@ export function NewRoomDialog({
 		<div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4">
 			<button
 				type="button"
-				aria-label="Annuler"
+				aria-label="Cancel"
 				onClick={() => !busy && onCancel()}
 				className="absolute inset-0 cursor-default"
 			/>
@@ -60,28 +60,28 @@ export function NewRoomDialog({
 				}}
 				className="relative w-full max-w-md rounded-2xl border border-line bg-canvas p-5 shadow-2xl"
 			>
-				<h2 className="text-[15px] font-semibold">Nouvelle conversation</h2>
+				<h2 className="text-[15px] font-semibold">New conversation</h2>
 
 				<label className="mt-4 block text-[12px] text-muted" htmlFor="room-title">
-					Titre
+					Title
 					<input
 						id="room-title"
 						ref={titleRef}
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
-						placeholder="Nouvelle conversation"
+						placeholder="New conversation"
 						disabled={busy}
 						className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 text-[14px] text-ink outline-none focus:border-accent/60 disabled:opacity-50"
 					/>
 				</label>
 
 				<label className="mt-3 block text-[12px] text-muted" htmlFor="room-repo">
-					Dépôt à cloner — optionnel
+					Repository to clone — optional
 					<input
 						id="room-repo"
 						value={repoUrl}
 						onChange={(e) => setRepoUrl(e.target.value)}
-						placeholder="https://github.com/org/projet.git"
+						placeholder="https://github.com/org/project.git"
 						disabled={busy}
 						className="mt-1 w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-[13px] text-ink outline-none focus:border-accent/60 disabled:opacity-50"
 					/>
@@ -90,7 +90,7 @@ export function NewRoomDialog({
 				{repoUrl.trim() && (
 					<>
 						<label className="mt-3 block text-[12px] text-muted" htmlFor="room-branch">
-							Branche — optionnel
+							Branch — optional
 							<input
 								id="room-branch"
 								value={branch}
@@ -103,7 +103,7 @@ export function NewRoomDialog({
 
 						{isHttp(repoUrl) && (
 							<label className="mt-3 block text-[12px] text-muted" htmlFor="room-token">
-								Jeton d'accès — dépôt privé
+								Access token — private repository
 								<input
 									id="room-token"
 									type="password"
@@ -120,8 +120,9 @@ export function NewRoomDialog({
 				)}
 
 				<p className="mt-3 text-[12px] text-muted">
-					Le dépôt devient le dossier de travail de la conversation. Pour un dépôt privé : un jeton
-					en lecture, utilisé pour le clone puis oublié — ou une URL SSH, si le serveur a la clé.
+					The repository becomes the conversation's working directory. For a private one: a
+					read-only token, used for the clone then forgotten — or an SSH URL, if the server holds
+					the key.
 				</p>
 
 				{error && <p className="mt-3 text-[12px] text-danger">{error}</p>}
@@ -133,14 +134,14 @@ export function NewRoomDialog({
 						disabled={busy}
 						className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] transition hover:bg-panel disabled:opacity-50"
 					>
-						Annuler
+						Cancel
 					</button>
 					<button
 						type="submit"
 						disabled={busy}
 						className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-60"
 					>
-						{busy ? (repoUrl.trim() ? 'Clonage…' : 'Création…') : 'Créer'}
+						{busy ? (repoUrl.trim() ? 'Cloning…' : 'Creating…') : 'Create'}
 					</button>
 				</div>
 			</form>

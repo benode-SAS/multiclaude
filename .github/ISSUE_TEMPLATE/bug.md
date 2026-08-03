@@ -1,22 +1,22 @@
 ---
 name: Bug
-about: Un comportement qui ne correspond pas à ce qui est attendu
+about: Behaviour that does not match what is expected
 labels: bug
 ---
 
-**Ce qui se passe**
+**What happens**
 
-**Ce qui devrait se passer**
+**What should happen**
 
-**Pour reproduire**
+**To reproduce**
 1.
 2.
 
-**Contexte**
-- OS et navigateur :
-- Version de bun (`bun -v`) :
-- Version du CLI (`claude --version`) :
-- Déploiement : local / Docker / PM2 / autre
+**Context**
+- OS and browser:
+- bun version (`bun -v`):
+- CLI version (`claude --version`):
+- Deployment: local / Docker / PM2 / other
 
 **Logs**
-Le bloc pertinent de la sortie serveur, sans les jetons ni les URL privées.
+The relevant block of server output, with tokens and private URLs removed.

@@ -106,7 +106,7 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 		'/account/password',
 		async ({ request, body }) => {
 			const me = await currentUser(request)
-			if (!me) return status(401, 'Connexion requise')
+			if (!me) return status(401, 'Sign-in required')
 
 			try {
 				await auth.api.changePassword({
@@ -114,7 +114,7 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 					body: { currentPassword: body.currentPassword, newPassword: body.newPassword },
 				})
 			} catch {
-				return status(400, 'Mot de passe actuel incorrect')
+				return status(400, 'Current password is wrong')
 			}
 
 			await AccountService.setMustChangePassword(me.id, false)
@@ -141,7 +141,7 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 				body.role === 'member' &&
 				(await AccountService.adminCount()) <= 1
 			) {
-				return status(409, 'Il doit rester au moins un administrateur')
+				return status(409, 'At least one admin must remain')
 			}
 
 			const updated = await AccountService.setRole(params.id, body.role)
@@ -155,12 +155,12 @@ export const accountRoutes = new Elysia({ prefix: '/api' })
 		if (denied) return denied
 
 		const me = await currentUser(request)
-		if (me?.id === params.id) return status(409, 'On ne supprime pas son propre compte')
+		if (me?.id === params.id) return status(409, 'You cannot delete your own account')
 
 		const target = await AccountService.get(params.id)
 		if (!target) return status(404, 'Not Found')
 		if (target.role === 'admin' && (await AccountService.adminCount()) <= 1) {
-			return status(409, 'Il doit rester au moins un administrateur')
+			return status(409, 'At least one admin must remain')
 		}
 
 		await AccountService.remove(params.id)

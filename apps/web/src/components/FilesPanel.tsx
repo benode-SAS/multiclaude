@@ -23,8 +23,8 @@ export function FilesPanel({
 	onClose: () => void
 }) {
 	const [files, setFiles] = useState<FileEntry[]>([])
-	// L'arborescence par défaut : elle situe un fichier dans le projet, là où la
-	// liste ne répond qu'à « qu'est-ce qui vient de bouger ».
+	// The tree by default: it places a file inside the project, where the list
+	// only answers "what just moved".
 	const [view, setView] = useState<View>(
 		() => (localStorage.getItem(VIEW_KEY) as View | null) ?? 'tree',
 	)
@@ -54,8 +54,8 @@ export function FilesPanel({
 				<div className="ml-auto flex overflow-hidden rounded-lg border border-line">
 					{(
 						[
-							['tree', 'folder-tree', 'Arborescence du dossier'],
-							['list', 'list', 'Liste, du plus récent au plus ancien'],
+							['tree', 'folder-tree', 'Directory tree'],
+							['list', 'list', 'List, newest first'],
 						] as Array<[View, IconName, string]>
 					).map(([id, icon, label]) => (
 						<button
@@ -77,25 +77,23 @@ export function FilesPanel({
 				<button
 					type="button"
 					onClick={load}
-					title="Rafraîchir"
+					title="Refresh"
 					className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 				>
-					<Icon name="refresh" size={15} label="Rafraîchir" />
+					<Icon name="refresh" size={15} label="Refresh" />
 				</button>
 				<button
 					type="button"
 					onClick={onClose}
-					title="Fermer"
+					title="Close"
 					className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 				>
-					<Icon name="close" size={16} label="Fermer" />
+					<Icon name="close" size={16} label="Close" />
 				</button>
 			</div>
 
 			<div className="flex-1 overflow-y-auto p-2">
-				{files.length === 0 && (
-					<p className="px-2 py-4 text-[13px] text-muted">Aucun fichier pour l'instant.</p>
-				)}
+				{files.length === 0 && <p className="px-2 py-4 text-[13px] text-muted">No files yet.</p>}
 				{view === 'tree' ? (
 					<FileTree nodes={tree} onOpen={onOpen} />
 				) : (

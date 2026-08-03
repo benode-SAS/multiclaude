@@ -207,7 +207,7 @@ export const useStore = create<State & Actions>((set, get) => {
 			case 'permission_request':
 				set({ pending: [...state.pending, message.request] })
 				playPermissionChime()
-				flashTitle('🔒 autorisation demandée')
+				flashTitle('Permission requested')
 				notifyPermission(
 					state.room?.title ?? 'multiclaude',
 					message.request.tool,

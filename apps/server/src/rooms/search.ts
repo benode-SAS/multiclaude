@@ -14,11 +14,11 @@ export type SearchHit = {
 
 const EXCERPT = 160
 
-/** Construit depuis un code de caractère : les échappements d'antislash dans un
- * gabarit SQL se perdent trop facilement en route. */
+/** Built from a character code: backslash escapes inside an SQL template are
+ * far too easy to lose along the way. */
 const ESCAPE_CHAR = String.fromCharCode(92)
 
-/** Extrait centré sur la première occurrence, pour montrer le contexte utile. */
+/** Excerpt centred on the first match, to show the useful context. */
 function excerptAround(content: string, needle: string) {
 	const at = content.toLowerCase().indexOf(needle.toLowerCase())
 	if (at === -1) return content.slice(0, EXCERPT)

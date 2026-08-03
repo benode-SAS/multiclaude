@@ -5,6 +5,7 @@ import type {
 	ToolResultPayload,
 	ToolUsePayload,
 } from '@multiclaude/shared'
+import type { IconName } from '../components/Icon.tsx'
 
 export type TimelineItem =
 	| { kind: 'message'; key: string; at: number; message: Message }
@@ -92,33 +93,37 @@ export function groupTimeline(items: TimelineItem[]): TimelineRow[] {
 
 const str = (value: unknown) => (typeof value === 'string' ? value : undefined)
 
-export function describeTool(use: ToolUsePayload) {
+export function describeTool(use: ToolUsePayload): {
+	icon: IconName
+	label: string
+	target?: string
+} {
 	const input = use.input
 	const file = str(input.file_path) ?? str(input.path) ?? str(input.notebook_path)
 	switch (use.name) {
 		case 'Write':
-			return { icon: '📝', label: 'a écrit', target: file }
+			return { icon: 'file', label: 'wrote', target: file }
 		case 'Edit':
 		case 'NotebookEdit':
-			return { icon: '✏️', label: 'a modifié', target: file }
+			return { icon: 'pencil', label: 'edited', target: file }
 		case 'Read':
-			return { icon: '📖', label: 'a lu', target: file }
+			return { icon: 'book', label: 'read', target: file }
 		case 'Bash':
-			return { icon: '⚡', label: 'a exécuté', target: str(input.command) }
+			return { icon: 'terminal', label: 'ran', target: str(input.command) }
 		case 'Glob':
-			return { icon: '🔍', label: 'a cherché', target: str(input.pattern) }
+			return { icon: 'search', label: 'looked for', target: str(input.pattern) }
 		case 'Grep':
-			return { icon: '🔍', label: 'a grepé', target: str(input.pattern) }
+			return { icon: 'search', label: 'grepped', target: str(input.pattern) }
 		case 'WebSearch':
-			return { icon: '🌐', label: 'a recherché', target: str(input.query) }
+			return { icon: 'globe', label: 'searched the web for', target: str(input.query) }
 		case 'WebFetch':
-			return { icon: '🌐', label: 'a consulté', target: str(input.url) }
+			return { icon: 'globe', label: 'fetched', target: str(input.url) }
 		case 'TodoWrite':
-			return { icon: '📋', label: 'a mis à jour sa todo', target: undefined }
+			return { icon: 'list', label: 'updated its todo list', target: undefined }
 		case 'Task':
-			return { icon: '🤖', label: 'a délégué', target: str(input.description) }
+			return { icon: 'sparkles', label: 'delegated', target: str(input.description) }
 		default:
-			return { icon: '🔧', label: `a utilisé ${use.name}`, target: file }
+			return { icon: 'wrench', label: `used ${use.name}`, target: file }
 	}
 }
 

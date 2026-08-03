@@ -1,29 +1,29 @@
-# Sécurité
+# Security
 
-## Signaler une faille
+## Reporting a vulnerability
 
-Écrivez à benjamin@benode.fr plutôt que d'ouvrir une issue publique. Une réponse
-part sous quelques jours.
+Write to benjamin@benode.fr rather than opening a public issue. Expect an answer within a
+few days.
 
-## Modèle de menace
+## Threat model
 
-multiclaude exécute du code sur la machine hôte : c'est sa raison d'être. Ce qui
-suit est **par conception**, et n'est donc pas une faille :
+multiclaude runs code on the host machine: that is its reason to exist. The following is
+**by design**, and therefore not a vulnerability:
 
-- Un membre authentifié peut faire exécuter des commandes par l'agent, dans le
-  dossier de travail d'une conversation.
-- L'aperçu HTML exécute le JavaScript du document rendu, dans une iframe sans
-  `allow-same-origin` : origine opaque, pas d'accès à l'application ni à l'API.
+- An authenticated member can have the agent run commands, inside a conversation's working
+  directory.
+- The HTML preview executes the JavaScript of the rendered document, in an iframe without
+  `allow-same-origin`: opaque origin, no access to the app or the API.
 
-Ce qui en revanche nous intéresse : contournement de l'authentification, accès aux
-données d'une instance depuis un compte non autorisé, échappement du bac à sable de
-l'aperçu, lecture de fichiers hors du dossier de travail par les routes de fichiers,
-et tout ce qui permet d'agir sans passer par la validation humaine des permissions.
+What we do want to hear about: authentication bypass, access to an instance's data from an
+unauthorised account, escaping the preview sandbox, reading files outside the working
+directory through the file routes, and anything that acts without going through the human
+permission gate.
 
-## Déployer sans se mettre en danger
+## Deploying without getting hurt
 
-- Ne pas exécuter le serveur en `root`.
-- Fermer les inscriptions (`SIGNUP_ENABLED=false`) dès que l'instance est joignable
-  depuis Internet.
-- `ALWAYS_ASK_TOOLS=Bash` pour faire confirmer chaque commande.
-- Servir en HTTPS : le cookie de session passe alors en `secure` automatiquement.
+- Do not run the server as `root`.
+- Close signups (`SIGNUP_ENABLED=false`) as soon as the instance is reachable from the
+  internet.
+- `ALWAYS_ASK_TOOLS=Bash` to have every command confirmed.
+- Serve over HTTPS: the session cookie then becomes `secure` on its own.

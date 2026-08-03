@@ -18,7 +18,7 @@ export function PermissionCard({
 		<div className="ml-0 md:ml-[42px] max-w-[min(760px,100%)] rounded-xl border border-accent/40 bg-accent-soft/50 p-3">
 			<div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent-ink">
 				<Icon name="lock" size={14} className="shrink-0" />
-				<span>Claude demande à exécuter {request.tool}</span>
+				<span>Claude wants to run {request.tool}</span>
 				{request.reason && (
 					<span className="rounded-full border border-accent/30 px-2 py-0.5 text-[11px] font-normal">
 						{request.reason}
@@ -34,14 +34,14 @@ export function PermissionCard({
 					onClick={() => onDecide(true)}
 					className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition hover:brightness-95"
 				>
-					Autoriser
+					Allow
 				</button>
 				<button
 					type="button"
 					onClick={() => onDecide(false)}
 					className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] font-medium transition hover:bg-panel"
 				>
-					Refuser
+					Deny
 				</button>
 			</div>
 		</div>

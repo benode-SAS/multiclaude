@@ -19,7 +19,7 @@ export const roomRoutes = new Elysia({ prefix: '/rooms' })
 			if (denied) return denied
 
 			const repoUrl = body?.repoUrl?.trim()
-			if (repoUrl && !isCloneUrl(repoUrl)) return status(400, 'URL de dépôt non reconnue')
+			if (repoUrl && !isCloneUrl(repoUrl)) return status(400, 'Unrecognised repository URL')
 
 			const room = await RoomService.create(body?.title)
 
@@ -38,7 +38,7 @@ export const roomRoutes = new Elysia({ prefix: '/rooms' })
 					roomId: room.id,
 					author: 'system',
 					role: 'system',
-					content: `📦 Dépôt cloné : ${repoUrl}${
+					content: `Repository cloned: ${repoUrl}${
 						result.head
 							? `
 

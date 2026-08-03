@@ -1,56 +1,55 @@
 # multiclaude
 
-[![Licence: MIT](https://img.shields.io/badge/licence-MIT-f97316)](LICENSE)
-[![par Benode](https://img.shields.io/badge/par-Benode-052e16)](https://www.benode.fr)
+[![License: MIT](https://img.shields.io/badge/license-MIT-f97316)](LICENSE)
+[![by Benode](https://img.shields.io/badge/by-Benode-052e16)](https://www.benode.fr)
 
-Chat multi-utilisateur temps réel au-dessus de **Claude Code**. Plusieurs personnes
-dialoguent dans une même conversation avec un agent qui travaille dans un dossier
-isolé : réponses en flux, actions visibles, fichiers créés affichés en direct, et
-validation humaine avant toute commande sensible.
+Real-time multi-user chat on top of **Claude Code**. Several people talk to one agent in
+one conversation, and the agent works in an isolated directory: streamed answers, visible
+actions, created files shown as they land, and a human decision before anything sensitive
+runs.
 
-> Chaque conversation pilote un vrai process `claude` sur la machine hôte, avec votre
-> abonnement Claude — pas de clé API, pas d'intermédiaire.
-
----
-
-## Ce que ça fait
-
-**Travailler à plusieurs sur un même agent.** Une conversation, un contexte, plusieurs
-personnes. On voit qui écrit, ce qu'il est en train d'écrire (au survol), où il se
-trouve dans le fil, et ce qu'il a sélectionné — surligné à sa couleur, comme dans un
-document partagé. Cliquer sur un badge met votre vue en miroir de la sienne.
-
-**Ne pas se marcher dessus.** L'agent traite un tour à la fois : les messages
-concurrents sont mis en file, épinglés au-dessus de la saisie, modifiables ou
-annulables tant qu'ils ne sont pas partis. Un tour peut être interrompu. Et une
-conversation peut être **forkée** : mêmes fichiers, même contexte hérité, deux fils qui
-divergent — pour explorer sans abîmer le travail de l'autre.
-
-**Garder la main sur ce qui s'exécute.** Les commandes anodines passent seules ; `sudo`,
-`pg_dump`, `git push`, `docker`, une suppression hors du dossier de travail ou un accès
-aux secrets demandent un clic, avec le motif affiché. La politique est testée.
-
-**Voir le travail.** Les fichiers écrits par l'agent apparaissent dans le fil et dans un
-panneau latéral redimensionnable, en arborescence ou en liste chronologique. Markdown,
-code et HTML sont rendus, avec défilement et sélections partagés entre participants. Un
-document modifié pendant sa lecture se rafraîchit sans perdre la position.
-
-**Partir d'un dépôt.** Une conversation peut cloner un dépôt qui devient son dossier de
-travail. Pour un dépôt privé : un jeton d'accès saisi à la création — utilisé pour le
-clone puis oublié, le remote étant remis sur l'URL sans identifiants — ou une URL SSH
-si le serveur détient la clé.
+> Every conversation drives a real `claude` process on the host machine, on your own
+> Claude subscription — no API key, nothing in between.
 
 ---
 
-## Démarrer
+## What it does
 
-### Prérequis
+**Work on one agent, together.** One conversation, one context, several people. You see
+who is typing, what they are typing (on hover), where they are in the thread, and what
+they have selected — highlighted in their colour, the way a shared document does it.
+Click someone's badge and your view mirrors theirs.
+
+**Stay out of each other's way.** The agent takes one turn at a time: concurrent messages
+queue up, pinned above the input, editable or cancellable until they are sent. A turn can
+be interrupted. And a conversation can be **forked**: same files, same inherited context,
+two threads that diverge — to explore without spoiling someone else's work.
+
+**Keep control of what runs.** Ordinary commands go through unattended; `sudo`, `pg_dump`,
+`git push`, `docker`, a delete outside the working directory or a reach for secrets ask
+for a click, with the reason shown. The policy is covered by tests.
+
+**See the work.** Files the agent writes appear in the thread and in a resizable side
+panel, as a tree or as a chronological list. Markdown, code and HTML are rendered, with
+scrolling and selections shared between participants. A document edited while you read it
+refreshes without losing your position.
+
+**Start from a repository.** A conversation can clone a repository, which becomes its
+working directory. For a private one: an access token typed at creation — used for the
+clone then forgotten, the remote being reset to the credential-free URL — or an SSH URL
+if the server holds the key.
+
+---
+
+## Getting started
+
+### Requirements
 
 - [Bun](https://bun.sh) 1.3+
-- [Claude Code](https://claude.com/claude-code) installé et accessible dans le `PATH`
-- `git` (pour cloner un dépôt dans une conversation)
+- [Claude Code](https://claude.com/claude-code) installed and on the `PATH`
+- `git`, to clone a repository into a conversation
 
-### En local
+### Locally
 
 ```bash
 git clone https://github.com/benode-SAS/multiclaude.git
@@ -61,24 +60,24 @@ bun run db:migrate
 bun run dev
 ```
 
-L'interface écoute sur `http://localhost:3000`, l'API sur `8000`.
+The interface listens on `http://localhost:3000`, the API on `8000`.
 
-Au premier lancement l'application demande de **créer le compte administrateur** —
-c'est le premier compte créé, quel que soit le réglage des inscriptions.
+On first launch the app asks you to **create the admin account** — it is simply the first
+account created, whatever the signup setting says.
 
-Il reste à connecter Claude Code : la clé 🔑 dans la barre latérale ouvre un lien
-d'autorisation, puis vous collez le code renvoyé. Aucun terminal nécessaire.
+One thing is left: connecting Claude Code. The key button in the sidebar opens an
+authorisation link, and you paste back the code it returns. No terminal needed.
 
-### En production
+### In production
 
 ```bash
-cp .env.example .env    # renseignez au moins PORT, DATA_DIR, PUBLIC_URL
+cp .env.example .env    # set at least PORT, DATA_DIR and PUBLIC_URL
 bun run deploy          # install + build + migrations
 bun run start
 ```
 
-`SERVE_WEB` étant actif par défaut, le serveur sert aussi l'interface : **un seul
-port**, pas de CORS, WebSocket en même origine.
+`SERVE_WEB` is on by default, so the server also serves the interface: **one port**, no
+CORS, WebSocket on the same origin.
 
 ### Docker
 
@@ -86,133 +85,129 @@ port**, pas de CORS, WebSocket en même origine.
 docker build -t multiclaude .
 docker run -p 8000:8000 -v multiclaude-data:/data \
   -e PUBLIC_URL=https://multiclaude.example.com \
-  -e ADMIN_EMAIL=admin@example.com -e ADMIN_PASSWORD='motdepasse-solide' \
+  -e ADMIN_EMAIL=admin@example.com -e ADMIN_PASSWORD='a-solid-password' \
   multiclaude
 ```
 
-Tout l'état — base SQLite, dossiers de travail, identifiants Claude — tient dans
-`/data`. C'est le seul volume à sauvegarder.
+All the state — SQLite database, working directories, Claude credentials — lives in
+`/data`. That is the only volume worth backing up.
 
-Sur Railway, Fly ou équivalent : pointez le service sur ce `Dockerfile`, attachez un
-volume persistant sur `/data`, et renseignez `PUBLIC_URL`. Sans volume, chaque
-redéploiement repart de zéro.
+On Railway, Fly or similar: point the service at this `Dockerfile`, attach a persistent
+volume on `/data`, and set `PUBLIC_URL`. Without a volume, every redeploy starts over.
 
 ---
 
-## Gérer les comptes
+## Managing accounts
 
-Le premier compte créé est administrateur. Il ouvre ensuite ⚙ → **Utilisateurs** pour
-ajouter quelqu'un : l'application génère un mot de passe temporaire, affiché une seule
-fois, que l'intéressé remplace obligatoirement à sa première connexion. La clé 🔑 en
-regard d'un compte régénère ce mot de passe — même règle ensuite.
+The first account created is an admin. From there, ⚙ → **Users** adds someone: the app
+generates a temporary password, shown once, which that person must replace at their first
+sign-in. The key button next to an account regenerates it — same rule afterwards.
 
-Cela fonctionne quel que soit le réglage des inscriptions : `SIGNUP_ENABLED` ne
-concerne que le formulaire public.
+This works whatever the signup setting says: `SIGNUP_ENABLED` only governs the public
+form.
 
-Les mêmes opérations existent en ligne de commande, utile quand plus personne ne peut
-se connecter :
+The same operations exist on the command line, which is what you need when nobody can
+sign in any more:
 
 ```bash
 bun run cli users list
 bun run cli users add alice@example.com "Alice Martin" --admin
-bun run cli users password alice@example.com    # régénère le mot de passe
+bun run cli users password alice@example.com    # regenerate the password
 bun run cli users role alice@example.com member
 bun run cli users remove alice@example.com
 ```
 
-Le CLI applique les mêmes garde-fous que l'interface : il refuse de retirer le dernier
-administrateur, et applique les migrations si la base n'est pas à jour.
+The CLI enforces the same guards as the interface: it refuses to remove the last admin,
+and it runs pending migrations if the database is behind.
 
 ---
 
 ## Configuration
 
-Tout se règle dans un `.env` à la racine ; `.env.example` documente chaque variable.
-Les plus structurantes :
+Everything is set in a `.env` at the root; `.env.example` documents every variable. The
+ones that shape a deployment:
 
-| Variable | Rôle |
+| Variable | What it does |
 | --- | --- |
-| `PORT` | Port de l'API et de l'interface |
-| `PUBLIC_URL` | URL publique — sert aux cookies de session |
-| `DATA_DIR` | Base, dossiers de travail, identifiants. Le seul dossier à sauvegarder |
-| `SIGNUP_ENABLED` | Formulaire public d'inscription. Un administrateur crée des comptes dans tous les cas |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Crée l'administrateur au démarrage, sans intervention |
-| `CLAUDE_CONFIG_DIR` | Où le CLI range ses identifiants. Le pointer dans `DATA_DIR` rend le déploiement autonome |
-| `ALWAYS_ASK_TOOLS` | Outils qui demandent toujours confirmation. `Bash` pour tout verrouiller |
-| `ASK_PATTERNS` | Motifs supplémentaires déclenchant une demande, ex. `prod,deploy\.sh` |
-| `CLONE_DEPTH` | Profondeur du clone à la création d'une room. `0` pour l'historique complet |
-| `GIT_TOKEN` / `GIT_SSH_KEY` | Accès par défaut aux dépôts privés, si personne ne saisit de jeton |
+| `PORT` | Port for the API and the interface |
+| `PUBLIC_URL` | Public URL — session cookies depend on it |
+| `DATA_DIR` | Database, working directories, credentials. The one directory to back up |
+| `SIGNUP_ENABLED` | The public signup form. An admin can create accounts either way |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Creates the admin at boot, unattended |
+| `CLAUDE_CONFIG_DIR` | Where the CLI keeps its credentials. Pointing it inside `DATA_DIR` makes a deployment self-contained |
+| `ALWAYS_ASK_TOOLS` | Tools that always ask for confirmation. `Bash` locks everything down |
+| `ASK_PATTERNS` | Extra patterns that force a confirmation, e.g. `prod,deploy\.sh` |
+| `CLONE_DEPTH` | Clone depth when creating a room. `0` for the full history |
+| `GIT_TOKEN` / `GIT_SSH_KEY` | Default access to private repositories, when nobody types a token |
 
 ---
 
-## Sécurité — à lire avant d'exposer l'instance
+## Security — read this before exposing an instance
 
-**L'agent exécute du code sur la machine hôte.** C'est l'intérêt de l'outil, et son
-risque. Trois points comptent :
+**The agent runs code on the host machine.** That is the point of the tool, and its risk.
+Three things matter:
 
-1. **Ne le faites pas tourner en `root`.** Créez un utilisateur dédié. La politique de
-   permissions demande confirmation avant les commandes dangereuses, mais elle
-   fonctionne par liste de refus : une commande destructrice non prévue passera.
-   Pour verrouiller, `ALWAYS_ASK_TOOLS=Bash` fait confirmer chaque commande.
+1. **Do not run it as `root`.** Create a dedicated user. The permission policy asks before
+   dangerous commands, but it works as a deny list: a destructive command nobody
+   anticipated will go through. To lock it down, `ALWAYS_ASK_TOOLS=Bash` makes every
+   command ask.
 
-2. **Tout compte peut lancer des commandes.** Il n'y a pas de bac à sable entre les
-   membres : donnez des comptes à des gens de confiance, et fermez les inscriptions
-   (`SIGNUP_ENABLED=false`) sur une instance accessible depuis Internet.
+2. **Any account can run commands.** There is no sandbox between members: hand out
+   accounts to people you trust, and close signups (`SIGNUP_ENABLED=false`) on an instance
+   reachable from the internet.
 
-3. **L'aperçu HTML exécute du JavaScript**, dans une origine opaque (`sandbox`
-   sans `allow-same-origin`) : la page ne peut atteindre ni l'application, ni le
-   stockage, ni l'API. Elle peut en revanche émettre des requêtes sortantes.
+3. **The HTML preview executes JavaScript**, in an opaque origin (`sandbox` without
+   `allow-same-origin`): the page can reach neither the app, nor storage, nor the API. It
+   can, however, make outbound requests.
 
 ---
 
 ## Architecture
 
-Monorepo Bun : `apps/server` (Elysia + WebSocket), `apps/web` (React + Vite),
-`packages/shared` (contrat WebSocket et types partagés).
+Bun monorepo: `apps/server` (Elysia + WebSocket), `apps/web` (React + Vite),
+`packages/shared` (the WebSocket contract and shared types).
 
-**Une room = un process `claude`**, piloté en `stream-json` sur stdin/stdout et gardé
-vivant entre les tours pour conserver son contexte. S'il meurt, il repart en `--resume`
-sur la même session. Le fork dérive la session parente.
+**One room, one `claude` process**, driven over `stream-json` on stdin/stdout and kept
+alive between turns so the conversation keeps its context. If it dies, it comes back with
+`--resume` on the same session. Forking branches off the parent session.
 
-**Les permissions passent par un hook `PreToolUse`** qui appelle le serveur et bloque
-jusqu'au clic d'un humain. C'est ce qui permet d'arbitrer depuis l'interface plutôt que
-depuis un terminal.
+**Permissions go through a `PreToolUse` hook** that calls the server and blocks until a
+human clicks. That is what makes it possible to decide from the interface rather than from
+a terminal.
 
-**Les changements de fichiers viennent d'un rescan du dossier**, pas des seuls
-événements système : l'agent écrit via un fichier temporaire puis renomme, et le nom
-final n'apparaît jamais dans l'événement.
+**File changes come from rescanning the directory**, not from system events alone: the
+agent writes through a temporary file then renames it, and the final name never appears in
+the event.
 
-**L'état des rooms vit en mémoire** — d'où un seul process serveur, jamais de mode
-cluster.
+**Room state lives in memory** — hence a single server process, never a cluster mode.
 
 ```bash
-bun run dev        # serveur + interface en watch
-bun run check      # lint et formatage (Biome)
+bun run dev        # server + interface in watch mode
+bun run check      # lint and formatting (Biome)
 bun run typecheck
 bun run test
 ```
 
 ---
 
-## Contribuer
+## Contributing
 
-Les issues et les pull requests sont bienvenues. Avant de proposer un changement :
-`bun run check`, `bun run typecheck` et `bun run test` doivent passer — c'est ce que
-vérifie la CI.
+Issues and pull requests are welcome. Before proposing a change: `bun run check`,
+`bun run typecheck` and `bun run test` must pass — that is what CI runs.
 
-Le code est commenté en expliquant *pourquoi* une décision a été prise quand elle n'est
-pas évidente, pas *ce que* fait la ligne suivante. Merci de garder cette habitude.
+Comments in this codebase explain *why* a decision was made when it is not obvious, never
+*what* the next line does. Please keep that habit.
 
-## Origine et licence
+## Origin and licence
 
-multiclaude est développé et maintenu par **[Benode](https://www.benode.fr)**, et publié
-sous licence **MIT** — voir [LICENSE](LICENSE).
+multiclaude is built and maintained by **[Benode](https://www.benode.fr)**, and released
+under the **MIT** licence — see [LICENSE](LICENSE).
 
-La MIT autorise tout : usage privé ou commercial, modification, redistribution,
-intégration dans un produit fermé, revente. Elle pose **une seule condition** : garder
-la mention de copyright et le texte de la licence dans les copies et les travaux
-dérivés. Autrement dit, faites-en ce que vous voulez, mais ne retirez pas la paternité.
+MIT allows everything: private or commercial use, modification, redistribution, bundling
+into a closed product, resale. It sets **one condition**: keep the copyright notice and
+the licence text in copies and derived works. In other words, do what you like with it,
+but do not strip the authorship.
 
-Concrètement, si vous redistribuez ce code ou un produit qui en dérive, conservez le
-fichier `LICENSE` tel quel. Une mention du type « basé sur multiclaude, par Benode » est
-appréciée sans être exigée.
+Concretely, if you redistribute this code or a product derived from it, keep the `LICENSE`
+file as is. A note along the lines of "based on multiclaude, by Benode" is appreciated
+without being required.

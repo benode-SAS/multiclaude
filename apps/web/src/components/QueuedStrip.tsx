@@ -32,8 +32,8 @@ export function QueuedStrip({
 	return (
 		<div className="mb-2 overflow-hidden rounded-xl border border-accent/30 bg-accent-soft/40">
 			<p className="border-b border-accent/20 px-3 py-1.5 text-[11px] font-medium text-accent-ink">
-				{items.length} message{items.length > 1 ? 's' : ''} en attente — {'partira'}
-				{items.length > 1 ? 'ont' : ''} dès que Claude aura fini
+				{items.length} queued message{items.length > 1 ? 's' : ''} — going out as soon as Claude is
+				done
 			</p>
 
 			{items.map((item) => (
@@ -62,14 +62,14 @@ export function QueuedStrip({
 									onClick={() => commit(item.id)}
 									className="rounded bg-accent px-2 py-0.5 text-on-accent"
 								>
-									Enregistrer
+									Save
 								</button>
 								<button
 									type="button"
 									onClick={() => setEditingId(null)}
 									className="text-muted hover:text-ink"
 								>
-									Annuler
+									Cancel
 								</button>
 							</div>
 						</div>
@@ -82,22 +82,22 @@ export function QueuedStrip({
 								<span className="flex shrink-0 gap-1">
 									<button
 										type="button"
-										title="Modifier avant envoi"
+										title="Edit before sending"
 										onClick={() => {
 											setEditingId(item.id)
 											setDraft(item.content)
 										}}
 										className="text-[12px] text-muted hover:text-ink"
 									>
-										<Icon name="pencil" size={13} label="Modifier" />
+										<Icon name="pencil" size={13} label="Edit" />
 									</button>
 									<button
 										type="button"
-										title="Retirer de la file"
+										title="Remove from the queue"
 										onClick={() => onCancel(item.id)}
 										className="text-[12px] text-muted hover:text-danger"
 									>
-										<Icon name="close" size={13} label="Annuler" />
+										<Icon name="close" size={13} label="Cancel" />
 									</button>
 								</span>
 							)}

@@ -41,7 +41,7 @@ export function SearchBox({ onOpen }: { onOpen: (roomId: string) => void }) {
 				<input
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
-					placeholder="Rechercher…"
+					placeholder="Search…"
 					className="w-full rounded-lg border border-line bg-surface py-1.5 pr-8 pl-8 text-[13px] outline-none focus:border-accent/60"
 				/>
 				{query && (
@@ -50,7 +50,7 @@ export function SearchBox({ onOpen }: { onOpen: (roomId: string) => void }) {
 						onClick={() => setQuery('')}
 						className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded p-1 text-muted transition hover:text-ink"
 					>
-						<Icon name="close" size={14} label="Effacer" />
+						<Icon name="close" size={14} label="Clear" />
 					</button>
 				)}
 			</div>
@@ -58,10 +58,10 @@ export function SearchBox({ onOpen }: { onOpen: (roomId: string) => void }) {
 			{query.trim().length >= 2 && (
 				<div className="mt-2 max-h-72 overflow-y-auto rounded-lg border border-line bg-surface">
 					{busy && hits.length === 0 && (
-						<p className="px-3 py-2 text-[12px] text-muted">Recherche…</p>
+						<p className="px-3 py-2 text-[12px] text-muted">Searching…</p>
 					)}
 					{!busy && hits.length === 0 && (
-						<p className="px-3 py-2 text-[12px] text-muted">Aucun résultat.</p>
+						<p className="px-3 py-2 text-[12px] text-muted">No results.</p>
 					)}
 					{hits.map((hit) => (
 						<button

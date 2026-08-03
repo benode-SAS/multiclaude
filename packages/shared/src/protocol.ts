@@ -19,7 +19,7 @@ export type Room = {
 }
 
 export const MODELS = [
-	{ id: null, label: 'Défaut du compte' },
+	{ id: null, label: 'Account default' },
 	{ id: 'opus', label: 'Opus 5' },
 	{ id: 'sonnet', label: 'Sonnet 5' },
 	{ id: 'haiku', label: 'Haiku 4.5' },
@@ -27,7 +27,7 @@ export const MODELS = [
 ] as const satisfies ReadonlyArray<{ id: string | null; label: string }>
 
 export const modelLabel = (id: string | null) =>
-	MODELS.find((m) => m.id === id)?.label ?? id ?? 'Défaut du compte'
+	MODELS.find((m) => m.id === id)?.label ?? id ?? 'Account default'
 
 export type Message = {
 	id: string

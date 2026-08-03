@@ -109,14 +109,12 @@ async function readStatus(): Promise<AuthState> {
 
 	// Nothing parseable: surface what the CLI actually said, once per distinct failure.
 	const detail = oneLine(err) || oneLine(out) || 'aucune sortie'
-	const message = `claude auth status a échoué (code ${code}) : ${detail}`
+	const message = `claude auth status failed (code ${code}): ${detail}`
 	if (reportedFailure !== message) {
 		reportedFailure = message
 		console.error(`[auth] ${message}`)
 		console.error(`[auth] binaire: ${claudeBin}`)
-		console.error(
-			`[auth] CLAUDE_CONFIG_DIR: ${claudeEnv.CLAUDE_CONFIG_DIR ?? '(défaut du système)'}`,
-		)
+		console.error(`[auth] CLAUDE_CONFIG_DIR: ${claudeEnv.CLAUDE_CONFIG_DIR ?? '(system default)'}`)
 	}
 	return unauthenticated(message)
 }
@@ -203,7 +201,7 @@ export const AuthService = {
 
 		const state = await publish()
 		if (!state.loggedIn && !state.pending) {
-			return { ...state, error: 'code refusé, relance la connexion' }
+			return { ...state, error: 'code rejected, start the sign-in again' }
 		}
 		return state
 	},

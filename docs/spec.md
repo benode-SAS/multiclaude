@@ -1,33 +1,44 @@
-# Specs — Chat Claude Code multi-utilisateur (v1)
+# Spec — multi-user Claude Code chat (v1)
 
-## Objectif
+> Historical document: this is the original v1 specification. The build diverged from
+> it on three points — the Agent SDK was replaced by the `claude` CLI driven over
+> stream-json, `fs.watch` gave way to a rescan of the working directory, and accounts
+> with roles replaced the free-form nickname. The README describes what actually ships.
 
-Application web permettant à plusieurs personnes de dialoguer **en temps réel dans une même conversation** avec un agent Claude Code. Chaque conversation ("room") pilote un process Claude Code isolé avec son propre workdir. Streaming des réponses et des actions (fichiers, commandes) vers tous les participants connectés. Historique persistant, reprise à la reconnexion.
+## Goal
 
-Usage initial : interne, 2-3 personnes. Priorité : **simple et pleinement fonctionnel**, pas scalable.
+A web application letting several people talk **in real time, in one conversation**,
+with a Claude Code agent. Each conversation ("room") drives an isolated Claude Code
+process with its own workdir. Answers and actions (files, commands) stream to every
+connected participant. Persistent history, resumed on reconnection.
 
-## Décisions actées
+Initial use: internal, 2–3 people. Priority: **simple and fully working**, not scalable.
 
-- **Rooms** : plusieurs conversations créables à la volée.
-- **Workdir** : un par room, isolé.
-- **Auth** : aucune, juste un pseudo saisi à l'entrée (stocké côté client, envoyé à chaque message).
+## Settled decisions
+
+- **Rooms**: several conversations, creatable on the fly.
+- **Workdir**: one per room, isolated.
+- **Auth**: none, just a nickname typed on entry (kept client-side, sent with every
+  message).
 
 ## Stack
 
-- **Backend** : Elysia (Bun), WebSocket natif, REST pour upload/download fichiers.
-- **Agent** : `@anthropic-ai/claude-agent-sdk`, un appel `query()` par turn, session reprise via `session_id`.
-- **DB** : SQLite + Drizzle. Un fichier `data/app.db`.
-- **Front** : React + Vite, TypeScript. Design inspiré de Claude chat (cf. section Design).
-- **Fichiers** : sur disque dans `data/rooms/<roomId>/workdir/`. La DB ne stocke que les métadonnées.
+- **Backend**: Elysia (Bun), native WebSocket, REST for file upload/download.
+- **Agent**: `@anthropic-ai/claude-agent-sdk`, one `query()` call per turn, session
+  resumed through `session_id`.
+- **DB**: SQLite + Drizzle. One `data/app.db` file.
+- **Front**: React + Vite, TypeScript. Design inspired by the Claude chat (see the
+  Design section).
+- **Files**: on disk under `data/rooms/<roomId>/workdir/`. The DB only stores metadata.
 
-## Modèle de données (Drizzle / SQLite)
+## Data model (Drizzle / SQLite)
 
 ```
 rooms
   id            text pk (nanoid)
-  title         text            -- éditable, défaut "Nouvelle conversation"
-  session_id    text nullable   -- session_id Claude Code, set après le 1er turn
-  workdir       text            -- chemin absolu
+  title         text            -- editable, defaults to "New conversation"
+  session_id    text nullable   -- Claude Code session_id, set after the first turn
+  workdir       text            -- absolute path
   status        text            -- 'idle' | 'running'
   created_at    integer
   updated_at    integer
@@ -35,186 +46,219 @@ rooms
 messages
   id            text pk (nanoid)
   room_id       text fk
-  author        text            -- pseudo de l'humain, ou 'claude'
+  author        text            -- the human's nickname, or 'claude'
   role          text            -- 'user' | 'assistant' | 'system'
-  content       text            -- markdown pour affichage
+  content       text            -- markdown, for display
   created_at    integer
 
-events          -- trace des actions de l'agent pour re-render (tool_use, tool_result…)
+events          -- trace of the agent's actions, to re-render (tool_use, tool_result…)
   id            text pk
   room_id       text fk
-  turn_id       text            -- regroupe les events d'un même turn
-  seq           integer         -- ordre au sein du turn
+  turn_id       text            -- groups the events of one turn
+  seq           integer         -- order within the turn
   type          text            -- 'tool_use' | 'tool_result' | 'file_change' | 'text'
   payload       text (json)
   created_at    integer
 
-attachments     -- fichiers uploadés par un user OU générés par Claude
+attachments     -- files uploaded by a user OR produced by Claude
   id            text pk
   room_id       text fk
-  message_id    text fk nullable   -- rattaché à un message (upload user) si applicable
+  message_id    text fk nullable   -- attached to a message (user upload) where relevant
   source        text               -- 'user' | 'claude'
   filename      text
-  rel_path      text               -- chemin relatif au workdir
+  rel_path      text               -- path relative to the workdir
   mime          text
   size          integer
   created_at    integer
 ```
 
-## Cycle de vie d'un turn
+## Life of a turn
 
-Le SDK Agent est **tour-par-tour** : un seul turn peut tourner à la fois par room. Il faut une **queue FIFO par room** + un état `idle | running`.
+The Agent SDK is **turn by turn**: only one turn can run at a time per room. That calls
+for a **FIFO queue per room** plus an `idle | running` state.
 
-1. Un user envoie un message (via WS).
-2. Si `status = running` → le message est empilé dans la queue de la room, un event `queued` est broadcasté (les autres voient "message en attente").
-3. Si `status = idle` → on passe `running`, on lance le turn.
-4. Le message user est persisté (`messages`) et broadcasté immédiatement à tous.
-5. On appelle `query()` avec `resume: room.session_id` (undefined au 1er turn), `cwd: room.workdir`.
-6. On itère le stream d'events du SDK :
-    - `system/init` → on capture/maj le `session_id`.
-    - `assistant` (texte) → broadcast incrémental + accumulation.
-    - `assistant` (tool_use) → persist `events`, broadcast (les clients affichent "Claude écrit `src/x.ts`", "Claude exécute `bash …`").
-    - `user` (tool_result) → persist `events`, broadcast.
-    - `result` (fin de turn) → persist le message assistant final, maj `session_id`, broadcast `turn_end`.
-7. Passage à `idle`, puis dépilage : s'il y a un message en queue, on relance un turn.
+1. A user sends a message (over WS).
+2. If `status = running` → the message is pushed onto the room's queue and a `queued`
+   event is broadcast (the others see "message waiting").
+3. If `status = idle` → switch to `running` and start the turn.
+4. The user message is persisted (`messages`) and broadcast to everyone immediately.
+5. Call `query()` with `resume: room.session_id` (undefined on the first turn) and
+   `cwd: room.workdir`.
+6. Iterate over the SDK's event stream:
+    - `system/init` → capture or update the `session_id`.
+    - `assistant` (text) → incremental broadcast plus accumulation.
+    - `assistant` (tool_use) → persist to `events`, broadcast (clients show "Claude
+      writes `src/x.ts`", "Claude runs `bash …`").
+    - `user` (tool_result) → persist to `events`, broadcast.
+    - `result` (end of turn) → persist the final assistant message, update `session_id`,
+      broadcast `turn_end`.
+7. Back to `idle`, then pop the queue: if a message is waiting, start another turn.
 
-**Auteur dans le prompt** : chaque message envoyé au SDK est préfixé par le pseudo, `[Benjamin]: …`, pour que Claude distingue qui parle dans une conversation multi-utilisateur.
+**Author in the prompt**: every message sent to the SDK is prefixed with the nickname,
+`[Benjamin]: …`, so Claude can tell who is speaking in a multi-user conversation.
 
-## Gestion des fichiers
+## File handling
 
-Deux mécanismes complémentaires :
+Two complementary mechanisms:
 
-**1. Détection via events** — les `tool_use` de type `Write`/`Edit` donnent le chemin et le diff. Suffisant pour notifier ("Claude a modifié `foo.ts`") mais rate ce que Claude fait via `bash` (mv, scripts générateurs…).
+**1. Detection through events** — `tool_use` entries of type `Write`/`Edit` carry the
+path and the diff. Enough to notify ("Claude edited `foo.ts`") but blind to whatever
+Claude does through `bash` (mv, generator scripts…).
 
-**2. `fs.watch` sur le workdir** (source de vérité) — un watcher par room détecte toute création/modif/suppression, y compris via bash. À chaque changement :
-- upsert dans `attachments` (source `claude`),
+**2. `fs.watch` on the workdir** (source of truth) — one watcher per room catches every
+creation, edit and deletion, including through bash. On each change:
+- upsert into `attachments` (source `claude`),
 - broadcast `{ type: 'file_change', action, rel_path, size, mime }`.
 
-Le **contenu** des fichiers n'est jamais poussé en WS. Les clients reçoivent la métadonnée et récupèrent le contenu à la demande via REST (`GET /rooms/:id/files?path=…`). Aperçu inline pour images/texte/markdown, bouton download sinon.
+File **contents** never go over WS. Clients get the metadata and fetch the content on
+demand over REST (`GET /rooms/:id/files?path=…`). Inline preview for images, text and
+markdown; a download button otherwise.
 
-**Upload user** : `POST /rooms/:id/upload` (multipart), écrit dans le workdir, crée l'`attachment` (source `user`), rattaché au message que le user est en train d'envoyer. Le chemin relatif est injecté dans le prompt envoyé au SDK pour que Claude puisse le lire (`[Benjamin]: (fichier joint: uploads/photo.png) …`).
+**User upload**: `POST /rooms/:id/upload` (multipart), writes into the workdir, creates
+the `attachment` (source `user`), attached to the message the user is composing. The
+relative path is injected into the prompt sent to the SDK so Claude can read it
+(`[Benjamin]: (attached file: uploads/photo.png) …`).
 
-## Reprise à la reconnexion
+## Resuming on reconnection
 
-Deux états persistés distincts :
-- `session_id` → pour que **Claude** reprenne son contexte interne (`resume`).
-- `messages` + `events` → pour que **le front** re-render l'historique, sans dépendre du format interne de Claude Code.
+Two distinct persisted states:
+- `session_id` → so **Claude** picks its internal context back up (`resume`).
+- `messages` + `events` → so **the front** can re-render the history, without depending
+  on Claude Code's internal format.
 
-À la connexion WS d'un client sur une room :
-1. Le serveur envoie un snapshot : `room` (dont `status`), les `messages` + `events` ordonnés, la liste `attachments`.
-2. Si `status = running` : le client est raccroché au stream du turn en cours (il reçoit la suite des events en live).
+When a client opens a WS connection on a room:
+1. The server sends a snapshot: `room` (including `status`), the ordered `messages` and
+   `events`, and the `attachments` list.
+2. If `status = running`: the client is hooked onto the running turn's stream (it
+   receives the following events live).
 
-## Concurrence & verrous
+## Concurrency and locking
 
-- **1 turn max par room** (lock via `status`). Les messages concurrents sont mis en queue, pas exécutés en parallèle.
-- **v1 = lock strict.** L'interruption d'un turn en cours (`AbortController` du SDK) est repoussée en v2.
-- Un seul process serveur, état des rooms en mémoire (Map roomId → { queue, watcher, abortController }). Rechargé depuis la DB au boot.
+- **One turn per room at most** (locked through `status`). Concurrent messages queue up,
+  they do not run in parallel.
+- **v1 = strict lock.** Interrupting a running turn (the SDK's `AbortController`) is
+  pushed to v2.
+- A single server process, room state in memory (Map roomId → { queue, watcher,
+  abortController }). Reloaded from the DB at boot.
 
-## Permissions & sécurité
+## Permissions and security
 
-Deux humains déclenchent des `bash`/`Write` sur la machine hôte → surface de risque réelle.
+Two humans triggering `bash`/`Write` on the host machine is a real risk surface.
 
-- Utiliser `canUseTool(toolName, input)` du SDK.
-- **v1** : `Bash` demande une confirmation manuelle (broadcast d'une demande d'approbation, un user clique "autoriser" → l'exécution reprend). `Write`/`Edit` autorisés d'office dans le workdir.
-- **Jamais** `permissionMode: 'bypassPermissions'` sur une machine qui compte.
-- Le `cwd` est confiné au workdir de la room. Valider que les chemins d'accès fichiers (REST) ne sortent pas du workdir (anti path-traversal).
+- Use the SDK's `canUseTool(toolName, input)`.
+- **v1**: `Bash` asks for manual confirmation (an approval request is broadcast, a user
+  clicks "allow" → execution resumes). `Write`/`Edit` allowed outright inside the
+  workdir.
+- **Never** `permissionMode: 'bypassPermissions'` on a machine that matters.
+- `cwd` is confined to the room's workdir. Validate that file access paths (REST) do not
+  leave the workdir (path traversal).
 
-## Contrat WebSocket
+## WebSocket contract
 
-**Client → Serveur**
+**Client → Server**
 ```
 { type: 'join',    roomId, pseudo }
 { type: 'message', roomId, pseudo, content, attachmentIds?: string[] }
-{ type: 'approve', roomId, requestId, allow: boolean }   -- réponse à une demande de permission
+{ type: 'approve', roomId, requestId, allow: boolean }   -- answer to a permission request
 { type: 'rename',  roomId, title }
 ```
 
-**Serveur → Client**
+**Server → Client**
 ```
 { type: 'snapshot',    room, messages, events, attachments }
-{ type: 'message',     message }                       -- nouveau message (user ou claude, final)
-{ type: 'text_delta',  turnId, delta }                 -- streaming incrémental du texte assistant
+{ type: 'message',     message }                       -- new message (user or claude, final)
+{ type: 'text_delta',  turnId, delta }                 -- incremental assistant text
 { type: 'event',       event }                         -- tool_use / tool_result
 { type: 'file_change', action, relPath, size, mime }
-{ type: 'permission_request', requestId, tool, input } -- demande d'approbation bash
+{ type: 'permission_request', requestId, tool, input } -- bash approval request
 { type: 'status',      status }                        -- 'idle' | 'running'
-{ type: 'queued',      pseudo }                        -- un message a été mis en file
+{ type: 'queued',      pseudo }                        -- a message was queued
 { type: 'turn_end',    turnId }
 { type: 'error',       message }
 ```
 
-## Contrat REST
+## REST contract
 
 ```
-GET    /rooms                      -- liste des rooms
-POST   /rooms                      -- crée une room (+ workdir), retourne { id }
+GET    /rooms                      -- list the rooms
+POST   /rooms                      -- create a room (+ workdir), returns { id }
 PATCH  /rooms/:id                  -- rename
-DELETE /rooms/:id                  -- supprime room + workdir (confirmation front)
-GET    /rooms/:id/files            -- liste des fichiers du workdir
-GET    /rooms/:id/files/content?path=…   -- contenu d'un fichier (inline ou download)
-POST   /rooms/:id/upload           -- upload multipart d'un fichier user
+DELETE /rooms/:id                  -- delete room + workdir (confirmed on the front)
+GET    /rooms/:id/files            -- list the workdir files
+GET    /rooms/:id/files/content?path=…   -- a file's content (inline or download)
+POST   /rooms/:id/upload           -- multipart upload of a user file
 ```
 
 ## Design (front)
 
-Inspiration directe de l'interface Claude chat, ambiance sobre.
+Directly inspired by the Claude chat interface, quiet mood.
 
 **Layout**
-- Sidebar gauche : liste des rooms, bouton "Nouvelle conversation", room active surlignée. Titre éditable au double-clic.
-- Zone centrale : fil de messages, scroll auto en bas.
-- Barre de saisie en bas : textarea auto-resize, bouton joindre (trombone) pour upload, bouton envoyer. `Entrée` envoie, `Maj+Entrée` = nouvelle ligne.
-- En haut de la zone centrale : titre de la room + petits avatars/pseudos des participants connectés (présence).
+- Left sidebar: the room list, a "New conversation" button, active room highlighted.
+  Title editable on double-click.
+- Central area: the message thread, auto-scrolled to the bottom.
+- Input bar at the bottom: auto-resizing textarea, attach button (paperclip) for
+  uploads, send button. `Enter` sends, `Shift+Enter` inserts a line break.
+- Above the central area: the room title plus small avatars/nicknames of the connected
+  participants (presence).
 
 **Messages**
-- Bulle par message. À gauche l'avatar/pseudo de l'auteur (chaque humain une couleur, Claude une couleur distincte). Les messages humains montrent **qui** a parlé (essentiel en multi).
-- Rendu **markdown** complet côté assistant : titres, listes, tableaux, blocs de code avec coloration syntaxique + bouton copier.
-- Le texte assistant s'affiche **en streaming** (token par token) via `text_delta`.
+- One bubble per message. The author's avatar and nickname on the left (a colour per
+  human, a distinct one for Claude). Human messages show **who** spoke — essential with
+  several people.
+- Full **markdown** rendering on the assistant side: headings, lists, tables, code
+  blocks with syntax highlighting and a copy button.
+- Assistant text appears **as it streams** (token by token) through `text_delta`.
 
-**Actions de l'agent (tool_use)**
-- Affichées en ligne dans le fil comme des cartes discrètes repliables :
-    - Écriture fichier → "📝 a écrit `src/foo.ts`" + diff dépliable.
-    - Bash → "⚡ a exécuté `npm test`" + sortie dépliable.
-    - Demande de permission bash → carte avec boutons **Autoriser / Refuser** (n'importe quel participant peut trancher).
-- Un turn en cours affiche un indicateur "Claude réfléchit…" / l'action courante.
+**Agent actions (tool_use)**
+- Shown inline in the thread as discreet collapsible cards:
+    - File write → "wrote `src/foo.ts`" plus an expandable diff.
+    - Bash → "ran `npm test`" plus expandable output.
+    - Bash permission request → a card with **Allow / Deny** buttons (any participant
+      can decide).
+- A running turn shows a "Claude is thinking…" indicator, or the current action.
 
-**Fichiers**
-- Images uploadées ou générées : miniature inline cliquable (lightbox).
-- Autres fichiers : chip avec nom + taille + icône type + bouton download.
-- Un fichier créé par Claude apparaît en temps réel dans le fil quand `file_change` arrive.
+**Files**
+- Uploaded or generated images: clickable inline thumbnail (lightbox).
+- Other files: a chip with name, size, type icon and a download button.
+- A file created by Claude appears in the thread in real time when `file_change`
+  arrives.
 
-**États**
-- Indicateur `running` visible (barre de saisie garde la saisie possible, le message part en queue avec un badge "en attente").
-- Reconnexion transparente : snapshot re-render, pas d'écran de chargement bloquant.
+**States**
+- The `running` state is visible (the input bar still accepts typing, the message goes
+  to the queue with a "waiting" badge).
+- Transparent reconnection: the snapshot re-renders, no blocking loading screen.
 
-**Thème** : clair par défaut, palette neutre proche de Claude (fond crème/blanc cassé, accents discrets). Dark mode optionnel v2.
+**Theme**: light by default, a neutral palette close to Claude's (cream / off-white
+background, discreet accents). Dark mode optional, v2.
 
-## Périmètre v1 vs plus tard
+## v1 scope versus later
 
-**v1 (à livrer)**
-- Rooms multiples, workdir isolé, pseudo simple.
-- Turn tour-par-tour + queue FIFO + lock strict.
-- Streaming texte + events tool_use/tool_result.
-- `fs.watch` + métadonnées fichiers + download/aperçu REST.
-- Upload user.
-- Permission bash manuelle.
-- Reprise à la reconnexion.
-- Design Claude-like avec markdown + code + images.
+**v1 (to ship)**
+- Multiple rooms, isolated workdir, simple nickname.
+- Turn-by-turn execution, FIFO queue, strict lock.
+- Text streaming plus tool_use/tool_result events.
+- `fs.watch`, file metadata, REST download and preview.
+- User upload.
+- Manual bash permission.
+- Resume on reconnection.
+- Claude-like design with markdown, code and images.
 
-**v2 (repoussé)**
-- Interruption d'un turn en cours.
+**v2 (deferred)**
+- Interrupting a running turn.
 - Dark mode.
-- Présence temps réel fine (typing indicators).
-- Auth réelle.
-- Gestion fine des permissions (whitelist de commandes).
+- Fine-grained real-time presence (typing indicators).
+- Real authentication.
+- Fine-grained permission handling (command allow list).
 
-## Ordre de build suggéré
+## Suggested build order
 
-1. Schéma Drizzle + migrations SQLite.
-2. Backend Elysia : REST rooms + WS join/snapshot (sans agent, données mockées).
-3. Front : layout, sidebar, fil de messages statique branché sur le snapshot.
-4. Intégration `query()` du SDK : un turn simple, streaming texte de bout en bout.
-5. Events tool_use/tool_result → cartes dans le fil.
-6. `fs.watch` + REST fichiers + upload.
-7. Queue + lock + reprise reconnexion.
-8. Permission bash manuelle.
-9. Polish design (markdown, code highlight, lightbox images).
+1. Drizzle schema plus SQLite migrations.
+2. Elysia backend: REST rooms plus WS join/snapshot (no agent, mocked data).
+3. Front: layout, sidebar, static message thread wired to the snapshot.
+4. SDK `query()` integration: one simple turn, text streaming end to end.
+5. tool_use/tool_result events → cards in the thread.
+6. `fs.watch` plus REST files plus upload.
+7. Queue, lock, resume on reconnection.
+8. Manual bash permission.
+9. Design polish (markdown, code highlighting, image lightbox).

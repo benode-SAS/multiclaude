@@ -22,10 +22,10 @@ export function AuthPanel({
 	if (auth.loggedIn && !auth.pending && !auth.error) return null
 
 	const headline = auth.pending
-		? 'Connexion en cours — ouvre le lien, puis colle le code (ou l’URL de redirection).'
+		? 'Sign-in under way — open the link, then paste the code (or the redirect URL).'
 		: auth.error
-			? 'La connexion Claude Code a été refusée. Reconnecte le compte pour continuer.'
-			: 'Claude Code n’est pas connecté. Connecte ton compte pour utiliser ton abonnement.'
+			? 'The Claude Code session was rejected. Reconnect the account to continue.'
+			: 'Claude Code is not connected. Connect your account to use your subscription.'
 
 	return (
 		<div className="border-b border-warn/30 bg-warn-soft px-4 py-3 md:px-6">
@@ -40,7 +40,7 @@ export function AuthPanel({
 							disabled={busy}
 							className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-50"
 						>
-							{busy ? 'Démarrage…' : auth.error ? 'Se reconnecter' : 'Se connecter'}
+							{busy ? 'Starting…' : auth.error ? 'Reconnect' : 'Connect'}
 						</button>
 					)}
 				</div>

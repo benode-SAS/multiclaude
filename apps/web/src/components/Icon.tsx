@@ -1,7 +1,7 @@
 /**
- * Jeu d'icônes de l'app, tracé au trait (Lucide, MIT). Les emoji rendaient une
- * forme, une graisse et une couleur différentes selon l'OS et ne suivaient ni
- * la couleur du texte ni l'état désactivé.
+ * The app's icon set, drawn as strokes (Lucide, MIT). Emoji rendered a different
+ * shape, weight and colour on every OS, and followed neither the text colour nor
+ * the disabled state.
  */
 export type IconName =
 	| 'plus'
@@ -38,8 +38,11 @@ export type IconName =
 	| 'terminal'
 	| 'check'
 	| 'alert'
+	| 'book'
+	| 'globe'
+	| 'wrench'
 
-/** Tracés 24×24, sans remplissage : la graisse reste constante à toute taille. */
+/** 24×24 paths, unfilled, so the stroke weight holds at any size. */
 const PATHS: Record<IconName, string> = {
 	plus: 'M12 5v14M5 12h14',
 	search: 'M11 3a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM21 21l-4.35-4.35',
@@ -80,6 +83,11 @@ const PATHS: Record<IconName, string> = {
 	terminal: 'M5 6l5 6-5 6M12 18h7',
 	check: 'M5 12.5 9.5 17 19 7',
 	alert: 'M12 4 2.5 20h19L12 4ZM12 10v4M12 17.5h.01',
+	book: 'M4 4.5A2.5 2.5 0 0 1 6.5 2H20v16H6.5A2.5 2.5 0 0 0 4 20.5V4.5ZM4 20.5A2.5 2.5 0 0 1 6.5 18H20v4H6.5A2.5 2.5 0 0 1 4 20.5Z',
+	globe:
+		'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18ZM3.5 9h17M3.5 15h17M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18',
+	wrench:
+		'M14.7 6.3a4.5 4.5 0 0 0 5.9 5.9l-7.5 7.5a2.3 2.3 0 0 1-3.3-3.3l7.5-7.5A4.5 4.5 0 0 0 14.7 6.3Z',
 }
 
 export function Icon({
@@ -91,7 +99,7 @@ export function Icon({
 	name: IconName
 	size?: number
 	className?: string
-	/** À renseigner uniquement si l'icône porte seule le sens du contrôle. */
+	/** Only set this when the icon alone carries the meaning of the control. */
 	label?: string
 }) {
 	return (

@@ -4,8 +4,8 @@
 FROM oven/bun:1.3-debian AS build
 WORKDIR /app
 
-# Les manifestes d'abord : la couche de dépendances est réutilisée tant qu'ils
-# ne changent pas, ce qui évite de réinstaller à chaque modification de code.
+# Manifests first: the dependency layer is reused as long as they do not
+# change, which avoids reinstalling on every code edit.
 COPY package.json bun.lock ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
@@ -19,14 +19,14 @@ RUN bun run --filter @multiclaude/web build
 FROM oven/bun:1.3-debian
 WORKDIR /app
 
-# git : le clonage de dépôt à la création d'une room.
-# ca-certificates : les appels HTTPS de l'agent et la connexion OAuth.
+# git: cloning a repository when a room is created.
+# ca-certificates: the agent's HTTPS calls and the OAuth login.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends git ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
-# Le CLI Claude Code est la dépendance centrale : sans lui, aucune room ne
-# tourne. Installé globalement pour être résolu via le PATH.
+# The Claude Code CLI is the central dependency: without it no room runs at
+# all. Installed globally so it resolves through the PATH.
 RUN bun install -g @anthropic-ai/claude-code \
  && ln -sf /root/.bun/bin/claude /usr/local/bin/claude
 
@@ -38,14 +38,14 @@ ENV NODE_ENV=production \
     DATA_DIR=/data \
     CLAUDE_CONFIG_DIR=/data/claude
 
-# Tout l'état tient ici : base SQLite, dossiers de travail des rooms et
-# identifiants du CLI. C'est le seul volume à conserver.
+# All the state lives here: SQLite database, the rooms' working directories
+# and the CLI credentials. This is the only volume worth keeping.
 VOLUME ["/data"]
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
   CMD bun -e "fetch('http://127.0.0.1:'+(process.env.PORT||8000)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-# Les migrations tournent avant le serveur : un volume neuf doit produire une
-# base utilisable sans commande manuelle.
+# Migrations run before the server: a fresh volume must produce a usable
+# database without a manual command.
 CMD ["sh", "-c", "bun apps/server/src/db/migrate.ts && bun apps/server/src/index.ts"]

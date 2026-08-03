@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { describeTool, type ToolItem } from '../lib/timeline.ts'
-import { Icon } from './Icon.tsx'
+import { Icon, type IconName } from './Icon.tsx'
 import { ToolCard } from './ToolCard.tsx'
 
 /** Icon + count per tool, in order of first appearance. */
 function summarize(tools: ToolItem[]) {
-	const counts = new Map<string, { icon: string; count: number }>()
+	const counts = new Map<string, { icon: IconName; count: number }>()
 	for (const tool of tools) {
 		const { icon } = describeTool(tool.use)
 		const entry = counts.get(tool.use.name)
@@ -50,9 +50,9 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 			>
 				<span className="flex items-center gap-1.5">
 					{summarize(tools).map((entry) => (
-						<span key={entry.icon} className="flex items-center gap-0.5">
-							<span>{entry.icon}</span>
-							<span className="text-muted">{entry.count}</span>
+						<span key={entry.icon} className="flex items-center gap-1 text-muted">
+							<Icon name={entry.icon} size={13} />
+							<span>{entry.count}</span>
 						</span>
 					))}
 				</span>
@@ -67,7 +67,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 					</code>
 				)}
 				{running && <span className="shrink-0 animate-pulse text-accent-ink">…</span>}
-				{!running && failed > 0 && <span className="shrink-0 text-danger">{failed} en erreur</span>}
+				{!running && failed > 0 && <span className="shrink-0 text-danger">{failed} failed</span>}
 
 				<Icon name="chevron-down" size={14} className="ml-auto shrink-0 text-muted" />
 			</button>

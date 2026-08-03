@@ -14,7 +14,7 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 
 	const submit = async () => {
 		if (next !== confirm) {
-			setError('Les deux mots de passe ne correspondent pas')
+			setError('The two passwords do not match')
 			return
 		}
 		setBusy(true)
@@ -39,14 +39,13 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 				}}
 				className="w-full max-w-sm rounded-2xl border border-line bg-surface p-6 shadow-sm"
 			>
-				<h1 className="text-lg font-semibold tracking-tight">Choisis ton mot de passe</h1>
+				<h1 className="text-lg font-semibold tracking-tight">Choose your password</h1>
 				<p className="mt-1 mb-5 text-[13px] text-muted">
-					Bonjour {name}. Ton compte a été créé avec un mot de passe temporaire : remplace-le pour
-					continuer.
+					Hello {name}. Your account was created with a temporary password — replace it to continue.
 				</p>
 
 				<label className="mb-3 block text-[12px] text-muted" htmlFor="pw-current">
-					Mot de passe temporaire
+					Temporary password
 					<input
 						id="pw-current"
 						type="password"
@@ -59,7 +58,7 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 				</label>
 
 				<label className="mb-3 block text-[12px] text-muted" htmlFor="pw-next">
-					Nouveau mot de passe
+					New password
 					<input
 						id="pw-next"
 						type="password"
@@ -70,11 +69,11 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 						autoComplete="new-password"
 						className="mt-1 w-full rounded-xl border border-line bg-canvas px-3 py-2.5 text-[15px] text-ink outline-none focus:border-accent/60"
 					/>
-					<span className="mt-1 block text-[11px]">8 caractères minimum</span>
+					<span className="mt-1 block text-[11px]">8 characters minimum</span>
 				</label>
 
 				<label className="block text-[12px] text-muted" htmlFor="pw-confirm">
-					Confirmation
+					Confirm
 					<input
 						id="pw-confirm"
 						type="password"
@@ -94,7 +93,7 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 					disabled={busy}
 					className="mt-5 w-full rounded-xl bg-accent py-2.5 text-[14px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-50"
 				>
-					{busy ? '…' : 'Enregistrer et continuer'}
+					{busy ? '…' : 'Save and continue'}
 				</button>
 			</form>
 		</div>

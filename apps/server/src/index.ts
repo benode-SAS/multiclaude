@@ -56,8 +56,8 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
 /** Says exactly why the front is or is not being served — the usual head-scratcher. */
 function describeFront() {
 	if (serveWeb) return config.webDist
-	if (!config.serveWeb) return 'désactivé (SERVE_WEB=false) — sers-le par vite ou un autre hôte'
-	return `AUCUN : ${config.webDist} est absent, lance "bun run build"`
+	if (!config.serveWeb) return 'disabled (SERVE_WEB=false) — serve it with vite or another host'
+	return `NONE: ${config.webDist} is missing, run "bun run build"`
 }
 
 /**
@@ -73,14 +73,14 @@ async function bootstrap() {
 
 	console.log(`multiclaude → http://localhost:${config.port}`)
 	console.log(
-		`claude       ${claudeBin}${claudeBinResolved ? '' : ' (INTROUVABLE — définis CLAUDE_BIN)'}`,
+		`claude       ${claudeBin}${claudeBinResolved ? '' : ' (NOT FOUND — set CLAUDE_BIN)'}`,
 	)
 	console.log(`data         ${config.dataDir}`)
 	console.log(`front        ${describeFront()}`)
-	console.log(`claude auth  ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
+	console.log(`claude auth  ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'not connected'}`)
 	console.log(
-		`comptes      ${accounts === 0 ? 'aucun — le premier créé sera administrateur' : `${accounts}`}` +
-			`${SettingsService.signupEnabled() ? '' : ' · inscription fermée'}`,
+		`accounts     ${accounts === 0 ? 'none — the first one created will be an admin' : `${accounts}`}` +
+			`${SettingsService.signupEnabled() ? '' : ' · signups closed'}`,
 	)
 }
 

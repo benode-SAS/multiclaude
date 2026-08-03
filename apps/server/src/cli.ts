@@ -6,13 +6,13 @@ import { createAccount, resetPassword } from './accounts/provisioning.ts'
 import { AccountService } from './accounts/service.ts'
 import { runMigrations } from './db/index.ts'
 
-const USAGE = `Usage: bun run cli <commande>
+const USAGE = `Usage: bun run cli <command>
 
-  users list                              Liste les comptes
-  users add <email> <nom> [--admin]       Crée un compte, renvoie un mot de passe temporaire
-  users password <email>                  Régénère le mot de passe
-  users role <email> <admin|member>       Change le rôle
-  users remove <email>                    Supprime le compte
+  users list                              List the accounts
+  users add <email> <name> [--admin]      Create an account, return a temporary password
+  users password <email>                  Regenerate the password
+  users role <email> <admin|member>       Change the role
+  users remove <email>                    Delete the account
 `
 
 const [group, command, ...rest] = process.argv.slice(2)
@@ -26,9 +26,9 @@ const fail = (message: string): never => {
 
 /** Resolves an account by email, since nobody types an internal id. */
 async function byEmail(email: string | undefined) {
-	if (!email) fail('Adresse e-mail manquante')
+	if (!email) fail('Missing email address')
 	const account = await AccountService.findByEmail(email!)
-	return account ?? fail(`Aucun compte pour ${email}`)
+	return account ?? fail(`No account for ${email}`)
 }
 
 if (group !== 'users' || !command) {
@@ -43,13 +43,13 @@ switch (command) {
 	case 'list': {
 		const accounts = await AccountService.list()
 		if (accounts.length === 0) {
-			console.log('Aucun compte. Le premier créé sera administrateur.')
+			console.log('No account yet. The first one created will be an admin.')
 			break
 		}
 		for (const account of accounts) {
 			const flags = [
-				account.role === 'admin' ? 'admin' : 'membre',
-				account.mustChangePassword ? 'mot de passe à changer' : null,
+				account.role === 'admin' ? 'admin' : 'member',
+				account.mustChangePassword ? 'password to change' : null,
 			].filter(Boolean)
 			console.log(`${account.email}\t${account.name}\t${flags.join(', ')}`)
 		}
@@ -58,7 +58,7 @@ switch (command) {
 
 	case 'add': {
 		const [email, ...nameParts] = args
-		if (!email) fail('Usage: users add <email> <nom> [--admin]')
+		if (!email) fail('Usage: users add <email> <name> [--admin]')
 		const name = nameParts.join(' ').trim() || email!.split('@')[0]!
 
 		const created = await createAccount({
@@ -68,9 +68,9 @@ switch (command) {
 		})
 		if ('error' in created) fail(created.error)
 		if ('account' in created) {
-			console.log(`Compte créé : ${created.account.email} (${created.account.role})`)
-			console.log(`Mot de passe temporaire : ${created.temporaryPassword}`)
-			console.log('À changer à la première connexion.')
+			console.log(`Account created: ${created.account.email} (${created.account.role})`)
+			console.log(`Temporary password: ${created.temporaryPassword}`)
+			console.log('To be changed at first sign-in.')
 		}
 		break
 	}
@@ -78,33 +78,33 @@ switch (command) {
 	case 'password': {
 		const account = await byEmail(args[0])
 		const password = await resetPassword(account.id)
-		if (!password) fail('Réinitialisation impossible')
-		console.log(`Mot de passe temporaire de ${account.email} : ${password}`)
-		console.log('À changer à la première connexion.')
+		if (!password) fail('Could not reset the password')
+		console.log(`Temporary password for ${account.email}: ${password}`)
+		console.log('To be changed at first sign-in.')
 		break
 	}
 
 	case 'role': {
 		const account = await byEmail(args[0])
 		const role = args[1]
-		if (role !== 'admin' && role !== 'member') fail('Rôle attendu : admin ou member')
+		if (role !== 'admin' && role !== 'member') fail('Expected role: admin or member')
 
 		// Demoting the last admin would leave the settings unreachable.
 		if (account.role === 'admin' && role === 'member' && (await AccountService.adminCount()) <= 1) {
-			fail('Il doit rester au moins un administrateur')
+			fail('At least one admin must remain')
 		}
 		await AccountService.setRole(account.id, role as 'admin' | 'member')
-		console.log(`${account.email} est désormais ${role}`)
+		console.log(`${account.email} is now ${role}`)
 		break
 	}
 
 	case 'remove': {
 		const account = await byEmail(args[0])
 		if (account.role === 'admin' && (await AccountService.adminCount()) <= 1) {
-			fail('Il doit rester au moins un administrateur')
+			fail('At least one admin must remain')
 		}
 		await AccountService.remove(account.id)
-		console.log(`${account.email} supprimé`)
+		console.log(`${account.email} deleted`)
 		break
 	}
 

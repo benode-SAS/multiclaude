@@ -53,8 +53,8 @@ export async function exportRoom(roomId: string) {
 	const header = [
 		`# ${room.title}`,
 		'',
-		`Exportée le ${stamp(Date.now())} · ${messages.length} messages`,
-		room.model ? `Modèle : ${room.model}` : null,
+		`Exported on ${stamp(Date.now())} · ${messages.length} messages`,
+		room.model ? `Model: ${room.model}` : null,
 		'',
 		'---',
 		'',

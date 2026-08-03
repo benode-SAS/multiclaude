@@ -29,7 +29,7 @@ export function ForkDialog({
 		<div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-4">
 			<button
 				type="button"
-				aria-label="Annuler"
+				aria-label="Cancel"
 				onClick={() => !busy && onCancel()}
 				className="absolute inset-0 cursor-default"
 			/>
@@ -41,14 +41,14 @@ export function ForkDialog({
 				}}
 				className="relative w-full max-w-md rounded-2xl border border-line bg-canvas p-5 shadow-2xl"
 			>
-				<h2 className="text-[15px] font-semibold">Forker la conversation</h2>
+				<h2 className="text-[15px] font-semibold">Fork the conversation</h2>
 				<p className="mt-2 text-[13px] text-muted">
-					Les fichiers sont copiés et le contexte est hérité : les deux fils avancent ensuite
-					séparément, sans se gêner. La conversation d'origine n'est pas touchée.
+					Files are copied and the context is inherited: the two threads then move on separately,
+					without disturbing each other. The original conversation is untouched.
 				</p>
 
 				<label className="mt-4 block text-[12px] text-muted" htmlFor="fork-title">
-					Titre du fork
+					Fork title
 					<input
 						id="fork-title"
 						autoFocus
@@ -67,14 +67,14 @@ export function ForkDialog({
 						disabled={busy}
 						className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] transition hover:bg-panel disabled:opacity-50"
 					>
-						Annuler
+						Cancel
 					</button>
 					<button
 						type="submit"
 						disabled={busy}
 						className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-60"
 					>
-						{busy ? 'Copie…' : 'Forker'}
+						{busy ? 'Copying…' : 'Fork'}
 					</button>
 				</div>
 			</form>

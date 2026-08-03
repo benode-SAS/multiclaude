@@ -86,7 +86,7 @@ export function RoomHeader({
 						type="button"
 						onDoubleClick={() => canManage && startEditing()}
 						className="min-w-0 truncate text-[15px] font-semibold"
-						title="Double-clic pour renommer"
+						title="Double-click to rename"
 					>
 						{room.title}
 					</button>
@@ -94,10 +94,10 @@ export function RoomHeader({
 						<button
 							type="button"
 							onClick={startEditing}
-							title="Renommer la conversation"
+							title="Rename the conversation"
 							className="shrink-0 rounded px-1 py-0.5 text-[12px] text-muted opacity-100 transition hover:bg-panel hover:text-ink md:opacity-0 md:group-hover:opacity-100"
 						>
-							<Icon name="pencil" size={14} label="Renommer" />
+							<Icon name="pencil" size={14} label="Rename" />
 						</button>
 					)}
 				</div>
@@ -107,16 +107,16 @@ export function RoomHeader({
 				<div className="flex items-center gap-1.5">
 					<span className="flex items-center gap-1.5 rounded-full bg-accent-soft px-2.5 py-1 text-[12px] text-accent-ink">
 						<span className="size-1.5 animate-pulse rounded-full bg-accent" />
-						<span className="hidden sm:inline">en cours</span>
+						<span className="hidden sm:inline">running</span>
 					</span>
 					<button
 						type="button"
 						onClick={onStop}
-						title="Interrompre le turn en cours"
+						title="Interrupt the running turn"
 						className="flex items-center gap-1 rounded-full border border-line bg-surface px-2.5 py-1 text-[12px] transition hover:border-danger/50 hover:text-danger"
 					>
 						<Icon name="stop" size={12} />
-						<span className="hidden sm:inline">Stopper</span>
+						<span className="hidden sm:inline">Stop</span>
 					</button>
 				</div>
 			)}
@@ -129,7 +129,7 @@ export function RoomHeader({
 
 			{/* Width-capped: the longest label alone overflows an iPhone header. */}
 			<label className="flex shrink-0 items-center gap-1.5 text-[12px] text-muted">
-				<span className="hidden lg:inline">Modèle</span>
+				<span className="hidden lg:inline">Model</span>
 				<select
 					value={room.model ?? ''}
 					onChange={(e) => onSetModel(e.target.value || null)}
@@ -155,8 +155,8 @@ export function RoomHeader({
 							participant === self
 								? participant
 								: participant === following
-									? `Arrêter de suivre ${participant}`
-									: `Suivre ${participant}`
+									? `Stop following ${participant}`
+									: `Follow ${participant}`
 						}
 						className={clsx(
 							'rounded-full ring-2 transition',
@@ -173,18 +173,18 @@ export function RoomHeader({
 			<button
 				type="button"
 				onClick={onFork}
-				title="Dupliquer la conversation — même contexte, fils séparés"
+				title="Duplicate the conversation — same context, separate threads"
 				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 			>
-				<Icon name="fork" size={15} label="Forker" />
+				<Icon name="fork" size={15} label="Fork" />
 			</button>
 
 			<a
 				href={api.exportUrl(room.id)}
-				title="Exporter la conversation en markdown"
+				title="Export the conversation as markdown"
 				className="hidden shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50 md:inline-block"
 			>
-				<Icon name="download" size={15} label="Exporter" />
+				<Icon name="download" size={15} label="Export" />
 			</a>
 
 			<button
@@ -192,7 +192,7 @@ export function RoomHeader({
 				onClick={onToggleFiles}
 				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 			>
-				<span className="hidden md:inline">{filesOpen ? 'Masquer' : 'Fichiers'}</span>
+				<span className="hidden md:inline">{filesOpen ? 'Hide' : 'Files'}</span>
 				<Icon name="folder" size={15} className="md:hidden" />
 			</button>
 		</header>

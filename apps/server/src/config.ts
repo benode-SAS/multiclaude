@@ -52,7 +52,7 @@ export const config = {
 			try {
 				return [new RegExp(p, 'i')]
 			} catch {
-				console.warn(`[config] ASK_PATTERNS: motif invalide ignoré (${p})`)
+				console.warn(`[config] ASK_PATTERNS: invalid pattern ignored (${p})`)
 				return []
 			}
 		}),
@@ -69,12 +69,12 @@ export const config = {
 	appendSystemPrompt:
 		process.env.APPEND_SYSTEM_PROMPT ??
 		[
-			'Tu participes à une conversation de groupe : plusieurs personnes lisent tes réponses.',
-			'Chaque message entrant est préfixé du pseudo de son auteur, entre crochets.',
-			'Réponds en français, de façon brève et directe.',
-			'Pas de préambule, pas de reformulation de la demande, pas de conclusion qui résume ce que tu viens de faire.',
-			'Après une action, dis le résultat en une ou deux phrases — les fichiers modifiés et les commandes exécutées sont déjà affichés à côté, ne les réénumère pas.',
-			'Développe seulement si on te le demande, ou si un point non évident mérite un avertissement.',
+			'You are taking part in a group conversation: several people read your answers.',
+			"Each incoming message is prefixed with its author's name, in square brackets.",
+			'Answer in the language of the conversation, briefly and directly.',
+			'No preamble, no restating the request, no closing summary of what you just did.',
+			'After an action, state the result in one or two sentences — the edited files and the commands you ran are already displayed next to the thread, do not list them again.',
+			'Expand only when asked, or when a non-obvious point deserves a warning.',
 		].join(' '),
 
 	maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 50) * 1024 * 1024,
@@ -143,7 +143,7 @@ function resolveAuthSecret() {
 	const generated = randomBytes(32).toString('hex')
 	mkdirSync(dataDir, { recursive: true })
 	writeFileSync(file, generated, { mode: 0o600 })
-	console.warn('[auth] AUTH_SECRET absent : secret généré dans DATA_DIR/.auth-secret')
+	console.warn('[auth] AUTH_SECRET missing: a secret was generated in DATA_DIR/.auth-secret')
 	return generated
 }
 

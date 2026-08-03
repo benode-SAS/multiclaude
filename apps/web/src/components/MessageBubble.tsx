@@ -39,9 +39,9 @@ export function MessageBubble({
 			<Avatar author={message.author} />
 			<div className="min-w-0 flex-1">
 				<div className="mb-1 flex items-baseline gap-2">
-					{/* La couleur de l'auteur est calibrée pour le fond clair de sa
-					    pastille ; sur le canevas elle devient illisible en thème
-					    sombre. L'identité tient à l'avatar, le nom reste au jeton. */}
+					{/* The author colour is calibrated for the light background of their
+					    avatar; on the canvas it becomes unreadable in the dark theme.
+					    Identity rides on the avatar, the name stays on the token. */}
 					<span
 						className={clsx('text-[13px] font-semibold', isClaude ? 'text-accent-ink' : 'text-ink')}
 					>
@@ -49,8 +49,8 @@ export function MessageBubble({
 					</span>
 					<span className="text-[11px] text-muted">{formatTime(message.createdAt)}</span>
 					{message.editedAt && (
-						<span className="text-[11px] text-muted" title="Message corrigé après envoi">
-							modifié
+						<span className="text-[11px] text-muted" title="Message edited after sending">
+							edited
 						</span>
 					)}
 					{canEdit && !editing && (
@@ -60,10 +60,10 @@ export function MessageBubble({
 								setDraft(message.content)
 								setEditing(true)
 							}}
-							title="Modifier"
+							title="Edit"
 							className="rounded p-0.5 text-muted opacity-0 transition group-hover/msg:opacity-100 hover:bg-panel hover:text-ink"
 						>
-							<Icon name="pencil" size={13} label="Modifier" />
+							<Icon name="pencil" size={13} label="Edit" />
 						</button>
 					)}
 				</div>
@@ -77,8 +77,8 @@ export function MessageBubble({
 						'max-w-[min(760px,100%)] rounded-2xl px-4 py-3',
 						isClaude && 'bg-surface border border-line',
 						isSystem && 'bg-panel border border-line text-muted text-[13px]',
-						// Une bulle humaine se distingue par une teinte verte, pas par un
-						// alignement : à plusieurs, tout le monde parle du même côté.
+						// A human bubble stands out through a green tint, not through
+						// alignment: with several people, everyone speaks on one side.
 						!isClaude && !isSystem && 'bg-brand-soft',
 					)}
 				>
@@ -104,18 +104,18 @@ export function MessageBubble({
 									onClick={commit}
 									className="rounded bg-accent px-2 py-0.5 text-on-accent"
 								>
-									Enregistrer
+									Save
 								</button>
 								<button
 									type="button"
 									onClick={() => setEditing(false)}
 									className="text-muted hover:text-ink"
 								>
-									Annuler
+									Cancel
 								</button>
 								{/* Claude's session keeps the original, and saying so avoids the
 								    belief that an edit changes what it understood. */}
-								<span className="text-muted">Claude garde la version déjà reçue</span>
+								<span className="text-muted">Claude keeps the version it already received</span>
 							</div>
 						</div>
 					) : isClaude ? (
@@ -156,7 +156,7 @@ export function StreamingBubble({ text }: { text: string }) {
 							<Markdown>{text}</Markdown>
 						</div>
 					) : (
-						<span className="text-[14px] text-muted">Claude réfléchit…</span>
+						<span className="text-[14px] text-muted">Claude is thinking…</span>
 					)}
 				</div>
 			</div>

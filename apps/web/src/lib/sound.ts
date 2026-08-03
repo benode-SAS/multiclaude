@@ -72,7 +72,7 @@ export function notifyPermission(room: string, tool: string, reason: string) {
 	if (!notifyEnabled()) return
 	if (!document.hidden && document.hasFocus()) return
 	try {
-		const notification = new Notification(`Autorisation demandée — ${room}`, {
+		const notification = new Notification(`Permission requested — ${room}`, {
 			body: `${tool} : ${reason}`,
 			tag: 'multiclaude-permission',
 			requireInteraction: true,

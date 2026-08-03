@@ -16,9 +16,9 @@ export function ContextGauge({ usage }: { usage: ContextUsage }) {
 	return (
 		<div
 			className="flex items-center gap-2 text-[12px] text-muted"
-			title={`${usage.tokens.toLocaleString('fr-FR')} / ${usage.window.toLocaleString('fr-FR')} tokens · ${usage.model} · ${usage.costUsd.toFixed(2)} $`}
+			title={`${usage.tokens.toLocaleString()} / ${usage.window.toLocaleString()} tokens · ${usage.model} · ${usage.costUsd.toFixed(2)} $`}
 		>
-			<span className="hidden sm:inline">contexte</span>
+			<span className="hidden sm:inline">context</span>
 			<div className="h-1.5 w-16 overflow-hidden rounded-full bg-line">
 				<div
 					className={clsx(

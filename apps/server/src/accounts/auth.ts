@@ -54,7 +54,7 @@ export const auth = betterAuth({
 					if (adminCreation.getStore()) return undefined
 					const existing = await AccountService.count()
 					if (existing > 0 && !SettingsService.signupEnabled()) {
-						throw new APIError('FORBIDDEN', { message: 'Les inscriptions sont fermées' })
+						throw new APIError('FORBIDDEN', { message: 'Signups are closed' })
 					}
 					return undefined
 				},

@@ -3,8 +3,8 @@ import { Avatar } from './Avatar.tsx'
 
 /** What the followed person is doing, in one line. */
 function describe(presence: Presence) {
-	if (presence.view === 'file' && presence.filePath) return `regarde ${presence.filePath}`
-	return 'est dans la conversation'
+	if (presence.view === 'file' && presence.filePath) return `is looking at ${presence.filePath}`
+	return 'is in the conversation'
 }
 
 export function FollowBar({
@@ -19,7 +19,7 @@ export function FollowBar({
 	return (
 		<div className="flex items-center gap-2 border-b border-accent/40 bg-accent-soft px-4 py-2 text-[13px] md:px-6">
 			<Avatar author={pseudo} size={20} />
-			<span className="font-medium text-accent-ink">Tu suis {pseudo}</span>
+			<span className="font-medium text-accent-ink">Following {pseudo}</span>
 			<span className="hidden text-muted sm:inline">
 				— {presence ? describe(presence) : 'position inconnue'}
 			</span>
@@ -38,7 +38,7 @@ export function FollowBar({
 				onClick={onStop}
 				className="ml-auto shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1 text-[12px] transition hover:bg-panel"
 			>
-				Arrêter
+				Stop
 			</button>
 		</div>
 	)

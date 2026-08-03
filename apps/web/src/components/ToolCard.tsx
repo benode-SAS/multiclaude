@@ -29,7 +29,7 @@ export function ToolCard({
 					onClick={() => setOpen((v) => !v)}
 					className="flex w-full items-center gap-2 px-3 py-2 text-left hover:bg-panel/60"
 				>
-					<span>{icon}</span>
+					<Icon name={icon} size={13} className="shrink-0 text-muted" />
 					<span className="text-muted">{label}</span>
 					{target && (
 						<code className="min-w-0 flex-1 truncate rounded bg-panel px-1.5 py-0.5 font-mono text-[12px] text-ink">
@@ -37,7 +37,7 @@ export function ToolCard({
 						</code>
 					)}
 					{running && <span className="text-muted">…</span>}
-					{result?.isError && <span className="text-danger">erreur</span>}
+					{result?.isError && <span className="text-danger">failed</span>}
 					<Icon
 						name={open ? 'chevron-down' : 'chevron-right'}
 						size={14}

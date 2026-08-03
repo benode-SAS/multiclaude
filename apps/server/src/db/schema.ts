@@ -2,7 +2,7 @@ import { index, integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlit
 
 export const rooms = sqliteTable('rooms', {
 	id: text('id').primaryKey(),
-	title: text('title').notNull().default('Nouvelle conversation'),
+	title: text('title').notNull().default('New conversation'),
 	sessionId: text('session_id'),
 	/** Alias passed to `claude --model`; null keeps the account default. */
 	model: text('model'),

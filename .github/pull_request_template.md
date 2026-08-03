@@ -1,9 +1,9 @@
-**Ce que fait cette PR**
+**What this PR does**
 
-**Pourquoi**
+**Why**
 
-**Vérifications**
+**Checks**
 - [ ] `bun run check`
 - [ ] `bun run typecheck`
 - [ ] `bun run test`
-- [ ] Testé à la main : (dire quoi)
+- [ ] Tested by hand: (say what)

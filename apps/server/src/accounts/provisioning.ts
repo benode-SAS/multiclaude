@@ -14,7 +14,7 @@ export const temporaryPassword = (length = 14) =>
 
 const reason = (error: unknown) => {
 	const message = error instanceof Error ? error.message : String(error)
-	return /exist/i.test(message) ? 'Un compte utilise déjà cette adresse' : message
+	return /exist/i.test(message) ? 'An account already uses this address' : message
 }
 
 /**
@@ -34,13 +34,13 @@ export async function createAccount(input: {
 			}),
 		)
 		const id = created?.user?.id
-		if (!id) return { error: 'Compte non créé' }
+		if (!id) return { error: 'Account not created' }
 
 		if (input.role === 'admin') await AccountService.setRole(id, 'admin')
 		await AccountService.setMustChangePassword(id, true)
 
 		const account = await AccountService.get(id)
-		return account ? { account, temporaryPassword: password } : { error: 'Compte non créé' }
+		return account ? { account, temporaryPassword: password } : { error: 'Account not created' }
 	} catch (error) {
 		return { error: reason(error) }
 	}

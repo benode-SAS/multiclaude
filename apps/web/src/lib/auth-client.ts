@@ -6,7 +6,7 @@ export const authClient = createAuthClient({ basePath: '/api/auth' })
 
 const readError = (error: unknown) => {
 	if (error && typeof error === 'object' && 'message' in error) return String(error.message)
-	return 'Échec de la connexion'
+	return 'Sign-in failed'
 }
 
 export async function fetchSession(): Promise<SessionInfo> {

@@ -3,8 +3,8 @@ const os = require('node:os')
 const path = require('node:path')
 
 /**
- * PM2 ne trouve pas toujours bun : son PATH au démarrage au boot est minimal.
- * Résolu ici, à la lecture de la config, plutôt que laissé au hasard.
+ * PM2 does not always find bun: its PATH at boot time is minimal. Resolved here,
+ * when the config is read, rather than left to chance.
  */
 const bun =
 	[
@@ -15,12 +15,12 @@ const bun =
 	].find((candidate) => candidate && existsSync(candidate)) || 'bun'
 
 /**
- * Config PM2 — doit rester en .cjs : le package.json déclare "type": "module",
- * et PM2 charge ce fichier avec require().
+ * PM2 config — has to stay .cjs: package.json declares "type": "module" and PM2
+ * loads this file with require().
  *
- * La configuration applicative n'est pas ici mais dans le .env à la racine :
- * bun le charge automatiquement depuis le cwd, ce qui évite de committer des
- * réglages serveur et garde un seul endroit à éditer.
+ * Application configuration is not here but in the .env at the root: bun loads
+ * it automatically from the cwd, which keeps server settings out of the
+ * repository and leaves a single place to edit.
  *
  *   cd /var/www/multiclaude/multiclaude
  *   bun install && bun run build && bun run db:migrate
@@ -31,37 +31,37 @@ module.exports = {
 		{
 			name: 'multiclaude',
 
-			// bun est lancé comme une commande, pas comme un « interpréteur » PM2 :
-			// son conteneur bun charge le script avec require(), ce qui échoue dès
-			// qu'un module de la chaîne est async. `interpreter: 'none'` l'évite.
+			// bun is launched as a command, not as a PM2 "interpreter": that
+			// container loads the script with require(), which fails as soon as a
+			// module in the chain is async. `interpreter: 'none'` avoids it.
 			script: bun,
 			args: 'apps/server/src/index.ts',
 			interpreter: 'none',
 			cwd: __dirname,
 
-			// Un seul process, impérativement : l'état des rooms (runtimes,
-			// files d'attente, permissions en attente, sockets) est en mémoire.
-			// Le mode cluster répartirait les requêtes entre des process qui ne
-			// partagent rien — les pannes seraient intermittentes et illisibles.
+			// One process, and only one: room state (runtimes, queues, pending
+			// permissions, sockets) lives in memory. Cluster mode would spread
+			// requests across processes sharing nothing — the failures would be
+			// intermittent and unreadable.
 			exec_mode: 'fork',
 			instances: 1,
 
 			autorestart: true,
 			watch: false,
 
-			// Un plantage au boot (migration absente, binaire claude introuvable)
-			// ne doit pas partir en boucle de redémarrage.
+			// A crash at boot (missing migration, claude binary not found) must not
+			// turn into a restart loop.
 			min_uptime: '20s',
 			max_restarts: 10,
 			restart_delay: 3000,
 
-			// Chaque room lance un process `claude` enfant, plus gourmand que le
-			// serveur lui-même. PM2 ne mesure que le parent : un seuil bas ne
-			// ferait que redémarrer le serveur sans traiter la vraie cause.
+			// Each room spawns a child `claude` process, hungrier than the server
+			// itself. PM2 only measures the parent: a low threshold would just
+			// restart the server without addressing the real cause.
 			max_memory_restart: '1G',
 
-			// SIGINT déclenche disposeAll(), qui arrête les process claude enfants.
-			// Trop court, ils seraient orphelins après un SIGKILL de PM2.
+			// SIGINT triggers disposeAll(), which stops the child claude processes.
+			// Too short a timeout would orphan them after PM2's SIGKILL.
 			kill_timeout: 10000,
 
 			merge_logs: true,

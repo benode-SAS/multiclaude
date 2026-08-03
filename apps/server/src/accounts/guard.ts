@@ -17,12 +17,12 @@ export async function currentUser(request: Request): Promise<AccountSummary | nu
 /** Error response when the caller has no session, null otherwise. */
 export async function requireUser(request: Request) {
 	const user = await currentUser(request)
-	return user ? null : status(401, 'Connexion requise')
+	return user ? null : status(401, 'Sign-in required')
 }
 
 export async function requireAdmin(request: Request) {
 	const user = await currentUser(request)
-	if (!user) return status(401, 'Connexion requise')
-	if (user.role !== 'admin') return status(403, 'Réservé aux administrateurs')
+	if (!user) return status(401, 'Sign-in required')
+	if (user.role !== 'admin') return status(403, 'Admins only')
 	return null
 }

@@ -31,7 +31,9 @@ function resolve(): string {
 	if (override) {
 		if (existsSync(override)) return posix(override)
 		// A bad override must not silently break auth — say so and keep looking.
-		console.warn(`[claude] CLAUDE_BIN=${override} n'existe pas, résolution automatique à la place`)
+		console.warn(
+			`[claude] CLAUDE_BIN=${override} does not exist, falling back to automatic resolution`,
+		)
 	}
 
 	const found = Bun.which('claude')
@@ -48,5 +50,5 @@ export const claudeBin = resolve()
 export const claudeBinResolved = claudeBin !== 'claude' || Boolean(Bun.which('claude'))
 
 if (claudeBin.endsWith('.exe') && process.platform !== 'win32') {
-	console.warn(`[claude] binaire en .exe sur ${process.platform} — chemin probablement erroné`)
+	console.warn(`[claude] .exe binary on ${process.platform} — the path is probably wrong`)
 }

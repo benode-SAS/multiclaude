@@ -3,9 +3,9 @@ import { Avatar } from './Avatar.tsx'
 import { Icon } from './Icon.tsx'
 
 function describe(people: string[]) {
-	if (people.length === 1) return `${people[0]} écrit`
-	if (people.length === 2) return `${people[0]} et ${people[1]} écrivent`
-	return `${people.length} personnes écrivent`
+	if (people.length === 1) return `${people[0]} is typing`
+	if (people.length === 2) return `${people[0]} and ${people[1]} are typing`
+	return `${people.length} people are typing`
 }
 
 /** Fixed height whether or not anyone is typing, so the composer never jumps. */
@@ -44,7 +44,7 @@ export function TypingIndicator({
 						onBlur={() => setPeeking(false)}
 						onClick={() => setPeeking((open) => !open)}
 						className="flex items-center gap-2 rounded transition hover:text-ink"
-						title={previews.length ? 'Voir ce qui est en train de s’écrire' : undefined}
+						title={previews.length ? 'Peek at what is being written' : undefined}
 					>
 						<span>{describe(people)}</span>
 						<span className="flex gap-0.5">

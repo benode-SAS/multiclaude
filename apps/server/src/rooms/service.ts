@@ -50,7 +50,7 @@ export const RoomService = {
 		const ts = now()
 		const row = {
 			id,
-			title: title?.trim() || 'Nouvelle conversation',
+			title: title?.trim() || 'New conversation',
 			sessionId: null,
 			model: SettingsService.defaultModel(),
 			forkedFrom: null,
@@ -67,7 +67,7 @@ export const RoomService = {
 	async rename(id: string, title: string): Promise<Room | null> {
 		await db
 			.update(rooms)
-			.set({ title: title.trim() || 'Nouvelle conversation', updatedAt: now() })
+			.set({ title: title.trim() || 'New conversation', updatedAt: now() })
 			.where(eq(rooms.id, id))
 		return RoomService.get(id)
 	},

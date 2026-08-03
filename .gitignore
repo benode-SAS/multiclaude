@@ -1,6 +1,6 @@
 node_modules/
 dist/
-# DATA_DIR est configurable : couvre data/, data-prod/, data-staging/…
+# DATA_DIR is configurable: this covers data/, data-prod/, data-staging/…
 data*/
 *.log
 .env
@@ -10,5 +10,5 @@ data*/
 .idea/
 logs/
 
-# Réglages Claude Code, propres à chaque poste
+# Claude Code settings, specific to each machine
 .claude/

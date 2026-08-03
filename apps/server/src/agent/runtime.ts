@@ -82,7 +82,7 @@ export class RoomRuntime {
 		this.stopWatcher?.()
 		this.stopWatcher = null
 		for (const { resolve } of this.pending.values()) {
-			resolve({ allow: false, reason: 'room fermée' })
+			resolve({ allow: false, reason: 'room closed' })
 		}
 		this.pending.clear()
 		this.process?.stop()
@@ -153,7 +153,7 @@ export class RoomRuntime {
 		if (!entry) return
 		this.pending.delete(requestId)
 		hub.broadcast(this.roomId, { type: 'permission_resolved', requestId, allow, by })
-		entry.resolve({ allow, reason: allow ? undefined : `refusé par ${by}` })
+		entry.resolve({ allow, reason: allow ? undefined : `denied by ${by}` })
 	}
 
 	/** Called by the PreToolUse hook; blocks until a human clicks. */
@@ -260,7 +260,7 @@ export class RoomRuntime {
 		const auth = await AuthService.status()
 		hub.broadcast(this.roomId, { type: 'auth', auth })
 		if (!auth.loggedIn) {
-			await this.fail('Claude Code n’est pas connecté — lance la connexion depuis le bandeau.')
+			await this.fail('Claude Code is not connected — start the sign-in from the banner.')
 			return
 		}
 
@@ -341,7 +341,7 @@ export class RoomRuntime {
 			onExit: (code, stderr) => {
 				this.process = null
 				const detail = stderr.trim().split('\n').filter(Boolean).at(-1) ?? ''
-				this.endTurn?.(`le process claude s’est arrêté (code ${code}) ${detail}`.trim())
+				this.endTurn?.(`the claude process stopped (code ${code}) ${detail}`.trim())
 			},
 		})
 		this.process.start()
@@ -417,11 +417,11 @@ export class RoomRuntime {
 			if (failed && looksLikeAuthFailure(text)) {
 				// `auth status` still says logged in with a stale token: only a
 				// rejected turn reveals it, so record it to unlock the login UI.
-				AuthService.markInvalid(text.trim() || 'authentification refusée par l’API')
+				AuthService.markInvalid(text.trim() || 'authentication rejected by the API')
 			} else if (!failed) {
 				AuthService.markValid()
 			}
-			this.endTurn?.(failed ? text || 'le turn a échoué' : undefined)
+			this.endTurn?.(failed ? text || 'the turn failed' : undefined)
 		}
 	}
 
@@ -429,8 +429,8 @@ export class RoomRuntime {
 	private async noteCompaction(message: { subtype: string; [key: string]: unknown }) {
 		const failed = message.compact_result === 'failed' || Boolean(message.compact_error)
 		const content = failed
-			? `⚠ La compaction du contexte a échoué : ${String(message.compact_error ?? 'raison inconnue')}`
-			: '🗜 Contexte compacté automatiquement — la conversation continue sur un résumé.'
+			? `Context compaction failed: ${String(message.compact_error ?? 'unknown reason')}`
+			: 'Context compacted automatically — the conversation continues on a summary.'
 		const persisted = await RoomService.addMessage({
 			roomId: this.roomId,
 			author: 'system',

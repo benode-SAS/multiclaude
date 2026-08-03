@@ -190,9 +190,9 @@ export function Composer({
 			{dropping && (
 				<div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center bg-canvas/80 p-4 backdrop-blur-sm">
 					<div className="rounded-2xl border-2 border-dashed border-accent px-8 py-6 text-center">
-						<p className="text-[15px] font-semibold text-accent-ink">Déposer pour joindre</p>
+						<p className="text-[15px] font-semibold text-accent-ink">Drop to attach</p>
 						<p className="mt-1 text-[13px] text-muted">
-							Les fichiers sont déposés dans le dossier de travail de la conversation.
+							Files land in the conversation's working directory.
 						</p>
 					</div>
 				</div>
@@ -222,7 +222,7 @@ export function Composer({
 									className="text-muted hover:text-ink"
 									onClick={() => setStaged((prev) => prev.filter((a) => a.id !== attachment.id))}
 								>
-									<Icon name="close" size={13} label="Retirer" />
+									<Icon name="close" size={13} label="Remove" />
 								</button>
 							</div>
 						))}
@@ -234,12 +234,12 @@ export function Composer({
 						type="button"
 						onClick={() => fileRef.current?.click()}
 						className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-panel hover:text-ink"
-						title="Joindre un fichier"
+						title="Attach a file"
 					>
 						{uploading ? (
 							<span className="text-[13px]">…</span>
 						) : (
-							<Icon name="paperclip" size={17} label="Joindre un fichier" />
+							<Icon name="paperclip" size={17} label="Attach a file" />
 						)}
 					</button>
 					<input
@@ -255,9 +255,7 @@ export function Composer({
 						rows={1}
 						value={value}
 						placeholder={
-							status === 'running'
-								? 'Claude travaille — votre message sera mis en file…'
-								: 'Écrire…'
+							status === 'running' ? 'Claude is working — your message will queue…' : 'Write…'
 						}
 						onChange={(e) => {
 							setValue(e.target.value)
@@ -294,12 +292,12 @@ export function Composer({
 						className="flex size-9 items-center justify-center rounded-lg bg-accent text-on-accent transition enabled:hover:brightness-95 disabled:opacity-30"
 						title="Envoyer"
 					>
-						<Icon name="send" size={17} label="Envoyer" />
+						<Icon name="send" size={17} label="Send" />
 					</button>
 				</div>
 
 				<p className="mt-1.5 px-1 text-[11px] text-muted">
-					Entrée pour envoyer · Maj+Entrée pour un saut de ligne
+					Enter to send · Shift+Enter for a line break
 				</p>
 			</div>
 		</div>

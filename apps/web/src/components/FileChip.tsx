@@ -50,10 +50,10 @@ export function FileChip({
 			</button>
 			<a
 				href={api.fileUrl(roomId, attachment.relPath, true)}
-				title="Télécharger"
+				title="Download"
 				className="border-l border-line px-2 py-1.5 text-muted transition hover:bg-panel hover:text-ink"
 			>
-				<Icon name="download" size={13} label="Télécharger" />
+				<Icon name="download" size={13} label="Download" />
 			</a>
 		</span>
 	)
