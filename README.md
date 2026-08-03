@@ -1,55 +1,103 @@
+<div align="center">
+
+<img src="apps/web/public/icon-512.png" width="76" alt="" />
+
 # multiclaude
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-f97316)](LICENSE)
-[![by benode](https://img.shields.io/badge/by-benode-052e16)](https://www.benode.fr)
+**One Claude Code agent. Several people. One conversation.**
 
-Real-time multi-user chat on top of **Claude Code**. Several people talk to one agent in
-one conversation, and the agent works in an isolated directory: streamed answers, visible
-actions, created files shown as they land, and a human decision before anything sensitive
-runs.
+Real-time collaborative chat on top of the Claude Code CLI — streamed answers, visible
+actions, live files, and a human decision before anything dangerous runs.
 
-> Every conversation drives a real `claude` process on the host machine, on your own
-> Claude subscription — no API key, nothing in between.
+[![License: MIT](https://img.shields.io/badge/license-MIT-f97316?style=flat-square)](LICENSE)
+[![Bun](https://img.shields.io/badge/Bun-1.3+-052e16?style=flat-square)](https://bun.sh)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-052e16?style=flat-square)](https://www.typescriptlang.org)
+[![by benode](https://img.shields.io/badge/by-benode-f97316?style=flat-square)](https://www.benode.fr)
 
----
+<img src="docs/screenshot.png" alt="multiclaude in a browser: the conversation thread, an agent action card and a pending permission request" width="900" />
 
-## What it does
-
-**Work on one agent, together.** One conversation, one context, several people. You see
-who is typing, what they are typing (on hover), where they are in the thread, and what
-they have selected — highlighted in their colour, the way a shared document does it.
-Click someone's badge and your view mirrors theirs.
-
-**Stay out of each other's way.** The agent takes one turn at a time: concurrent messages
-queue up, pinned above the input, editable or cancellable until they are sent. A turn can
-be interrupted. And a conversation can be **forked**: same files, same inherited context,
-two threads that diverge — to explore without spoiling someone else's work.
-
-**Keep control of what runs.** Ordinary commands go through unattended; `sudo`, `pg_dump`,
-`git push`, `docker`, a delete outside the working directory or a reach for secrets ask
-for a click, with the reason shown. The policy is covered by tests.
-
-**See the work.** Files the agent writes appear in the thread and in a resizable side
-panel, as a tree or as a chronological list. Markdown, code and HTML are rendered, with
-scrolling and selections shared between participants. A document edited while you read it
-refreshes without losing your position.
-
-**Start from a repository.** A conversation can clone a repository, which becomes its
-working directory. For a private one: an access token typed at creation — used for the
-clone then forgotten, the remote being reset to the credential-free URL — or an SSH URL
-if the server holds the key.
+</div>
 
 ---
 
-## Getting started
+## Why
 
-### Requirements
+Claude Code is superb, and stubbornly single-player. Pair with someone on a real task and
+you end up reading a terminal over their shoulder, asking them to run things for you, and
+losing every decision the moment the window closes.
 
-- [Bun](https://bun.sh) 1.3+
-- [Claude Code](https://claude.com/claude-code) installed and on the `PATH`
-- `git`, to clone a repository into a conversation
+multiclaude puts that agent in a room. Everyone types into the same conversation, sees the
+same actions, opens the same files, and can stop or redirect the agent. The work is
+persistent, the context is shared, and no one has to be the person holding the keyboard.
 
-### Locally
+It drives the **real `claude` binary** on your machine, with your own subscription. No API
+key, no proxy, no reimplementation of the agent loop.
+
+---
+
+## Features
+
+### Working together
+
+|  |  |
+| --- | --- |
+| **Live presence** | See who is connected, where they are in the thread, and which file they have open. |
+| **Follow someone** | Click a participant's avatar and your view mirrors theirs — same file, same scroll position. |
+| **Shared selections** | Text someone selects is highlighted in their colour, in the thread and inside documents, the way a shared document does it. |
+| **Typing, with a peek** | An indicator shows who is writing; hover it to read their draft before they send it. |
+| **Shared drafts** | Your unsent message follows you across devices and survives a restart. |
+| **Message queue** | The agent takes one turn at a time. Concurrent messages queue up, pinned above the input — editable and cancellable until they go out. |
+| **Interrupt** | Stop a running turn without killing the process or losing the session. |
+| **Fork a conversation** | Same files, same inherited context, two threads that diverge. Explore without spoiling someone else's work. |
+
+### The agent
+
+|  |  |
+| --- | --- |
+| **Your subscription** | One long-lived `claude` process per conversation, driven over `stream-json`. No API key. |
+| **Isolated workdir** | Each conversation gets its own directory. The agent never sees the others. |
+| **Sessions that survive** | The process dies, the session does not: the next turn resumes it. |
+| **Model switching** | Change model mid-conversation; everyone sees the switch. |
+| **Context gauge** | Live token usage against the window, and a note in the thread when compaction happens. |
+| **Sign in from the UI** | The OAuth login runs headless: open the link, paste the code back. No terminal. |
+
+### Keeping control
+
+|  |  |
+| --- | --- |
+| **Per-command policy** | `grep`, `python`, `curl`, `npm`, `git commit` run unattended. `sudo`, `pg_dump`, `git push`, `docker`, deletes outside the workdir and reaches for secrets stop and ask. |
+| **Tested** | The policy carries its own test suite. It does not change without a net. |
+| **Anyone can decide** | The request appears as a card in the thread, with the reason. Any participant can allow or deny. |
+| **Never missed** | A chime, a flashing tab title, and a system notification when the tab is closed. |
+| **Tunable** | `ALWAYS_ASK_TOOLS=Bash` makes every command ask; `ASK_PATTERNS` adds your own red flags. |
+
+### Files and repositories
+
+|  |  |
+| --- | --- |
+| **Live workdir** | Files the agent writes appear in the thread and in a side panel, as a tree or a chronological list. |
+| **Rendered, not downloaded** | Markdown, code with syntax highlighting, and HTML previews — in a sandboxed frame that cannot reach the app. |
+| **Follows the work** | A document edited while you read it refreshes in place, without losing your scroll. |
+| **Drop anything** | Paste or drag files anywhere in the window; they land in the conversation's working directory. |
+| **Start from a repo** | Clone at creation, branch included. Private repositories through an access token — used once, then forgotten — or an SSH key held by the server. |
+| **Export** | Any conversation to markdown, in one click. |
+
+### Running it for a team
+
+|  |  |
+| --- | --- |
+| **Local accounts** | Email and password, sessions in SQLite, no external service. The first account is the admin. |
+| **Admin panel** | Create members, hand out temporary passwords, change roles, and read the effective server configuration. |
+| **Forced password change** | Accounts created by an admin cannot go anywhere until they replace the temporary password. |
+| **Account CLI** | The same operations from a shell, for when nobody can sign in any more. |
+| **Search** | Across every conversation, from the sidebar. |
+| **Themes** | Light, dark, or follow the system. |
+| **Mobile** | Real responsive layout, installable as an app, usable on a phone. |
+| **One port** | The server serves the interface too: no CORS, same-origin WebSocket, one process to supervise. |
+
+---
+
+## Quick start
 
 ```bash
 git clone https://github.com/benode-SAS/multiclaude.git
@@ -62,24 +110,19 @@ bun run dev
 
 The interface listens on `http://localhost:3000`, the API on `8000`.
 
-On first launch the app asks you to **create the admin account** — it is simply the first
-account created, whatever the signup setting says.
+**Requirements:** [Bun](https://bun.sh) 1.3+, the [Claude Code](https://claude.com/claude-code)
+CLI on your `PATH`, and `git`.
 
-One thing is left: connecting Claude Code. The key button in the sidebar opens an
-authorisation link, and you paste back the code it returns. No terminal needed.
+Two things happen on first launch: the app asks you to create the **admin account** — that
+is simply the first account created — and the key button in the sidebar connects your
+Claude subscription through a link you open and a code you paste back.
 
-### In production
+---
 
-```bash
-cp .env.example .env    # set at least PORT, DATA_DIR and PUBLIC_URL
-bun run deploy          # install + build + migrations
-bun run start
-```
+## Deploy
 
-`SERVE_WEB` is on by default, so the server also serves the interface: **one port**, no
-CORS, WebSocket on the same origin.
-
-### Docker
+<details>
+<summary><strong>Docker</strong> — the shortest path</summary>
 
 ```bash
 docker build -t multiclaude .
@@ -95,19 +138,40 @@ All the state — SQLite database, working directories, Claude credentials — l
 On Railway, Fly or similar: point the service at this `Dockerfile`, attach a persistent
 volume on `/data`, and set `PUBLIC_URL`. Without a volume, every redeploy starts over.
 
+</details>
+
+<details>
+<summary><strong>On a server</strong>, with or without PM2</summary>
+
+```bash
+cp .env.example .env    # set at least PORT, DATA_DIR and PUBLIC_URL
+bun run deploy          # install + build + migrations
+bun run start
+```
+
+`ecosystem.config.cjs` ships a PM2 configuration: single process (room state lives in
+memory, so never cluster mode), a restart guard, and a kill timeout long enough for the
+child `claude` processes to wind down.
+
+```bash
+pm2 start ecosystem.config.cjs && pm2 save
+```
+
+</details>
+
 ---
 
 ## Managing accounts
 
 The first account created is an admin. From there, ⚙ → **Users** adds someone: the app
 generates a temporary password, shown once, which that person must replace at their first
-sign-in. The key button next to an account regenerates it — same rule afterwards.
+sign-in. The key button next to an account regenerates it.
 
-This works whatever the signup setting says: `SIGNUP_ENABLED` only governs the public
+This works whatever the signup setting says — `SIGNUP_ENABLED` only governs the public
 form.
 
-The same operations exist on the command line, which is what you need when nobody can
-sign in any more:
+The same operations exist on the command line, which is what you need when nobody can sign
+in any more:
 
 ```bash
 bun run cli users list
@@ -160,16 +224,33 @@ Three things matter:
    `allow-same-origin`): the page can reach neither the app, nor storage, nor the API. It
    can, however, make outbound requests.
 
+Secrets stay out of the agent's reach: `AUTH_SECRET`, `ADMIN_PASSWORD` and `GIT_TOKEN` are
+stripped from the environment handed to the CLI, and a clone token never lands in
+`.git/config`.
+
+Found a vulnerability? [SECURITY.md](SECURITY.md).
+
 ---
 
-## Architecture
+## How it works
+
+```mermaid
+flowchart LR
+    B1["Browser"] <-->|WebSocket| S
+    B2["Browser"] <-->|WebSocket| S
+    S["Elysia server<br/>one process"] --> DB[("SQLite<br/>Drizzle")]
+    S <-->|"stream-json<br/>stdin / stdout"| C["claude CLI<br/>one per room"]
+    C -->|PreToolUse hook| S
+    C --> W[("Isolated<br/>workdir")]
+    S -.->|rescan| W
+```
 
 Bun monorepo: `apps/server` (Elysia + WebSocket), `apps/web` (React + Vite),
 `packages/shared` (the WebSocket contract and shared types).
 
-**One room, one `claude` process**, driven over `stream-json` on stdin/stdout and kept
-alive between turns so the conversation keeps its context. If it dies, it comes back with
-`--resume` on the same session. Forking branches off the parent session.
+**One room, one `claude` process**, kept alive between turns so the conversation keeps its
+context. If it dies, it comes back with `--resume` on the same session. Forking branches
+off the parent session.
 
 **Permissions go through a `PreToolUse` hook** that calls the server and blocks until a
 human clicks. That is what makes it possible to decide from the interface rather than from
@@ -193,10 +274,8 @@ bun run test
 ## Contributing
 
 Issues and pull requests are welcome. Before proposing a change: `bun run check`,
-`bun run typecheck` and `bun run test` must pass — that is what CI runs.
-
-Comments in this codebase explain *why* a decision was made when it is not obvious, never
-*what* the next line does. Please keep that habit.
+`bun run typecheck` and `bun run test` must pass — that is what CI runs. See
+[CONTRIBUTING.md](CONTRIBUTING.md) for the conventions.
 
 ## Origin and licence
 
@@ -207,7 +286,3 @@ MIT allows everything: private or commercial use, modification, redistribution, 
 into a closed product, resale. It sets **one condition**: keep the copyright notice and
 the licence text in copies and derived works. In other words, do what you like with it,
 but do not strip the authorship.
-
-Concretely, if you redistribute this code or a product derived from it, keep the `LICENSE`
-file as is. A note along the lines of "based on multiclaude, by benode" is appreciated
-without being required.
