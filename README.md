@@ -49,6 +49,7 @@ key, no proxy, no reimplementation of the agent loop.
 | **Message queue** | The agent takes one turn at a time. Concurrent messages queue up, pinned above the input — editable and cancellable until they go out. |
 | **Interrupt** | Stop a running turn without killing the process or losing the session. |
 | **Fork a conversation** | Same files, same inherited context, two threads that diverge. Explore without spoiling someone else's work. |
+| **Archive, don't delete** | Removing a conversation archives it: history, files and context stay, and one click brings it back. Erasing for good is a separate, deliberate action. |
 
 ### The agent
 

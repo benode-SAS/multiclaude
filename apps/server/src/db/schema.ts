@@ -19,6 +19,12 @@ export const rooms = sqliteTable('rooms', {
 		.default('idle'),
 	createdAt: integer('created_at').notNull(),
 	updatedAt: integer('updated_at').notNull(),
+	/**
+	 * Archiving is the default answer to "delete": the row and the working
+	 * directory stay, the room simply leaves the list. Only an explicit
+	 * permanent delete erases anything.
+	 */
+	archivedAt: integer('archived_at'),
 })
 
 export const messages = sqliteTable(

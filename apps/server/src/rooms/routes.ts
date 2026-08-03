@@ -115,7 +115,39 @@ HEAD : ${result.head}`
 		return result.markdown
 	})
 
+	.get(
+		'/archived',
+		async ({ request }) => (await requireUser(request)) ?? RoomService.listArchived(),
+	)
+
+	/**
+	 * Deleting a conversation means archiving it: the room leaves the list, its
+	 * process is disposed, but the history and the working directory stay so it
+	 * can come back. Erasing has its own route.
+	 */
 	.delete('/:id', async ({ request, params }) => {
+		const denied = await requireAdmin(request)
+		if (denied) return denied
+
+		disposeRuntime(params.id)
+		const archived = await RoomService.archive(params.id)
+		if (!archived) return status(404, 'Not Found')
+		hub.broadcast(archived.id, { type: 'room_updated', room: archived })
+		return archived
+	})
+
+	.post('/:id/restore', async ({ request, params }) => {
+		const denied = await requireAdmin(request)
+		if (denied) return denied
+
+		const restored = await RoomService.restore(params.id)
+		if (!restored) return status(404, 'Not Found')
+		hub.broadcast(restored.id, { type: 'room_updated', room: restored })
+		return restored
+	})
+
+	/** The only path that erases anything, and it is not reachable by accident. */
+	.delete('/:id/permanent', async ({ request, params }) => {
 		const denied = await requireAdmin(request)
 		if (denied) return denied
 

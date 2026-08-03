@@ -12,6 +12,8 @@ export type Room = {
 	model: string | null
 	/** Room this one was forked from, if any. */
 	forkedFrom: string | null
+	/** Set when the room was archived: kept on disk, out of the way. */
+	archivedAt: number | null
 	workdir: string
 	status: RoomStatus
 	createdAt: number

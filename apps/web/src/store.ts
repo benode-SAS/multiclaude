@@ -35,6 +35,7 @@ type State = {
 	authReady: boolean
 	connected: boolean
 	rooms: Room[]
+	archived: Room[]
 	activeRoomId: string | null
 	room: Room | null
 	messages: Message[]
@@ -80,7 +81,10 @@ type Actions = {
 	}) => Promise<void>
 	forkRoom: (roomId: string, title?: string) => Promise<void>
 	renameRoom: (roomId: string, title: string) => Promise<void>
-	deleteRoom: (roomId: string) => Promise<void>
+	archiveRoom: (roomId: string) => Promise<void>
+	restoreRoom: (roomId: string) => Promise<void>
+	deleteRoomForever: (roomId: string) => Promise<void>
+	loadArchived: () => Promise<void>
 	sendMessage: (content: string, attachmentIds: string[]) => void
 	setTyping: (typing: boolean) => void
 	editMessage: (messageId: string, content: string) => void
@@ -291,6 +295,7 @@ export const useStore = create<State & Actions>((set, get) => {
 		authReady: false,
 		connected: false,
 		rooms: [],
+		archived: [],
 		activeRoomId: null,
 		loading: false,
 		error: null,
@@ -367,8 +372,27 @@ export const useStore = create<State & Actions>((set, get) => {
 			})
 		},
 
-		async deleteRoom(roomId) {
-			await api.deleteRoom(roomId)
+		async loadArchived() {
+			set({ archived: await api.archivedRooms() })
+		},
+
+		async restoreRoom(roomId) {
+			const room = await api.restoreRoom(roomId)
+			set({
+				archived: get().archived.filter((r) => r.id !== roomId),
+				rooms: [room, ...get().rooms],
+			})
+			get().selectRoom(room.id)
+		},
+
+		async deleteRoomForever(roomId) {
+			await api.deleteRoomForever(roomId)
+			set({ archived: get().archived.filter((r) => r.id !== roomId) })
+		},
+
+		async archiveRoom(roomId) {
+			const room = await api.archiveRoom(roomId)
+			set({ archived: [room, ...get().archived] })
 			const rooms = get().rooms.filter((r) => r.id !== roomId)
 			set({ rooms })
 			if (get().activeRoomId !== roomId) return

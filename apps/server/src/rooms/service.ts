@@ -8,7 +8,7 @@ import type {
 	Room,
 	RoomStatus,
 } from '@multiclaude/shared'
-import { and, asc, eq } from 'drizzle-orm'
+import { and, asc, eq, isNotNull, isNull } from 'drizzle-orm'
 import { SettingsService } from '../accounts/settings.ts'
 import { copySessionTo } from '../agent/sessions.ts'
 import { config } from '../config.ts'
@@ -24,6 +24,7 @@ const toRoom = (r: RoomRow): Room => ({
 	sessionId: r.sessionId,
 	model: r.model,
 	forkedFrom: r.forkedFrom,
+	archivedAt: r.archivedAt,
 	workdir: r.workdir,
 	status: r.status,
 	createdAt: r.createdAt,
@@ -32,8 +33,32 @@ const toRoom = (r: RoomRow): Room => ({
 
 export const RoomService = {
 	async list(): Promise<Room[]> {
-		const rows = await db.select().from(rooms).orderBy(asc(rooms.updatedAt))
+		const rows = await db
+			.select()
+			.from(rooms)
+			.where(isNull(rooms.archivedAt))
+			.orderBy(asc(rooms.updatedAt))
 		return rows.map(toRoom).reverse()
+	},
+
+	/** Most recently archived first: restoring usually undoes a fresh mistake. */
+	async listArchived(): Promise<Room[]> {
+		const rows = await db
+			.select()
+			.from(rooms)
+			.where(isNotNull(rooms.archivedAt))
+			.orderBy(asc(rooms.archivedAt))
+		return rows.map(toRoom).reverse()
+	},
+
+	async archive(id: string): Promise<Room | null> {
+		await db.update(rooms).set({ archivedAt: now() }).where(eq(rooms.id, id))
+		return RoomService.get(id)
+	},
+
+	async restore(id: string): Promise<Room | null> {
+		await db.update(rooms).set({ archivedAt: null }).where(eq(rooms.id, id))
+		return RoomService.get(id)
 	},
 
 	async get(id: string): Promise<Room | null> {
@@ -55,6 +80,7 @@ export const RoomService = {
 			model: SettingsService.defaultModel(),
 			forkedFrom: null,
 			forkPending: false,
+			archivedAt: null,
 			workdir,
 			status: 'idle' as const,
 			createdAt: ts,
@@ -112,6 +138,7 @@ export const RoomService = {
 			model: source.model,
 			forkedFrom: source.id,
 			forkPending: inherited,
+			archivedAt: null,
 			workdir,
 			status: 'idle' as const,
 			createdAt: ts,
