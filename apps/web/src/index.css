@@ -14,6 +14,12 @@
 	--color-muted: var(--muted);
 	--color-accent: var(--accent);
 	--color-accent-soft: var(--accent-soft);
+	/* Orange fills are too light to carry small text; this is the readable one. */
+	--color-accent-ink: var(--accent-ink);
+	--color-on-accent: var(--on-accent);
+	--color-brand: var(--brand);
+	--color-brand-soft: var(--brand-soft);
+	--color-ok: var(--ok);
 	--color-danger: var(--danger);
 	--color-danger-soft: var(--danger-soft);
 	--color-warn: var(--warn);
@@ -23,38 +29,79 @@
 	--font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
 }
 
+/* Benode: forêt #052e16 et orange #f97316. Le vert porte la structure, l'orange
+   ne sert qu'à ce sur quoi on agit — comme sur le site. */
 :root {
-	--canvas: #faf9f5;
-	--panel: #f2f0e9;
+	--canvas: #fbf8f3;
+	--panel: #f4efe6;
 	--surface: #ffffff;
-	--line: #e6e2d8;
-	--ink: #1f1e1c;
-	--muted: #6f6b62;
-	--accent: #c96442;
-	--accent-soft: #f4e4de;
-	--danger: #b42318;
-	--danger-soft: #fdecea;
-	--warn: #8a5a1c;
-	--warn-soft: #fdf3e2;
-	--shadow: rgb(0 0 0 / 0.06);
+	--line: #e8e0d3;
+	--ink: #0f2318;
+	--muted: #6d7a72;
+	--accent: #f97316;
+	--accent-ink: #b8500c;
+	--accent-soft: #fdeccf;
+	/* Le vert de marque sur l'orange : lisible, et les deux couleurs se
+	   répondent au lieu du blanc qui les sépare. */
+	--on-accent: #052e16;
+	--brand: #052e16;
+	--brand-soft: #e2ebe5;
+	--ok: #2f7d52;
+	--danger: #c11424;
+	--danger-soft: #fdeaec;
+	--warn: #b45309;
+	--warn-soft: #fcf1de;
+	--shadow: rgb(5 46 22 / 0.08);
 	color-scheme: light;
 }
 
 [data-theme="dark"] {
-	--canvas: #1f1e1d;
-	--panel: #2a2927;
-	--surface: #262523;
-	--line: #3a3835;
-	--ink: #f0eee6;
-	--muted: #a19d94;
-	--accent: #d97757;
-	--accent-soft: #3a2a24;
-	--danger: #f0806f;
-	--danger-soft: #3a2320;
-	--warn: #e0b070;
-	--warn-soft: #362c1c;
-	--shadow: rgb(0 0 0 / 0.4);
+	--canvas: #0d1512;
+	--panel: #121d18;
+	--surface: #16221c;
+	--line: #23342b;
+	--ink: #eef3ef;
+	--muted: #9aaba2;
+	--accent: #fb8b3c;
+	--accent-ink: #fcac6d;
+	--accent-soft: #3a2410;
+	--on-accent: #1a1206;
+	--brand: #a7c8b5;
+	--brand-soft: #14291d;
+	--ok: #6fbf8f;
+	--danger: #ff6b74;
+	--danger-soft: #3a1a1e;
+	--warn: #e8b165;
+	--warn-soft: #362a16;
+	--shadow: rgb(0 0 0 / 0.45);
 	color-scheme: dark;
+}
+
+/* La colonne de gauche reste vert profond dans les deux thèmes : c'est ce qui
+   signe l'app au premier coup d'œil. Redéfinir les variables sur le conteneur
+   suffit — tout ce qu'il contient parle déjà en jetons. */
+.rail {
+	--panel: #052e16;
+	--surface: #0c3b21;
+	--line: #14432a;
+	--ink: #eef3ee;
+	--muted: #9db3a5;
+	--accent-soft: #123d24;
+	--brand-soft: #0c3b21;
+	/* Le fond est sombre des deux côtés : les témoins doivent y ressortir. */
+	--ok: #6fbf8f;
+	--warn: #e8b165;
+	--danger: #ff6b74;
+	--shadow: rgb(0 0 0 / 0.25);
+	color-scheme: dark;
+}
+
+[data-theme="dark"] .rail {
+	--panel: #0a1a12;
+	--surface: #16301f;
+	--line: #1e3527;
+	--muted: #93a89a;
+	--accent-soft: #3a2410;
 }
 
 html,
@@ -113,33 +160,33 @@ body {
 .hljs-selector-tag,
 .hljs-literal,
 .hljs-type {
-	color: light-dark(#a626a4, #c792ea);
+	color: light-dark(#175f73, #6fc3d8);
 }
 .hljs-string,
 .hljs-regexp,
 .hljs-addition {
-	color: light-dark(#50a14f, #a3d18a);
+	color: light-dark(#2f7d52, #86c99f);
 }
 .hljs-number,
 .hljs-built_in,
 .hljs-attr {
-	color: light-dark(#986801, #f2b96a);
+	color: light-dark(#b8500c, #f6a86a);
 }
 .hljs-title,
 .hljs-section,
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-	color: light-dark(#4078f2, #82aaff);
+	color: light-dark(#1e4d33, #a7c8b5);
 }
 .hljs-variable,
 .hljs-template-variable,
 .hljs-attribute {
-	color: light-dark(#e45649, #f07178);
+	color: light-dark(#b3261e, #f08b84);
 }
 .hljs-meta,
 .hljs-deletion {
-	color: light-dark(#a0a1a7, #8b8880);
+	color: light-dark(#8a9490, #8b968f);
 }
 .hljs-emphasis {
 	font-style: italic;
@@ -189,7 +236,7 @@ body {
 		margin-top: 0.25rem;
 	}
 	& a {
-		color: var(--accent);
+		color: var(--accent-ink);
 		text-decoration: underline;
 		text-underline-offset: 2px;
 	}

@@ -72,7 +72,9 @@ export function MessageBubble({
 						'max-w-[min(760px,100%)] rounded-2xl px-4 py-3',
 						isClaude && 'bg-surface border border-line',
 						isSystem && 'bg-panel border border-line text-muted text-[13px]',
-						!isClaude && !isSystem && 'bg-panel',
+						// Une bulle humaine se distingue par une teinte verte, pas par un
+						// alignement : à plusieurs, tout le monde parle du même côté.
+						!isClaude && !isSystem && 'bg-brand-soft',
 					)}
 				>
 					{editing ? (
@@ -95,7 +97,7 @@ export function MessageBubble({
 								<button
 									type="button"
 									onClick={commit}
-									className="rounded bg-accent px-2 py-0.5 text-white"
+									className="rounded bg-accent px-2 py-0.5 text-on-accent"
 								>
 									Enregistrer
 								</button>
@@ -142,7 +144,7 @@ export function StreamingBubble({ text }: { text: string }) {
 		<div className="flex gap-3">
 			<Avatar author="claude" />
 			<div className="min-w-0 flex-1">
-				<div className="mb-1 text-[13px] font-semibold text-accent">Claude</div>
+				<div className="mb-1 text-[13px] font-semibold text-accent-ink">Claude</div>
 				<div className="max-w-[min(760px,100%)] rounded-2xl border border-line bg-surface px-4 py-3">
 					{text ? (
 						<div className="caret">

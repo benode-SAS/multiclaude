@@ -72,7 +72,7 @@ export function ForkDialog({
 					<button
 						type="submit"
 						disabled={busy}
-						className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-60"
+						className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-60"
 					>
 						{busy ? 'Copie…' : 'Forker'}
 					</button>

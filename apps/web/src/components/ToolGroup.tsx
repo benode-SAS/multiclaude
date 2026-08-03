@@ -65,7 +65,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 						{label.target ?? label.label}
 					</code>
 				)}
-				{running && <span className="shrink-0 animate-pulse text-accent">…</span>}
+				{running && <span className="shrink-0 animate-pulse text-accent-ink">…</span>}
 				{!running && failed > 0 && <span className="shrink-0 text-danger">{failed} en erreur</span>}
 
 				<span className="ml-auto shrink-0 text-muted">▾</span>

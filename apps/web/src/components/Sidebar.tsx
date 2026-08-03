@@ -67,15 +67,14 @@ export function Sidebar({
 	}
 
 	return (
-		<aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-line bg-panel">
+		<aside className="rail flex h-full w-[260px] shrink-0 flex-col border-r border-line bg-panel text-ink">
 			<div className="px-3 py-4">
 				<div className="mb-3 flex items-center gap-2 px-1">
-					<span className="text-[15px] font-semibold tracking-tight">multiclaude</span>
+					<span className="text-[15px] font-semibold tracking-tight">
+						multi<span className="text-accent">claude</span>
+					</span>
 					<span
-						className={clsx(
-							'ml-auto size-2 rounded-full',
-							connected ? 'bg-green-500' : 'bg-amber-500',
-						)}
+						className={clsx('ml-auto size-2 rounded-full', connected ? 'bg-ok' : 'bg-warn')}
 						title={connected ? 'connecté' : 'reconnexion…'}
 					/>
 				</div>
@@ -185,7 +184,7 @@ export function Sidebar({
 							className={clsx(
 								'px-2 py-1 text-[13px] transition',
 								theme === option.id
-									? 'bg-accent text-white'
+									? 'bg-accent text-on-accent'
 									: 'bg-surface text-muted hover:text-ink',
 							)}
 						>

@@ -15,7 +15,7 @@ export function PermissionCard({
 }) {
 	return (
 		<div className="ml-0 md:ml-[42px] max-w-[min(760px,100%)] rounded-xl border border-accent/40 bg-accent-soft/50 p-3">
-			<div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent">
+			<div className="mb-2 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-accent-ink">
 				<span>🔒</span>
 				<span>Claude demande à exécuter {request.tool}</span>
 				{request.reason && (
@@ -31,7 +31,7 @@ export function PermissionCard({
 				<button
 					type="button"
 					onClick={() => onDecide(true)}
-					className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition hover:brightness-95"
+					className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition hover:brightness-95"
 				>
 					Autoriser
 				</button>

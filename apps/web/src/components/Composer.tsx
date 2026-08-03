@@ -189,7 +189,7 @@ export function Composer({
 			{dropping && (
 				<div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center bg-canvas/80 p-4 backdrop-blur-sm">
 					<div className="rounded-2xl border-2 border-dashed border-accent px-8 py-6 text-center">
-						<p className="text-[15px] font-semibold text-accent">Déposer pour joindre</p>
+						<p className="text-[15px] font-semibold text-accent-ink">Déposer pour joindre</p>
 						<p className="mt-1 text-[13px] text-muted">
 							Les fichiers sont déposés dans le dossier de travail de la conversation.
 						</p>
@@ -282,7 +282,7 @@ export function Composer({
 						type="button"
 						onClick={submit}
 						disabled={!value.trim() && staged.length === 0}
-						className="flex size-9 items-center justify-center rounded-lg bg-accent text-white transition enabled:hover:brightness-95 disabled:opacity-30"
+						className="flex size-9 items-center justify-center rounded-lg bg-accent text-on-accent transition enabled:hover:brightness-95 disabled:opacity-30"
 						title="Envoyer"
 					>
 						↑

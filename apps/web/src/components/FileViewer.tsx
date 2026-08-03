@@ -168,7 +168,7 @@ export function FileViewer({
 								className={clsx(
 									'px-2.5 py-1.5 text-[13px] transition',
 									showSource === (index === 1)
-										? 'bg-accent text-white'
+										? 'bg-accent text-on-accent'
 										: 'bg-surface hover:bg-panel',
 								)}
 							>

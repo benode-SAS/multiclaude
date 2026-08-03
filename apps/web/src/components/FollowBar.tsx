@@ -19,7 +19,7 @@ export function FollowBar({
 	return (
 		<div className="flex items-center gap-2 border-b border-accent/40 bg-accent-soft px-4 py-2 text-[13px] md:px-6">
 			<Avatar author={pseudo} size={20} />
-			<span className="font-medium text-accent">Tu suis {pseudo}</span>
+			<span className="font-medium text-accent-ink">Tu suis {pseudo}</span>
 			<span className="hidden text-muted sm:inline">
 				— {presence ? describe(presence) : 'position inconnue'}
 			</span>

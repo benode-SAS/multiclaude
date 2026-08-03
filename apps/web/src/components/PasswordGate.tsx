@@ -92,7 +92,7 @@ export function PasswordGate({ name, onDone }: { name: string; onDone: () => voi
 				<button
 					type="submit"
 					disabled={busy}
-					className="mt-5 w-full rounded-xl bg-accent py-2.5 text-[14px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-50"
+					className="mt-5 w-full rounded-xl bg-accent py-2.5 text-[14px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-50"
 				>
 					{busy ? '…' : 'Enregistrer et continuer'}
 				</button>

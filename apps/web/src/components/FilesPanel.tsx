@@ -62,7 +62,7 @@ export function FilesPanel({
 							title={label}
 							className={clsx(
 								'px-2 py-0.5 text-[12px] transition',
-								view === id ? 'bg-accent text-white' : 'bg-surface text-muted hover:text-ink',
+								view === id ? 'bg-accent text-on-accent' : 'bg-surface text-muted hover:text-ink',
 							)}
 						>
 							{icon}

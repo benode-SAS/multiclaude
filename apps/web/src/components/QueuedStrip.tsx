@@ -30,7 +30,7 @@ export function QueuedStrip({
 
 	return (
 		<div className="mb-2 overflow-hidden rounded-xl border border-accent/30 bg-accent-soft/40">
-			<p className="border-b border-accent/20 px-3 py-1.5 text-[11px] font-medium text-accent">
+			<p className="border-b border-accent/20 px-3 py-1.5 text-[11px] font-medium text-accent-ink">
 				{items.length} message{items.length > 1 ? 's' : ''} en attente — {'partira'}
 				{items.length > 1 ? 'ont' : ''} dès que Claude aura fini
 			</p>
@@ -59,7 +59,7 @@ export function QueuedStrip({
 								<button
 									type="button"
 									onClick={() => commit(item.id)}
-									className="rounded bg-accent px-2 py-0.5 text-white"
+									className="rounded bg-accent px-2 py-0.5 text-on-accent"
 								>
 									Enregistrer
 								</button>

@@ -37,7 +37,7 @@ export function AuthPanel({
 							type="button"
 							onClick={onStart}
 							disabled={busy}
-							className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-50"
+							className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-50"
 						>
 							{busy ? 'Démarrage…' : auth.error ? 'Se reconnecter' : 'Se connecter'}
 						</button>
@@ -49,7 +49,7 @@ export function AuthPanel({
 						href={auth.loginUrl}
 						target="_blank"
 						rel="noreferrer"
-						className="truncate rounded-lg border border-warn/30 bg-surface px-3 py-2 font-mono text-[12px] text-accent underline"
+						className="truncate rounded-lg border border-warn/30 bg-surface px-3 py-2 font-mono text-[12px] text-accent-ink underline"
 					>
 						{auth.loginUrl}
 					</a>
@@ -75,7 +75,7 @@ export function AuthPanel({
 						<button
 							type="submit"
 							disabled={busy || !code.trim()}
-							className="rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-40"
+							className="rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-40"
 						>
 							{busy ? 'Validation…' : 'Valider'}
 						</button>

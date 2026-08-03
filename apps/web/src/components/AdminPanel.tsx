@@ -269,7 +269,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 												<button
 													type="submit"
 													disabled={busy === 'create'}
-													className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition enabled:hover:brightness-95 disabled:opacity-60"
+													className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition enabled:hover:brightness-95 disabled:opacity-60"
 												>
 													{busy === 'create' ? '…' : 'Créer le compte'}
 												</button>
@@ -396,7 +396,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 							<button
 								type="button"
 								onClick={() => setIssued(null)}
-								className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-white transition hover:brightness-95"
+								className="rounded-lg bg-accent px-3 py-1.5 text-[13px] font-medium text-on-accent transition hover:brightness-95"
 							>
 								J'ai noté
 							</button>

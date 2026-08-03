@@ -12,18 +12,24 @@ export function formatDay(ts: number) {
 	return new Date(ts).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 }
 
+/**
+ * Autour du vert et de l'orange de la marque : assez distinctes pour se
+ * reconnaître d'un coup d'œil, assez proches pour ne pas jurer entre elles.
+ * Ces couleurs servent aussi de fond aux sélections partagées, d'où un texte
+ * sombre sur fond clair dans les deux thèmes.
+ */
 const PALETTE = [
-	{ bg: '#e8ecf7', fg: '#33518c' },
-	{ bg: '#e6f2ea', fg: '#2f6b48' },
-	{ bg: '#f6e9f2', fg: '#7c3f68' },
-	{ bg: '#fdf0dd', fg: '#8a5a1c' },
-	{ bg: '#e5f1f4', fg: '#2c6470' },
-	{ bg: '#f0ecfa', fg: '#5a479b' },
+	{ bg: '#dfeae2', fg: '#1e4d33' },
+	{ bg: '#fdeccf', fg: '#a2560a' },
+	{ bg: '#dee9ec', fg: '#1f5766' },
+	{ bg: '#e9e7d9', fg: '#5d5a3c' },
+	{ bg: '#f3e4da', fg: '#8a4b25' },
+	{ bg: '#e4ecdd', fg: '#456b2f' },
 ]
 
 export function authorColor(author: string) {
-	if (author === 'claude') return { bg: '#f4e4de', fg: '#c96442' }
-	if (author === 'system') return { bg: '#eeece6', fg: '#6f6b62' }
+	if (author === 'claude') return { bg: '#fdeccf', fg: '#b8500c' }
+	if (author === 'system') return { bg: '#e7ebe8', fg: '#5f6d65' }
 	let hash = 0
 	for (let i = 0; i < author.length; i++) hash = (hash * 31 + author.charCodeAt(i)) >>> 0
 	return PALETTE[hash % PALETTE.length]!
