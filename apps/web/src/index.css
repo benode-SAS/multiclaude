@@ -251,8 +251,8 @@ body {
 		text-underline-offset: 2px;
 	}
 	& blockquote {
-		border-left: 3px solid var(--line);
-		padding-left: 0.75rem;
+		border-left: 1px solid var(--line);
+		padding-left: 1rem;
 		color: var(--muted);
 	}
 	& code {

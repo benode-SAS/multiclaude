@@ -1,7 +1,7 @@
 import type { Attachment, Message } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
-import { authorColor, formatTime } from '../lib/format.ts'
+import { formatTime } from '../lib/format.ts'
 import { Avatar } from './Avatar.tsx'
 import { FileChip } from './FileChip.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
@@ -33,14 +33,18 @@ export function MessageBubble({
 	}
 	const isClaude = message.role === 'assistant'
 	const isSystem = message.role === 'system'
-	const color = authorColor(message.author)
 
 	return (
 		<div className="group/msg flex gap-3" data-message-id={message.id}>
 			<Avatar author={message.author} />
 			<div className="min-w-0 flex-1">
 				<div className="mb-1 flex items-baseline gap-2">
-					<span className="text-[13px] font-semibold" style={{ color: color.fg }}>
+					{/* La couleur de l'auteur est calibrée pour le fond clair de sa
+					    pastille ; sur le canevas elle devient illisible en thème
+					    sombre. L'identité tient à l'avatar, le nom reste au jeton. */}
+					<span
+						className={clsx('text-[13px] font-semibold', isClaude ? 'text-accent-ink' : 'text-ink')}
+					>
 						{isClaude ? 'Claude' : message.author}
 					</span>
 					<span className="text-[11px] text-muted">{formatTime(message.createdAt)}</span>

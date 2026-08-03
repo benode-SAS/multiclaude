@@ -27,7 +27,8 @@ function CodeBlock({ children }: { children?: ReactNode }) {
 			<button
 				type="button"
 				onClick={copy}
-				className="absolute top-2 right-2 rounded-md border border-line bg-surface px-2 py-1 text-[11px] text-muted opacity-0 transition group-hover:opacity-100 hover:text-ink"
+				// Visible d'emblée au toucher : sans survol, le bouton n'existait pas.
+				className="absolute top-2 right-2 rounded-md border border-line bg-surface px-2 py-1 text-[11px] text-muted transition hover:text-ink max-md:opacity-100 md:opacity-0 md:group-hover:opacity-100"
 			>
 				{copied ? 'copié' : 'copier'}
 			</button>
@@ -41,7 +42,10 @@ export const Markdown = memo(function Markdown({ children }: { children: string 
 		<div className="prose-chat text-[15px]">
 			<ReactMarkdown
 				remarkPlugins={[remarkGfm]}
-				rehypePlugins={[[rehypeHighlight, { detect: true, ignoreMissing: true }]]}
+				// Sans langue déclarée, pas de coloration : la détection automatique
+				// prenait la prose des blocs sans langage pour du code et repeignait
+				// des paragraphes entiers en couleur de chaîne.
+				rehypePlugins={[[rehypeHighlight, { detect: false, ignoreMissing: true }]]}
 				components={{
 					pre: ({ children }) => <CodeBlock>{children}</CodeBlock>,
 					a: ({ children, href }) => (

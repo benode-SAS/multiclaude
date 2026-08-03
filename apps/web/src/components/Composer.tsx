@@ -229,7 +229,7 @@ export function Composer({
 					</div>
 				)}
 
-				<div className="flex items-end gap-2 rounded-2xl border border-line bg-surface p-2 shadow-sm focus-within:border-accent/50">
+				<div className="flex items-end gap-2 rounded-2xl border border-line bg-surface p-2 transition-colors focus-within:border-accent/60">
 					<button
 						type="button"
 						onClick={() => fileRef.current?.click()}

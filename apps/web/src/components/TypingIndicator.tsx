@@ -51,8 +51,8 @@ export function TypingIndicator({
 							{[0, 1, 2].map((dot) => (
 								<span
 									key={dot}
-									className="size-1 animate-bounce rounded-full bg-muted"
-									style={{ animationDelay: `${dot * 150}ms` }}
+									className="size-1 animate-pulse rounded-full bg-muted"
+									style={{ animationDelay: `${dot * 160}ms`, animationDuration: '1.2s' }}
 								/>
 							))}
 						</span>
