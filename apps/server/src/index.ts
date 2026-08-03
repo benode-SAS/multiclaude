@@ -1,5 +1,8 @@
 import { cors } from '@elysiajs/cors'
 import { Elysia } from 'elysia'
+import { bootstrapAdmin } from './accounts/bootstrap.ts'
+import { accountRoutes } from './accounts/routes.ts'
+import { AccountService } from './accounts/service.ts'
 import { claudeBin, claudeBinResolved } from './agent/claude-bin.ts'
 import { internalRoutes } from './agent/routes.ts'
 import { disposeAll } from './agent/runtime.ts'
@@ -36,6 +39,7 @@ export const app = new Elysia()
 		set.status = 500
 		return { error: error instanceof Error ? error.message : 'internal error' }
 	})
+	.use(accountRoutes)
 	.use(api)
 	.use(wsRoutes)
 	.use(serveWeb ? webRoutes : new Elysia())
@@ -62,6 +66,8 @@ function describeFront() {
  */
 async function bootstrap() {
 	await RoomService.resetStuckRooms()
+	await bootstrapAdmin()
+	const accounts = await AccountService.count()
 	const auth = await AuthService.status()
 
 	console.log(`multiclaude → http://localhost:${config.port}`)
@@ -70,7 +76,11 @@ async function bootstrap() {
 	)
 	console.log(`data         ${config.dataDir}`)
 	console.log(`front        ${describeFront()}`)
-	console.log(`auth         ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
+	console.log(`claude auth  ${auth.loggedIn ? `${auth.email} (${auth.plan})` : 'non connecté'}`)
+	console.log(
+		`comptes      ${accounts === 0 ? 'aucun — le premier créé sera administrateur' : `${accounts}`}` +
+			`${config.signupEnabled ? '' : ' · inscription fermée'}`,
+	)
 }
 
 void bootstrap()

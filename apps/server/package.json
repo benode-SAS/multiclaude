@@ -15,6 +15,7 @@
 		"@elysiajs/cors": "latest",
 		"@elysiajs/static": "^1.4.10",
 		"@multiclaude/shared": "workspace:*",
+		"better-auth": "^1.6.25",
 		"drizzle-orm": "latest",
 		"elysia": "latest",
 		"nanoid": "latest"

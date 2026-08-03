@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync } from 'node:fs'
+import { randomBytes } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
 const root = path.resolve(import.meta.dir, '../../..')
@@ -78,6 +79,26 @@ export const config = {
 
 	maxUploadBytes: Number(process.env.MAX_UPLOAD_MB ?? 50) * 1024 * 1024,
 
+	/** URL publique, utilisée par les cookies de session et les origines de confiance. */
+	get publicUrl() {
+		return process.env.PUBLIC_URL ?? `http://localhost:${port}`
+	},
+	get trustedOrigins() {
+		const extra = (process.env.TRUSTED_ORIGINS ?? '')
+			.split(',')
+			.map((o) => o.trim())
+			.filter(Boolean)
+		return [config.publicUrl, ...extra]
+	},
+	/** Secret de signature des sessions, voir resolveAuthSecret plus bas. */
+	authSecret: '',
+	/** Inscription ouverte à tous, ou réservée à ce que crée un administrateur. */
+	signupEnabled: bool(process.env.SIGNUP_ENABLED, true),
+	/** Crée ce compte administrateur au démarrage s'il n'existe encore personne. */
+	adminEmail: process.env.ADMIN_EMAIL?.trim() ?? '',
+	adminPassword: process.env.ADMIN_PASSWORD ?? '',
+	adminName: process.env.ADMIN_NAME?.trim() || 'Admin',
+
 	/** Profondeur du clone : 0 pour un historique complet. */
 	cloneDepth: Number(process.env.CLONE_DEPTH ?? 1),
 	cloneTimeoutMs: Number(process.env.CLONE_TIMEOUT ?? 180) * 1000,
@@ -91,6 +112,27 @@ export const claudeEnv: Record<string, string> = {
 		: {}),
 }
 
+/**
+ * Un secret absent invaliderait toutes les sessions à chaque redémarrage. On en
+ * fabrique un et on le garde dans DATA_DIR : l'app démarre sans configuration,
+ * et les sessions survivent quand même.
+ */
+function resolveAuthSecret() {
+	const fromEnv = process.env.AUTH_SECRET?.trim()
+	if (fromEnv) return fromEnv
+
+	const file = path.join(dataDir, '.auth-secret')
+	if (existsSync(file)) return readFileSync(file, 'utf8').trim()
+
+	const generated = randomBytes(32).toString('hex')
+	mkdirSync(dataDir, { recursive: true })
+	writeFileSync(file, generated, { mode: 0o600 })
+	console.warn('[auth] AUTH_SECRET absent : secret généré dans DATA_DIR/.auth-secret')
+	return generated
+}
+
 mkdirSync(config.dataDir, { recursive: true })
 mkdirSync(config.roomsDir, { recursive: true })
 if (claudeEnv.CLAUDE_CONFIG_DIR) mkdirSync(claudeEnv.CLAUDE_CONFIG_DIR, { recursive: true })
+
+config.authSecret = resolveAuthSecret()

@@ -2,7 +2,10 @@ import { Database } from 'bun:sqlite'
 import { drizzle } from 'drizzle-orm/bun-sqlite'
 import { migrate } from 'drizzle-orm/bun-sqlite/migrator'
 import { config } from '../config.ts'
-import * as schema from './schema.ts'
+import * as authSchema from './auth-schema.ts'
+import * as roomSchema from './schema.ts'
+
+const schema = { ...roomSchema, ...authSchema }
 
 const sqlite = new Database(config.dbPath, { create: true })
 sqlite.exec('PRAGMA journal_mode = WAL;')

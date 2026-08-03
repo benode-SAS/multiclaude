@@ -136,6 +136,26 @@ export type ContextUsage = {
 	updatedAt: number
 }
 
+export type Role = 'admin' | 'member'
+
+export type AccountSummary = {
+	id: string
+	name: string
+	email: string
+	role: Role
+	createdAt: number
+}
+
+/** Ce que le front doit savoir avant même d'afficher un écran de connexion. */
+export type SessionInfo = {
+	user: AccountSummary | null
+	/** Aucun compte n'existe : le premier créé sera administrateur. */
+	needsSetup: boolean
+	signupEnabled: boolean
+}
+
+export const isAdmin = (user: AccountSummary | null | undefined) => user?.role === 'admin'
+
 export type AuthState = {
 	loggedIn: boolean
 	email: string | null
