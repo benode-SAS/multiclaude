@@ -14,6 +14,16 @@ bun run dev
 The `claude` CLI must be on the `PATH`: without it the server starts, but no conversation
 answers.
 
+## How a change lands
+
+`main` is protected: everything goes through a pull request, and CI has to be green
+before it can merge. If you are not a collaborator, fork the repository, push your branch
+there, and open the PR from your fork — that is the normal path and needs no permission
+from anyone.
+
+Open an issue first for anything structural. A small fix or an obvious bug needs no
+preamble.
+
 ## Before opening a PR
 
 ```bash
