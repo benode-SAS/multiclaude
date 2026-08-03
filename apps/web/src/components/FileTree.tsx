@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { collapseChains, type TreeNode } from '../lib/file-tree.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
 import type { ViewerTarget } from './FileViewer.tsx'
+import { Icon } from './Icon.tsx'
 
 const INDENT = 14
 
@@ -40,7 +41,11 @@ export function FileTree({
 							style={pad}
 							className="flex w-full items-center gap-1.5 rounded-lg py-1.5 pr-2 text-left text-[13px] transition hover:bg-surface"
 						>
-							<span className="w-3 shrink-0 text-[10px] text-muted">{shut ? '▸' : '▾'}</span>
+							<Icon
+								name={shut ? 'chevron-right' : 'chevron-down'}
+								size={13}
+								className="w-3 shrink-0 text-muted"
+							/>
 							<span className="truncate font-medium">{node.name}</span>
 							<span className="ml-auto shrink-0 pl-2 text-[11px] text-muted">{node.files}</span>
 						</button>
@@ -69,7 +74,11 @@ export function FileTree({
 					)}
 				>
 					<span className="w-3 shrink-0" />
-					<span className="shrink-0 text-[11px]">{isImage(node.file.mime) ? '🖼️' : '📄'}</span>
+					<Icon
+						name={isImage(node.file.mime) ? 'image' : 'file'}
+						size={13}
+						className="shrink-0 text-muted"
+					/>
 					<span className="truncate">{node.name}</span>
 					<span className="ml-auto shrink-0 pl-2 text-[11px] text-muted">
 						{formatBytes(node.file.size)}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Avatar } from './Avatar.tsx'
+import { Icon } from './Icon.tsx'
 
 function describe(people: string[]) {
 	if (people.length === 1) return `${people[0]} écrit`
@@ -55,7 +56,7 @@ export function TypingIndicator({
 								/>
 							))}
 						</span>
-						{previews.length > 0 && <span className="text-[10px] opacity-60">👁</span>}
+						{previews.length > 0 && <Icon name="chevron-down" size={11} className="opacity-60" />}
 					</button>
 
 					{peeking && previews.length > 0 && (

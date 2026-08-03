@@ -2,6 +2,7 @@ import type { Attachment } from '@multiclaude/shared'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
 import type { ViewerTarget } from './FileViewer.tsx'
+import { Icon } from './Icon.tsx'
 
 export const toTarget = (a: Attachment): ViewerTarget => ({
 	relPath: a.relPath,
@@ -43,7 +44,7 @@ export function FileChip({
 				onClick={() => onOpen(toTarget(attachment))}
 				className="flex items-center gap-2 px-2.5 py-1.5 transition hover:bg-panel"
 			>
-				<span>📄</span>
+				<Icon name="file" size={13} className="shrink-0 text-muted" />
 				<span className="max-w-[220px] truncate font-medium">{attachment.filename}</span>
 				<span className="text-muted">{formatBytes(attachment.size)}</span>
 			</button>
@@ -52,7 +53,7 @@ export function FileChip({
 				title="Télécharger"
 				className="border-l border-line px-2 py-1.5 text-muted transition hover:bg-panel hover:text-ink"
 			>
-				↓
+				<Icon name="download" size={13} label="Télécharger" />
 			</a>
 		</span>
 	)

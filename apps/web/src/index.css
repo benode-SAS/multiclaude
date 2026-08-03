@@ -20,6 +20,7 @@
 	--color-brand: var(--brand);
 	--color-brand-soft: var(--brand-soft);
 	--color-ok: var(--ok);
+	--color-code: var(--code);
 	--color-danger: var(--danger);
 	--color-danger-soft: var(--danger-soft);
 	--color-warn: var(--warn);
@@ -29,79 +30,70 @@
 	--font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Consolas, monospace;
 }
 
-/* Benode: forêt #052e16 et orange #f97316. Le vert porte la structure, l'orange
-   ne sert qu'à ce sur quoi on agit — comme sur le site. */
+/* Marque Benode : orange #f97316, vert #052e16. Les surfaces restent neutres —
+   une interface de travail se lit toute la journée, la couleur y sert à
+   distinguer, pas à décorer. Le vert n'apparaît donc qu'en signal, et l'orange
+   que sur ce qui s'actionne. */
 :root {
-	--canvas: #fbf8f3;
-	--panel: #f4efe6;
+	--canvas: #f7f6f3;
+	--panel: #efede8;
 	--surface: #ffffff;
-	--line: #e8e0d3;
-	--ink: #0f2318;
-	--muted: #6d7a72;
-	--accent: #f97316;
-	--accent-ink: #b8500c;
-	--accent-soft: #fdeccf;
-	/* Le vert de marque sur l'orange : lisible, et les deux couleurs se
-	   répondent au lieu du blanc qui les sépare. */
-	--on-accent: #052e16;
-	--brand: #052e16;
-	--brand-soft: #e2ebe5;
-	--ok: #2f7d52;
-	--danger: #c11424;
+	--line: #e3e0d9;
+	--ink: #1a1c1b;
+	--muted: #686e6b;
+	--accent: #ea6a08;
+	--accent-ink: #b4520a;
+	--accent-soft: #fdecd8;
+	--on-accent: #2b1405;
+	--brand: #14532d;
+	--brand-soft: #eaefe9;
+	--code: #f5f3ef;
+	--ok: #1f7a4d;
+	--danger: #c1121f;
 	--danger-soft: #fdeaec;
-	--warn: #b45309;
+	--warn: #a4560a;
 	--warn-soft: #fcf1de;
-	--shadow: rgb(5 46 22 / 0.08);
+	--shadow: rgb(26 28 27 / 0.07);
 	color-scheme: light;
 }
 
+/* Le sombre n'est pas l'inverse du clair : teintes désaturées, écarts de
+   luminance resserrés, et un fond neutre pour que le code reste lisible. */
 [data-theme="dark"] {
-	--canvas: #0d1512;
-	--panel: #121d18;
-	--surface: #16221c;
-	--line: #23342b;
-	--ink: #eef3ef;
-	--muted: #9aaba2;
+	--canvas: #101214;
+	--panel: #16191c;
+	--surface: #1b1e22;
+	--line: #2a2f34;
+	--ink: #e7eaed;
+	--muted: #99a1a9;
 	--accent: #fb8b3c;
-	--accent-ink: #fcac6d;
-	--accent-soft: #3a2410;
+	--accent-ink: #ffab6b;
+	--accent-soft: #2e2013;
 	--on-accent: #1a1206;
-	--brand: #a7c8b5;
-	--brand-soft: #14291d;
-	--ok: #6fbf8f;
-	--danger: #ff6b74;
-	--danger-soft: #3a1a1e;
-	--warn: #e8b165;
-	--warn-soft: #362a16;
-	--shadow: rgb(0 0 0 / 0.45);
+	--brand: #6fbf8f;
+	--brand-soft: #1c2a22;
+	--code: #0c0e10;
+	--ok: #4eb37c;
+	--danger: #ff6b6b;
+	--danger-soft: #34191b;
+	--warn: #e0a75f;
+	--warn-soft: #2f2617;
+	--shadow: rgb(0 0 0 / 0.5);
 	color-scheme: dark;
 }
 
-/* La colonne de gauche reste vert profond dans les deux thèmes : c'est ce qui
-   signe l'app au premier coup d'œil. Redéfinir les variables sur le conteneur
-   suffit — tout ce qu'il contient parle déjà en jetons. */
+/* Colonne de navigation : un cran plus sombre que le contenu dans les deux
+   thèmes, pour la mettre en retrait sans la colorer. */
 .rail {
-	--panel: #052e16;
-	--surface: #0c3b21;
-	--line: #14432a;
-	--ink: #eef3ee;
-	--muted: #9db3a5;
-	--accent-soft: #123d24;
-	--brand-soft: #0c3b21;
-	/* Le fond est sombre des deux côtés : les témoins doivent y ressortir. */
-	--ok: #6fbf8f;
-	--warn: #e8b165;
-	--danger: #ff6b74;
-	--shadow: rgb(0 0 0 / 0.25);
-	color-scheme: dark;
+	--panel: #edeae3;
+	--surface: #ffffff;
+	--line: #e0dcd3;
 }
 
 [data-theme="dark"] .rail {
-	--panel: #0a1a12;
-	--surface: #16301f;
-	--line: #1e3527;
-	--muted: #93a89a;
-	--accent-soft: #3a2410;
+	--panel: #0b0d0f;
+	--surface: #1e2227;
+	--line: #24292e;
 }
 
 html,
@@ -117,6 +109,24 @@ body,
 body {
 	@apply bg-canvas text-ink font-sans antialiased;
 	-webkit-text-size-adjust: 100%;
+}
+
+/* Un anneau unique pour toute l'app : la navigation au clavier doit se voir
+   sans que chaque composant redéfinisse son propre style de focus. */
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+
+/* Les seules choses qui bougent en continu : les pastilles d'activité et le
+   curseur de frappe. Elles se figent quand le système demande moins d'animation
+   — les transitions au survol, elles, restent, elles ne clignotent pas. */
+@media (prefers-reduced-motion: reduce) {
+	.animate-pulse,
+	.caret::after {
+		animation: none;
+	}
 }
 
 /* iOS zoome sur un champ de moins de 16 px, ce qui décale toute la mise en
@@ -160,33 +170,33 @@ body {
 .hljs-selector-tag,
 .hljs-literal,
 .hljs-type {
-	color: light-dark(#175f73, #6fc3d8);
+	color: light-dark(#8250df, #d2a8ff);
 }
 .hljs-string,
 .hljs-regexp,
 .hljs-addition {
-	color: light-dark(#2f7d52, #86c99f);
+	color: light-dark(#0a7d55, #7ee2b8);
 }
 .hljs-number,
 .hljs-built_in,
 .hljs-attr {
-	color: light-dark(#b8500c, #f6a86a);
+	color: light-dark(#b4520a, #ffab6b);
 }
 .hljs-title,
 .hljs-section,
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-	color: light-dark(#1e4d33, #a7c8b5);
+	color: light-dark(#1f6feb, #79b8ff);
 }
 .hljs-variable,
 .hljs-template-variable,
 .hljs-attribute {
-	color: light-dark(#b3261e, #f08b84);
+	color: light-dark(#cf222e, #ff7b72);
 }
 .hljs-meta,
 .hljs-deletion {
-	color: light-dark(#8a9490, #8b968f);
+	color: light-dark(#7b8288, #8b949e);
 }
 .hljs-emphasis {
 	font-style: italic;
@@ -248,12 +258,13 @@ body {
 	& code {
 		font-family: var(--font-mono);
 		font-size: 0.85em;
-		background: var(--panel);
+		background: var(--code);
+		border: 1px solid var(--line);
 		padding: 0.1em 0.35em;
 		border-radius: 4px;
 	}
 	& pre {
-		background: var(--panel);
+		background: var(--code);
 		border: 1px solid var(--line);
 		border-radius: 10px;
 		padding: 0.85rem 0.95rem;
@@ -261,6 +272,7 @@ body {
 	}
 	& pre code {
 		background: transparent;
+		border: 0;
 		padding: 0;
 		font-size: 0.82rem;
 		line-height: 1.6;

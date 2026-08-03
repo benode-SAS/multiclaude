@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatDay } from '../lib/format.ts'
 import { Avatar } from './Avatar.tsx'
+import { Icon } from './Icon.tsx'
 
 type Tab = 'accounts' | 'config'
 
@@ -129,7 +130,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 						onClick={onClose}
 						className="rounded-lg px-2 py-1 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
 					>
-						✕
+						<Icon name="close" size={16} label="Fermer" />
 					</button>
 				</header>
 
@@ -202,7 +203,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											title="Régénérer le mot de passe"
 											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] text-muted transition enabled:hover:text-ink disabled:opacity-40"
 										>
-											🔑
+											<Icon name="key" size={14} label="Régénérer le mot de passe" />
 										</button>
 
 										<button
@@ -216,7 +217,7 @@ export function AdminPanel({ selfId, onClose }: { selfId: string; onClose: () =>
 											}
 											className="rounded-lg border border-line bg-canvas px-2 py-1.5 text-[13px] text-muted transition enabled:hover:border-danger/50 enabled:hover:text-danger disabled:opacity-40"
 										>
-											🗑
+											<Icon name="trash" size={14} label="Supprimer le compte" />
 										</button>
 									</li>
 								))}

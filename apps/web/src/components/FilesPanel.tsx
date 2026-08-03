@@ -6,6 +6,7 @@ import { buildTree } from '../lib/file-tree.ts'
 import { formatBytes, formatTime, isImage } from '../lib/format.ts'
 import { FileTree } from './FileTree.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
+import { Icon, type IconName } from './Icon.tsx'
 
 type View = 'list' | 'tree'
 const VIEW_KEY = 'multiclaude:files-view'
@@ -53,21 +54,22 @@ export function FilesPanel({
 				<div className="ml-auto flex overflow-hidden rounded-lg border border-line">
 					{(
 						[
-							['tree', '⌗', 'Arborescence du dossier'],
-							['list', '☰', 'Liste, du plus récent au plus ancien'],
-						] as Array<[View, string, string]>
+							['tree', 'folder-tree', 'Arborescence du dossier'],
+							['list', 'list', 'Liste, du plus récent au plus ancien'],
+						] as Array<[View, IconName, string]>
 					).map(([id, icon, label]) => (
 						<button
 							key={id}
 							type="button"
 							onClick={() => switchTo(id)}
 							title={label}
+							aria-pressed={view === id}
 							className={clsx(
-								'px-2 py-0.5 text-[12px] transition',
+								'flex size-8 items-center justify-center transition',
 								view === id ? 'bg-accent text-on-accent' : 'bg-surface text-muted hover:text-ink',
 							)}
 						>
-							{icon}
+							<Icon name={icon} size={15} label={label} />
 						</button>
 					))}
 				</div>
@@ -76,17 +78,17 @@ export function FilesPanel({
 					type="button"
 					onClick={load}
 					title="Rafraîchir"
-					className="text-[12px] text-muted hover:text-ink"
+					className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 				>
-					↻
+					<Icon name="refresh" size={15} label="Rafraîchir" />
 				</button>
 				<button
 					type="button"
 					onClick={onClose}
 					title="Fermer"
-					className="text-[14px] text-muted hover:text-ink"
+					className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 				>
-					✕
+					<Icon name="close" size={16} label="Fermer" />
 				</button>
 			</div>
 
@@ -112,7 +114,12 @@ export function FilesPanel({
 							className="mb-0.5 block w-full rounded-lg px-2.5 py-2 text-left transition hover:bg-surface"
 						>
 							<div className="truncate text-[13px] font-medium" title={file.relPath}>
-								{isImage(file.mime) ? '🖼️' : '📄'} {file.relPath}
+								<Icon
+									name={isImage(file.mime) ? 'image' : 'file'}
+									size={13}
+									className="mr-1.5 inline shrink-0 text-muted"
+								/>
+								{file.relPath}
 							</div>
 							<div className="text-[11px] text-muted">
 								{formatBytes(file.size)} · {formatTime(file.modifiedAt)}

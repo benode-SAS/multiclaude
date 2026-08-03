@@ -5,6 +5,7 @@ import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
 import { applyScrollRatio, scrollRatio } from '../lib/presence.ts'
 import { anchorFromPreview, buildPreviewDocument, type PreviewIn } from '../lib/preview-bridge.ts'
+import { Icon } from './Icon.tsx'
 import { Markdown } from './Markdown.tsx'
 
 export type ViewerTarget = { relPath: string; filename: string; mime: string; size: number }
@@ -148,7 +149,7 @@ export function FileViewer({
 		// full-screen overlay on mobile. No positioning of its own.
 		<div className="flex h-full min-h-0 flex-col bg-canvas">
 			<header className="flex items-center gap-2 border-b border-line px-3 py-2.5 md:px-4 md:py-3">
-				<span>{image ? '🖼️' : html ? '🌐' : markdown ? '📘' : '📄'}</span>
+				<Icon name={image ? 'image' : 'file'} size={14} className="shrink-0 text-muted" />
 				<div className="min-w-0 flex-1">
 					<p className="truncate text-[14px] font-semibold" title={target.relPath}>
 						{target.relPath}
@@ -184,14 +185,14 @@ export function FileViewer({
 					className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 				>
 					<span className="hidden lg:inline">Télécharger</span>
-					<span className="lg:hidden">↓</span>
+					<Icon name="download" size={14} className="lg:hidden" />
 				</a>
 				<button
 					type="button"
 					onClick={onClose}
 					className="rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink"
 				>
-					✕
+					<Icon name="close" size={15} label="Fermer" />
 				</button>
 			</header>
 

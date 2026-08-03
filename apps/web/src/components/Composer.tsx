@@ -2,6 +2,7 @@ import type { Attachment, QueuedItem, RoomStatus } from '@multiclaude/shared'
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.ts'
 import { formatBytes, isImage } from '../lib/format.ts'
+import { Icon } from './Icon.tsx'
 import { QueuedStrip } from './QueuedStrip.tsx'
 import { TypingIndicator } from './TypingIndicator.tsx'
 
@@ -209,7 +210,11 @@ export function Composer({
 								key={attachment.id}
 								className="flex items-center gap-2 rounded-lg border border-line bg-surface px-2 py-1 text-[12px]"
 							>
-								<span>{isImage(attachment.mime) ? '🖼️' : '📄'}</span>
+								<Icon
+									name={isImage(attachment.mime) ? 'image' : 'file'}
+									size={13}
+									className="text-muted"
+								/>
 								<span className="max-w-[180px] truncate">{attachment.filename}</span>
 								<span className="text-muted">{formatBytes(attachment.size)}</span>
 								<button
@@ -217,7 +222,7 @@ export function Composer({
 									className="text-muted hover:text-ink"
 									onClick={() => setStaged((prev) => prev.filter((a) => a.id !== attachment.id))}
 								>
-									✕
+									<Icon name="close" size={13} label="Retirer" />
 								</button>
 							</div>
 						))}
@@ -231,7 +236,11 @@ export function Composer({
 						className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-panel hover:text-ink"
 						title="Joindre un fichier"
 					>
-						{uploading ? '…' : '📎'}
+						{uploading ? (
+							<span className="text-[13px]">…</span>
+						) : (
+							<Icon name="paperclip" size={17} label="Joindre un fichier" />
+						)}
 					</button>
 					<input
 						ref={fileRef}
@@ -285,7 +294,7 @@ export function Composer({
 						className="flex size-9 items-center justify-center rounded-lg bg-accent text-on-accent transition enabled:hover:brightness-95 disabled:opacity-30"
 						title="Envoyer"
 					>
-						↑
+						<Icon name="send" size={17} label="Envoyer" />
 					</button>
 				</div>
 

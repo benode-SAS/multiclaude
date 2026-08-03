@@ -1,5 +1,6 @@
 import type { AuthState } from '@multiclaude/shared'
 import { useState } from 'react'
+import { Icon } from './Icon.tsx'
 
 export function AuthPanel({
 	auth,
@@ -30,7 +31,7 @@ export function AuthPanel({
 		<div className="border-b border-warn/30 bg-warn-soft px-4 py-3 md:px-6">
 			<div className="mx-auto flex max-w-3xl flex-col gap-3">
 				<div className="flex items-center gap-3">
-					<span>🔑</span>
+					<Icon name="key" size={15} className="shrink-0 text-accent-ink" />
 					<span className="flex-1 text-[13px] font-medium text-warn">{headline}</span>
 					{!auth.pending && (
 						<button

@@ -4,12 +4,13 @@ import { useState } from 'react'
 import { formatDay } from '../lib/format.ts'
 import type { Theme } from '../lib/theme.ts'
 import { Avatar } from './Avatar.tsx'
+import { Icon, type IconName } from './Icon.tsx'
 import { SearchBox } from './SearchBox.tsx'
 
-const THEMES: Array<{ id: Theme; icon: string; label: string }> = [
-	{ id: 'light', icon: '☀', label: 'Clair' },
-	{ id: 'dark', icon: '☾', label: 'Sombre' },
-	{ id: 'system', icon: '◐', label: 'Système' },
+const THEMES: Array<{ id: Theme; icon: IconName; label: string }> = [
+	{ id: 'light', icon: 'sun', label: 'Clair' },
+	{ id: 'dark', icon: 'moon', label: 'Sombre' },
+	{ id: 'system', icon: 'monitor', label: 'Système' },
 ]
 
 export function Sidebar({
@@ -71,19 +72,22 @@ export function Sidebar({
 			<div className="px-3 py-4">
 				<div className="mb-3 flex items-center gap-2 px-1">
 					<span className="text-[15px] font-semibold tracking-tight">
-						multi<span className="text-accent">claude</span>
+						multi<span className="text-accent-ink">claude</span>
 					</span>
 					<span
-						className={clsx('ml-auto size-2 rounded-full', connected ? 'bg-ok' : 'bg-warn')}
-						title={connected ? 'connecté' : 'reconnexion…'}
+						className={clsx(
+							'ml-auto size-2 rounded-full',
+							connected ? 'bg-ok' : 'bg-warn animate-pulse',
+						)}
+						title={connected ? 'Connecté' : 'Reconnexion…'}
 					/>
 				</div>
 				<button
 					type="button"
 					onClick={onCreate}
-					className="w-full rounded-xl border border-line bg-surface px-3 py-2 text-left text-[14px] font-medium transition hover:border-accent/50"
+					className="flex w-full items-center gap-2 rounded-xl bg-accent px-3 py-2.5 text-left text-[14px] font-medium text-on-accent transition hover:brightness-105"
 				>
-					<span className="mr-2 text-accent">+</span>
+					<Icon name="plus" size={16} />
 					Nouvelle conversation
 				</button>
 			</div>
@@ -131,7 +135,9 @@ export function Sidebar({
 								className="min-w-0 flex-1 truncate text-left"
 								title={room.forkedFrom ? `${room.title} — issue d'un fork` : room.title}
 							>
-								{room.forkedFrom && <span className="mr-1 text-muted">⑂</span>}
+								{room.forkedFrom && (
+									<Icon name="fork" size={12} className="mr-1 inline shrink-0 text-muted" />
+								)}
 								{room.title}
 							</button>
 						)}
@@ -154,18 +160,18 @@ export function Sidebar({
 										setEditingId(room.id)
 										setDraft(room.title)
 									}}
-									className="text-[12px] text-muted hover:text-ink"
+									className="rounded p-1 text-muted transition hover:bg-panel hover:text-ink"
 									title="Renommer"
 								>
-									✎
+									<Icon name="pencil" size={14} label="Renommer" />
 								</button>
 								<button
 									type="button"
 									onClick={() => onDelete(room.id)}
-									className="text-[12px] text-muted hover:text-danger"
+									className="rounded p-1 text-muted transition hover:bg-panel hover:text-danger"
 									title="Supprimer"
 								>
-									🗑
+									<Icon name="trash" size={14} label="Supprimer" />
 								</button>
 							</span>
 						)}
@@ -173,7 +179,7 @@ export function Sidebar({
 				))}
 			</nav>
 
-			<div className="flex items-center gap-2 border-t border-line px-3 py-2">
+			<div className="flex items-center gap-1.5 border-t border-line px-3 py-2.5">
 				<div className="flex overflow-hidden rounded-lg border border-line">
 					{THEMES.map((option) => (
 						<button
@@ -181,14 +187,15 @@ export function Sidebar({
 							type="button"
 							onClick={() => onSetTheme(option.id)}
 							title={option.label}
+							aria-pressed={theme === option.id}
 							className={clsx(
-								'px-2 py-1 text-[13px] transition',
+								'flex size-8 items-center justify-center transition',
 								theme === option.id
 									? 'bg-accent text-on-accent'
 									: 'bg-surface text-muted hover:text-ink',
 							)}
 						>
-							{option.icon}
+							<Icon name={option.icon} size={15} label={option.label} />
 						</button>
 					))}
 				</div>
@@ -201,38 +208,40 @@ export function Sidebar({
 					title={
 						authEmail ? `Compte Claude : ${authEmail} — reconnecter` : 'Connecter un compte Claude'
 					}
-					className="rounded-lg border border-line bg-surface px-2 py-1 text-[13px] text-muted transition hover:text-ink"
+					className="flex size-8 items-center justify-center rounded-lg border border-line bg-surface text-muted transition hover:text-ink"
 				>
-					🔑
+					<Icon name="key" size={15} label="Compte Claude" />
 				</button>
 
 				<button
 					type="button"
 					onClick={onToggleSound}
+					aria-pressed={sound}
 					title={sound ? 'Son des demandes : activé' : 'Son des demandes : coupé'}
 					className={clsx(
-						'rounded-lg border border-line px-2 py-1 text-[13px] transition',
-						sound ? 'bg-surface text-ink' : 'bg-surface text-muted line-through',
+						'flex size-8 items-center justify-center rounded-lg border border-line bg-surface transition',
+						sound ? 'text-ink' : 'text-muted hover:text-ink',
 					)}
 				>
-					{sound ? '🔔' : '🔕'}
+					<Icon name={sound ? 'bell' : 'bell-off'} size={15} label="Son des demandes" />
 				</button>
 
 				{/* The chime is useless with the tab closed, hence system notifications. */}
 				<button
 					type="button"
 					onClick={onToggleNotify}
+					aria-pressed={notify}
 					title={
 						notify
 							? 'Notifications système : activées'
 							: 'Notifications système : désactivées — une demande non vue expire'
 					}
 					className={clsx(
-						'rounded-lg border border-line px-2 py-1 text-[13px] transition',
-						notify ? 'bg-surface text-ink' : 'bg-surface text-muted line-through',
+						'flex size-8 items-center justify-center rounded-lg border border-line bg-surface transition',
+						notify ? 'text-ink' : 'text-muted hover:text-ink',
 					)}
 				>
-					🖥
+					<Icon name="screen" size={15} label="Notifications système" />
 				</button>
 			</div>
 
@@ -252,18 +261,18 @@ export function Sidebar({
 							onNavigate()
 						}}
 						title="Administration — comptes et configuration"
-						className="shrink-0 rounded-lg border border-line bg-surface px-2 py-1 text-[12px] text-muted transition hover:text-ink"
+						className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink"
 					>
-						⚙
+						<Icon name="settings" size={15} label="Administration" />
 					</button>
 				)}
 				<button
 					type="button"
 					onClick={onSignOut}
 					title="Se déconnecter"
-					className="shrink-0 rounded-lg border border-line bg-surface px-2 py-1 text-[12px] text-muted transition hover:text-ink"
+					className="flex size-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-danger"
 				>
-					⏻
+					<Icon name="power" size={15} label="Se déconnecter" />
 				</button>
 			</div>
 		</aside>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, type SearchHit } from '../lib/api.ts'
 import { formatDay } from '../lib/format.ts'
+import { Icon } from './Icon.tsx'
 
 const DEBOUNCE_MS = 250
 
@@ -32,19 +33,24 @@ export function SearchBox({ onOpen }: { onOpen: (roomId: string) => void }) {
 	return (
 		<div className="px-3 pb-2">
 			<div className="relative">
+				<Icon
+					name="search"
+					size={14}
+					className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-muted"
+				/>
 				<input
 					value={query}
 					onChange={(e) => setQuery(e.target.value)}
 					placeholder="Rechercher…"
-					className="w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-[13px] outline-none focus:border-accent/60"
+					className="w-full rounded-lg border border-line bg-surface py-1.5 pr-8 pl-8 text-[13px] outline-none focus:border-accent/60"
 				/>
 				{query && (
 					<button
 						type="button"
 						onClick={() => setQuery('')}
-						className="absolute top-1/2 right-2 -translate-y-1/2 text-[12px] text-muted hover:text-ink"
+						className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded p-1 text-muted transition hover:text-ink"
 					>
-						✕
+						<Icon name="close" size={14} label="Effacer" />
 					</button>
 				)}
 			</div>

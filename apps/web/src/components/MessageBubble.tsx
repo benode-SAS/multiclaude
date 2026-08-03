@@ -5,6 +5,7 @@ import { authorColor, formatTime } from '../lib/format.ts'
 import { Avatar } from './Avatar.tsx'
 import { FileChip } from './FileChip.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
+import { Icon } from './Icon.tsx'
 import { Markdown } from './Markdown.tsx'
 
 export function MessageBubble({
@@ -56,9 +57,9 @@ export function MessageBubble({
 								setEditing(true)
 							}}
 							title="Modifier"
-							className="text-[11px] text-muted opacity-0 transition group-hover/msg:opacity-100 hover:text-ink"
+							className="rounded p-0.5 text-muted opacity-0 transition group-hover/msg:opacity-100 hover:bg-panel hover:text-ink"
 						>
-							✎
+							<Icon name="pencil" size={13} label="Modifier" />
 						</button>
 					)}
 				</div>

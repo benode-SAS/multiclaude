@@ -2,6 +2,7 @@ import type { ToolResultPayload, ToolUsePayload } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { describeTool, toolDetail } from '../lib/timeline.ts'
+import { Icon } from './Icon.tsx'
 
 export function ToolCard({
 	use,
@@ -37,7 +38,11 @@ export function ToolCard({
 					)}
 					{running && <span className="text-muted">…</span>}
 					{result?.isError && <span className="text-danger">erreur</span>}
-					<span className="ml-auto text-muted">{open ? '▴' : '▾'}</span>
+					<Icon
+						name={open ? 'chevron-down' : 'chevron-right'}
+						size={14}
+						className="ml-auto shrink-0 text-muted"
+					/>
 				</button>
 
 				{open && (

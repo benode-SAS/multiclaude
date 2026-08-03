@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { api } from '../lib/api.ts'
 import { Avatar } from './Avatar.tsx'
 import { ContextGauge } from './ContextGauge.tsx'
+import { Icon } from './Icon.tsx'
 
 export function RoomHeader({
 	room,
@@ -60,7 +61,7 @@ export function RoomHeader({
 				title="Conversations"
 				className="-ml-1 shrink-0 rounded-lg px-2 py-1.5 text-[15px] text-muted transition hover:bg-panel hover:text-ink md:hidden"
 			>
-				☰
+				<Icon name="menu" size={18} label="Conversations" />
 			</button>
 
 			{editing && canManage ? (
@@ -96,7 +97,7 @@ export function RoomHeader({
 							title="Renommer la conversation"
 							className="shrink-0 rounded px-1 py-0.5 text-[12px] text-muted opacity-100 transition hover:bg-panel hover:text-ink md:opacity-0 md:group-hover:opacity-100"
 						>
-							✎
+							<Icon name="pencil" size={14} label="Renommer" />
 						</button>
 					)}
 				</div>
@@ -114,7 +115,7 @@ export function RoomHeader({
 						title="Interrompre le turn en cours"
 						className="flex items-center gap-1 rounded-full border border-line bg-surface px-2.5 py-1 text-[12px] transition hover:border-danger/50 hover:text-danger"
 					>
-						<span className="text-[9px]">■</span>
+						<Icon name="stop" size={12} />
 						<span className="hidden sm:inline">Stopper</span>
 					</button>
 				</div>
@@ -175,7 +176,7 @@ export function RoomHeader({
 				title="Dupliquer la conversation — même contexte, fils séparés"
 				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 			>
-				⑂
+				<Icon name="fork" size={15} label="Forker" />
 			</button>
 
 			<a
@@ -183,7 +184,7 @@ export function RoomHeader({
 				title="Exporter la conversation en markdown"
 				className="hidden shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50 md:inline-block"
 			>
-				↧
+				<Icon name="download" size={15} label="Exporter" />
 			</a>
 
 			<button
@@ -192,7 +193,7 @@ export function RoomHeader({
 				className="shrink-0 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[13px] transition hover:border-accent/50"
 			>
 				<span className="hidden md:inline">{filesOpen ? 'Masquer' : 'Fichiers'}</span>
-				<span className="md:hidden">📁</span>
+				<Icon name="folder" size={15} className="md:hidden" />
 			</button>
 		</header>
 	)

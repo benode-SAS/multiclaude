@@ -4,6 +4,7 @@ import { applyScrollRatio, scrollRatio } from '../lib/presence.ts'
 import { buildTimeline, groupTimeline } from '../lib/timeline.ts'
 import { FileChip } from './FileChip.tsx'
 import type { ViewerTarget } from './FileViewer.tsx'
+import { Icon } from './Icon.tsx'
 import { MessageBubble, StreamingBubble } from './MessageBubble.tsx'
 import { PermissionCard } from './PermissionCard.tsx'
 import { ToolCard } from './ToolCard.tsx'
@@ -128,7 +129,10 @@ export function Thread({
 					}
 					return (
 						<div key={item.key} className="flex items-center gap-2 md:ml-[42px]">
-							<span className="text-[12px] text-muted">📦 fichier</span>
+							<span className="flex items-center gap-1.5 text-[12px] text-muted">
+								<Icon name="package" size={13} />
+								fichier
+							</span>
 							<FileChip attachment={item.attachment} roomId={roomId} onOpen={onOpen} />
 						</div>
 					)

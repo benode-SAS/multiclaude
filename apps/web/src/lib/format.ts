@@ -36,7 +36,7 @@ export function authorColor(author: string) {
 }
 
 export function initials(author: string) {
-	if (author === 'claude') return '✳'
+	if (author === 'claude') return 'AI'
 	return author.slice(0, 2).toUpperCase()
 }
 

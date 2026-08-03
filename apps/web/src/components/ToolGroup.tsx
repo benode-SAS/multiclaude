@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { describeTool, type ToolItem } from '../lib/timeline.ts'
+import { Icon } from './Icon.tsx'
 import { ToolCard } from './ToolCard.tsx'
 
 /** Icon + count per tool, in order of first appearance. */
@@ -30,7 +31,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 					onClick={() => setOpen(false)}
 					className="ml-0 md:ml-[42px] flex items-center gap-2 self-start rounded-lg px-2 py-1 text-[12px] text-muted transition hover:bg-panel hover:text-ink"
 				>
-					<span>▴</span>
+					<Icon name="chevron-down" size={13} className="rotate-180" />
 					{tools.length} actions
 				</button>
 				{tools.map((tool) => (
@@ -68,7 +69,7 @@ export function ToolGroup({ tools }: { tools: ToolItem[] }) {
 				{running && <span className="shrink-0 animate-pulse text-accent-ink">…</span>}
 				{!running && failed > 0 && <span className="shrink-0 text-danger">{failed} en erreur</span>}
 
-				<span className="ml-auto shrink-0 text-muted">▾</span>
+				<Icon name="chevron-down" size={14} className="ml-auto shrink-0 text-muted" />
 			</button>
 		</div>
 	)

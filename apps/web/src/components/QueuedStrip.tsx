@@ -1,6 +1,7 @@
 import type { QueuedItem } from '@multiclaude/shared'
 import { useState } from 'react'
 import { Avatar } from './Avatar.tsx'
+import { Icon } from './Icon.tsx'
 
 /**
  * Pinned above the input rather than left in the thread: these messages have
@@ -88,7 +89,7 @@ export function QueuedStrip({
 										}}
 										className="text-[12px] text-muted hover:text-ink"
 									>
-										✎
+										<Icon name="pencil" size={13} label="Modifier" />
 									</button>
 									<button
 										type="button"
@@ -96,7 +97,7 @@ export function QueuedStrip({
 										onClick={() => onCancel(item.id)}
 										className="text-[12px] text-muted hover:text-danger"
 									>
-										✕
+										<Icon name="close" size={13} label="Annuler" />
 									</button>
 								</span>
 							)}
