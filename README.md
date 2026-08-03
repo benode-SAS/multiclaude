@@ -1,5 +1,8 @@
 # multiclaude
 
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-f97316)](LICENSE)
+[![par Benode](https://img.shields.io/badge/par-Benode-052e16)](https://www.benode.fr)
+
 Chat multi-utilisateur temps réel au-dessus de **Claude Code**. Plusieurs personnes
 dialoguent dans une même conversation avec un agent qui travaille dans un dossier
 isolé : réponses en flux, actions visibles, fichiers créés affichés en direct, et
@@ -200,6 +203,16 @@ vérifie la CI.
 Le code est commenté en expliquant *pourquoi* une décision a été prise quand elle n'est
 pas évidente, pas *ce que* fait la ligne suivante. Merci de garder cette habitude.
 
-## Licence
+## Origine et licence
 
-MIT — voir [LICENSE](LICENSE).
+multiclaude est développé et maintenu par **[Benode](https://www.benode.fr)**, et publié
+sous licence **MIT** — voir [LICENSE](LICENSE).
+
+La MIT autorise tout : usage privé ou commercial, modification, redistribution,
+intégration dans un produit fermé, revente. Elle pose **une seule condition** : garder
+la mention de copyright et le texte de la licence dans les copies et les travaux
+dérivés. Autrement dit, faites-en ce que vous voulez, mais ne retirez pas la paternité.
+
+Concrètement, si vous redistribuez ce code ou un produit qui en dérive, conservez le
+fichier `LICENSE` tel quel. Une mention du type « basé sur multiclaude, par Benode » est
+appréciée sans être exigée.

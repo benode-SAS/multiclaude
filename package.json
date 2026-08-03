@@ -2,6 +2,14 @@
 	"name": "multiclaude",
 	"private": true,
 	"type": "module",
+	"description": "Chat multi-utilisateur temps réel au-dessus de Claude Code",
+	"author": "Benode SAS (https://www.benode.fr)",
+	"license": "MIT",
+	"homepage": "https://github.com/benode-SAS/multiclaude",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/benode-SAS/multiclaude.git"
+	},
 	"workspaces": [
 		"apps/*",
 		"packages/*"
