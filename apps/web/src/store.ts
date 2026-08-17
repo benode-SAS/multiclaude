@@ -12,6 +12,7 @@ import type {
 	RoomStatus,
 	ServerMessage,
 	SessionInfo,
+	VersionInfo,
 } from '@multiclaude/shared'
 import { create } from 'zustand'
 import { api } from './lib/api.ts'
@@ -61,6 +62,7 @@ type State = {
 	auth: AuthState | null
 	authBusy: boolean
 	usage: ContextUsage | null
+	version: VersionInfo | null
 	theme: Theme
 	sound: boolean
 	notify: boolean
@@ -301,6 +303,7 @@ export const useStore = create<State & Actions>((set, get) => {
 		error: null,
 		auth: null,
 		authBusy: false,
+		version: null,
 		theme: storedTheme(),
 		sound: soundEnabled(),
 		notify: notifyEnabled(),
@@ -320,6 +323,11 @@ export const useStore = create<State & Actions>((set, get) => {
 			}
 			await get().refreshAuth()
 			await get().refreshRooms()
+			// Never blocks the app: the check reaches github.com and may well fail.
+			void api
+				.version()
+				.then((version) => set({ version }))
+				.catch(() => {})
 			const first = get().rooms[0]
 			if (first) get().selectRoom(first.id)
 		},

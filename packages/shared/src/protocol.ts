@@ -138,6 +138,16 @@ export type ContextUsage = {
 	updatedAt: number
 }
 
+/** What the running instance is, and whether a newer release exists. */
+export type VersionInfo = {
+	current: string
+	/** Latest published release, or null when the check is off or failed. */
+	latest: string | null
+	updateAvailable: boolean
+	releaseUrl: string
+	checkedAt: number
+}
+
 export type Role = 'admin' | 'member'
 
 export type AccountSummary = {

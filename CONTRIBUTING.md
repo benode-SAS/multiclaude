@@ -55,6 +55,30 @@ whatever is auto-fixable.
   `README_de.md` and `README_zh.md` follow it. Changing a feature means updating the
   English file; updating the translations is welcome but never blocking.
 
+## Releasing
+
+Versions follow [semantic versioning](https://semver.org). The version lives in one
+place: `version` in the root `package.json`. The server reads it from there, shows it in
+the sidebar, and compares it with the latest GitHub release.
+
+```bash
+# 1. bump the version and write the changelog entry
+#    package.json  →  "version": "0.2.0"
+#    CHANGELOG.md  →  move Unreleased into a dated 0.2.0 section
+git commit -am "chore: release 0.2.0"
+
+# 2. tag it — that is what triggers everything else
+git tag v0.2.0
+git push origin main --tags
+```
+
+Pushing the tag runs `.github/workflows/release.yml`: it re-runs check, typecheck, tests
+and build on that exact commit, refuses the tag if it disagrees with `package.json`, then
+creates the GitHub release with notes generated from the merged pull requests. Labelling
+PRs (`feature`, `bug`, `security`, `documentation`) sorts those notes into sections.
+
+Running instances notice within a few hours and show a discreet notice to their admins.
+
 ## Reporting a security problem
 
 A vulnerability does not go in a public issue: write to benjamin@benode.fr.

@@ -1,0 +1,18 @@
+# Groups the automatically generated release notes. Categories come from PR labels;
+# anything unlabelled lands in "Other changes" rather than disappearing.
+changelog:
+  exclude:
+    labels: [ignore-for-release]
+  categories:
+    - title: Features
+      labels: [feature, enhancement]
+    - title: Fixes
+      labels: [bug, fix]
+    - title: Security
+      labels: [security]
+    - title: Documentation
+      labels: [documentation, docs]
+    - title: Dependencies
+      labels: [dependencies]
+    - title: Other changes
+      labels: ["*"]

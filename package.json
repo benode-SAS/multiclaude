@@ -2,6 +2,7 @@
 	"name": "multiclaude",
 	"private": true,
 	"type": "module",
+	"version": "0.1.0",
 	"description": "Real-time multi-user chat on top of Claude Code",
 	"author": "benode SAS (https://www.benode.fr)",
 	"license": "MIT",

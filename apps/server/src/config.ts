@@ -99,6 +99,14 @@ export const config = {
 	adminPassword: process.env.ADMIN_PASSWORD ?? '',
 	adminName: process.env.ADMIN_NAME?.trim() || 'Admin',
 
+	/**
+	 * Checks github.com for a newer release, at most every few hours. The only
+	 * outbound call this app makes on its own — UPDATE_CHECK=false stops it.
+	 */
+	updateCheck: bool(process.env.UPDATE_CHECK, true),
+	updateRepo: process.env.UPDATE_REPO?.trim() || 'benode-SAS/multiclaude',
+	updateCheckIntervalMs: Number(process.env.UPDATE_CHECK_HOURS ?? 6) * 3600 * 1000,
+
 	/** Clone depth; 0 for the full history. */
 	cloneDepth: Number(process.env.CLONE_DEPTH ?? 1),
 	cloneTimeoutMs: Number(process.env.CLONE_TIMEOUT ?? 180) * 1000,

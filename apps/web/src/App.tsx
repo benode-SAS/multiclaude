@@ -166,6 +166,7 @@ export function App() {
 					onRename={(id, title) => void store.renameRoom(id, title)}
 					onDelete={(id) => setPendingArchive(store.rooms.find((room) => room.id === id) ?? null)}
 					archived={store.archived}
+					version={store.version}
 					onLoadArchived={() => void store.loadArchived()}
 					onRestore={(id) => void store.restoreRoom(id)}
 					onDeleteForever={(id) =>

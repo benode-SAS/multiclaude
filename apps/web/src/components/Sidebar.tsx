@@ -1,4 +1,4 @@
-import type { Room } from '@multiclaude/shared'
+import type { Room, VersionInfo } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { formatDay } from '../lib/format.ts'
@@ -24,6 +24,7 @@ export function Sidebar({
 	onDelete,
 	onSignOut,
 	archived,
+	version,
 	onLoadArchived,
 	onRestore,
 	onDeleteForever,
@@ -61,6 +62,7 @@ export function Sidebar({
 	onSignOut: () => void
 	onOpenAdmin: () => void
 	archived: Room[]
+	version: VersionInfo | null
 	onLoadArchived: () => void
 	onRestore: (id: string) => void
 	onDeleteForever: (id: string) => void
@@ -304,6 +306,25 @@ export function Sidebar({
 					<Icon name="screen" size={15} label="System notifications" />
 				</button>
 			</div>
+
+			{/* Version at the bottom, out of the way — until there is something to
+			    act on, and then only for the people who deploy. */}
+			{version && (
+				<div className="flex items-center gap-2 border-t border-line px-3 py-2 text-[11px] text-muted">
+					<span>v{version.current}</span>
+					{version.updateAvailable && role === 'admin' && (
+						<a
+							href={version.releaseUrl}
+							target="_blank"
+							rel="noreferrer"
+							title={`Version ${version.latest} is available`}
+							className="ml-auto rounded-full bg-accent-soft px-2 py-0.5 font-medium text-accent-ink transition hover:brightness-95"
+						>
+							v{version.latest} available
+						</a>
+					)}
+				</div>
+			)}
 
 			<div className="flex items-center gap-2 border-t border-line px-3 py-3 text-[13px]">
 				<Avatar author={pseudo} size={26} />

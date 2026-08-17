@@ -8,6 +8,7 @@ import type {
 	FileEntry,
 	Role,
 	Room,
+	VersionInfo,
 } from '@multiclaude/shared'
 
 export type SearchHit = {
@@ -41,6 +42,7 @@ export const api = {
 	cancelLogin: () => json<AuthState>('/auth/cancel', { method: 'POST' }),
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
 
+	version: () => json<VersionInfo>('/version'),
 	accounts: () => json<AccountSummary[]>('/accounts'),
 	createAccount: (input: { email: string; name: string; role: Role }) =>
 		json<CreatedAccount>('/accounts', { method: 'POST', body: JSON.stringify(input) }),
