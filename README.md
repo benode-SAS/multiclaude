@@ -14,6 +14,12 @@ actions, live files, and a human decision before anything dangerous runs.
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-052e16?style=flat-square)](https://www.typescriptlang.org)
 [![by benode](https://img.shields.io/badge/by-benode-f97316?style=flat-square)](https://www.benode.fr)
 
+**English** ·
+[Français](README_fr.md) ·
+[Español](README_es.md) ·
+[Deutsch](README_de.md) ·
+[简体中文](README_zh.md)
+
 <img src="docs/screenshot.png" alt="multiclaude in a browser: the conversation thread, an agent action card and a pending permission request" width="900" />
 
 </div>

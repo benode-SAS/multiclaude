@@ -51,6 +51,9 @@ whatever is auto-fixable.
   it does not change without a net.
 - **Commit messages**: conventional prefix, imperative, one line stating the effect, not
   the files touched.
+- **README translations**: `README.md` is the source. `README_fr.md`, `README_es.md`,
+  `README_de.md` and `README_zh.md` follow it. Changing a feature means updating the
+  English file; updating the translations is welcome but never blocking.
 
 ## Reporting a security problem
 
