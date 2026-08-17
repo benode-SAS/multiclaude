@@ -28,7 +28,8 @@ export function App() {
 	const [filesOpen, setFilesOpen] = useState(false)
 	const [viewing, setViewing] = useState<ViewerTarget | null>(null)
 	const [navOpen, setNavOpen] = useState(false)
-	const [pendingDelete, setPendingDelete] = useState<Room | null>(null)
+	const [pendingArchive, setPendingArchive] = useState<Room | null>(null)
+	const [pendingErase, setPendingErase] = useState<Room | null>(null)
 	const [creating, setCreating] = useState(false)
 	const [adminOpen, setAdminOpen] = useState(false)
 	const [forking, setForking] = useState(false)
@@ -163,7 +164,14 @@ export function App() {
 						setCreating(true)
 					}}
 					onRename={(id, title) => void store.renameRoom(id, title)}
-					onDelete={(id) => setPendingDelete(store.rooms.find((room) => room.id === id) ?? null)}
+					onDelete={(id) => setPendingArchive(store.rooms.find((room) => room.id === id) ?? null)}
+					archived={store.archived}
+					version={store.version}
+					onLoadArchived={() => void store.loadArchived()}
+					onRestore={(id) => void store.restoreRoom(id)}
+					onDeleteForever={(id) =>
+						setPendingErase(store.archived.find((room) => room.id === id) ?? null)
+					}
 					onSignOut={() => void store.signOut()}
 					onOpenAdmin={() => setAdminOpen(true)}
 					role={store.session.user.role}
@@ -336,17 +344,31 @@ export function App() {
 				<AdminPanel selfId={store.session.user.id} onClose={() => setAdminOpen(false)} />
 			)}
 
-			{pendingDelete && (
+			{pendingArchive && (
 				<ConfirmDialog
-					title="Delete this conversation?"
-					message="The history and working directory of this room are erased for good."
-					detail={pendingDelete.title}
-					confirmLabel="Delete"
-					onCancel={() => setPendingDelete(null)}
+					title="Archive this conversation?"
+					message="It leaves the list, and nothing is erased: history, files and context stay. Restore it from the Archived section whenever you need it."
+					detail={pendingArchive.title}
+					confirmLabel="Archive"
+					onCancel={() => setPendingArchive(null)}
 					onConfirm={() => {
-						void store.deleteRoom(pendingDelete.id)
-						setPendingDelete(null)
+						void store.archiveRoom(pendingArchive.id)
+						setPendingArchive(null)
 						setNavOpen(false)
+					}}
+				/>
+			)}
+
+			{pendingErase && (
+				<ConfirmDialog
+					title="Delete permanently?"
+					message="The history and the working directory of this room are erased for good. This one cannot be undone."
+					detail={pendingErase.title}
+					confirmLabel="Delete for good"
+					onCancel={() => setPendingErase(null)}
+					onConfirm={() => {
+						void store.deleteRoomForever(pendingErase.id)
+						setPendingErase(null)
 					}}
 				/>
 			)}

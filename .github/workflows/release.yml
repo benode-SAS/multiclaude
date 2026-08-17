@@ -1,0 +1,49 @@
+name: Release
+
+# Pushing a v* tag is the whole release process: the checks run again on that exact
+# commit, then a GitHub release is created with notes generated from the merged PRs.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run build
+
+      # A tag that disagrees with package.json would ship a build announcing the
+      # wrong version in its own interface.
+      - name: Tag matches package.json
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg=$(bun -e "console.log(require('./package.json').version)")
+          if [ "$tag" != "$pkg" ]; then
+            echo "tag $tag does not match package.json $pkg" >&2
+            exit 1
+          fi
+
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --verify-tag

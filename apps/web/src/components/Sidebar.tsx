@@ -1,4 +1,4 @@
-import type { Room } from '@multiclaude/shared'
+import type { Room, VersionInfo } from '@multiclaude/shared'
 import clsx from 'clsx'
 import { useState } from 'react'
 import { formatDay } from '../lib/format.ts'
@@ -23,6 +23,11 @@ export function Sidebar({
 	onRename,
 	onDelete,
 	onSignOut,
+	archived,
+	version,
+	onLoadArchived,
+	onRestore,
+	onDeleteForever,
 	role,
 	email,
 	theme,
@@ -56,11 +61,17 @@ export function Sidebar({
 	onDelete: (id: string) => void
 	onSignOut: () => void
 	onOpenAdmin: () => void
+	archived: Room[]
+	version: VersionInfo | null
+	onLoadArchived: () => void
+	onRestore: (id: string) => void
+	onDeleteForever: (id: string) => void
 	role: 'admin' | 'member'
 	email: string
 }) {
 	const [editingId, setEditingId] = useState<string | null>(null)
 	const [draft, setDraft] = useState('')
+	const [showArchived, setShowArchived] = useState(false)
 
 	const commit = (id: string) => {
 		if (draft.trim()) onRename(id, draft.trim())
@@ -169,14 +180,65 @@ export function Sidebar({
 									type="button"
 									onClick={() => onDelete(room.id)}
 									className="rounded p-1 text-muted transition hover:bg-panel hover:text-danger"
-									title="Delete"
+									title="Archive"
 								>
-									<Icon name="trash" size={14} label="Delete" />
+									<Icon name="archive" size={14} label="Archive" />
 								</button>
 							</span>
 						)}
 					</div>
 				))}
+
+				{/* Folded away by default: archived rooms are the exception, and the
+				    list is only fetched when someone actually looks for one. */}
+				{role === 'admin' && (
+					<div className="mt-2 border-t border-line pt-2">
+						<button
+							type="button"
+							onClick={() => {
+								if (!showArchived) onLoadArchived()
+								setShowArchived((open) => !open)
+							}}
+							className="flex w-full items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] text-muted transition hover:bg-surface/60 hover:text-ink"
+						>
+							<Icon name={showArchived ? 'chevron-down' : 'chevron-right'} size={12} />
+							Archived
+							{archived.length > 0 && <span className="ml-auto">{archived.length}</span>}
+						</button>
+
+						{showArchived &&
+							(archived.length === 0 ? (
+								<p className="px-2.5 py-2 text-[12px] text-muted">Nothing archived.</p>
+							) : (
+								archived.map((room) => (
+									<div
+										key={room.id}
+										className="group mb-0.5 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[13px] text-muted"
+									>
+										<span className="min-w-0 flex-1 truncate" title={room.title}>
+											{room.title}
+										</span>
+										<button
+											type="button"
+											onClick={() => onRestore(room.id)}
+											title="Restore this conversation"
+											className="rounded p-1 transition hover:bg-panel hover:text-ink"
+										>
+											<Icon name="refresh" size={13} label="Restore" />
+										</button>
+										<button
+											type="button"
+											onClick={() => onDeleteForever(room.id)}
+											title="Delete permanently — history and working directory"
+											className="rounded p-1 transition hover:bg-panel hover:text-danger"
+										>
+											<Icon name="trash" size={13} label="Delete permanently" />
+										</button>
+									</div>
+								))
+							))}
+					</div>
+				)}
 			</nav>
 
 			<div className="flex items-center gap-1.5 border-t border-line px-3 py-2.5">
@@ -244,6 +306,25 @@ export function Sidebar({
 					<Icon name="screen" size={15} label="System notifications" />
 				</button>
 			</div>
+
+			{/* Version at the bottom, out of the way — until there is something to
+			    act on, and then only for the people who deploy. */}
+			{version && (
+				<div className="flex items-center gap-2 border-t border-line px-3 py-2 text-[11px] text-muted">
+					<span>v{version.current}</span>
+					{version.updateAvailable && role === 'admin' && (
+						<a
+							href={version.releaseUrl}
+							target="_blank"
+							rel="noreferrer"
+							title={`Version ${version.latest} is available`}
+							className="ml-auto rounded-full bg-accent-soft px-2 py-0.5 font-medium text-accent-ink transition hover:brightness-95"
+						>
+							v{version.latest} available
+						</a>
+					)}
+				</div>
+			)}
 
 			<div className="flex items-center gap-2 border-t border-line px-3 py-3 text-[13px]">
 				<Avatar author={pseudo} size={26} />

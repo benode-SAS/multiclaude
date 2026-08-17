@@ -8,6 +8,7 @@ import type {
 	FileEntry,
 	Role,
 	Room,
+	VersionInfo,
 } from '@multiclaude/shared'
 
 export type SearchHit = {
@@ -41,6 +42,7 @@ export const api = {
 	cancelLogin: () => json<AuthState>('/auth/cancel', { method: 'POST' }),
 	logout: () => json<AuthState>('/auth/logout', { method: 'POST' }),
 
+	version: () => json<VersionInfo>('/version'),
 	accounts: () => json<AccountSummary[]>('/accounts'),
 	createAccount: (input: { email: string; name: string; role: Role }) =>
 		json<CreatedAccount>('/accounts', { method: 'POST', body: JSON.stringify(input) }),
@@ -73,7 +75,12 @@ export const api = {
 		json<Room>(`/rooms/${id}/fork`, { method: 'POST', body: JSON.stringify({ title }) }),
 	renameRoom: (id: string, title: string) =>
 		json<Room>(`/rooms/${id}`, { method: 'PATCH', body: JSON.stringify({ title }) }),
-	deleteRoom: (id: string) => json<{ ok: boolean }>(`/rooms/${id}`, { method: 'DELETE' }),
+	archivedRooms: () => json<Room[]>('/rooms/archived'),
+	/** "Delete" archives: the room leaves the list, nothing is erased. */
+	archiveRoom: (id: string) => json<Room>(`/rooms/${id}`, { method: 'DELETE' }),
+	restoreRoom: (id: string) => json<Room>(`/rooms/${id}/restore`, { method: 'POST', body: '{}' }),
+	deleteRoomForever: (id: string) =>
+		json<{ ok: boolean }>(`/rooms/${id}/permanent`, { method: 'DELETE' }),
 	files: (id: string) => json<FileEntry[]>(`/rooms/${id}/files`),
 	upload: (id: string, file: File) => {
 		const form = new FormData()

@@ -57,6 +57,13 @@
       "when": 1785748021563,
       "tag": "0007_lethal_the_twelve",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1785758964819,
+      "tag": "0008_little_phalanx",
+      "breakpoints": true
     }
   ]
 }

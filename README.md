@@ -14,6 +14,12 @@ actions, live files, and a human decision before anything dangerous runs.
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-052e16?style=flat-square)](https://www.typescriptlang.org)
 [![by benode](https://img.shields.io/badge/by-benode-f97316?style=flat-square)](https://www.benode.fr)
 
+**English** ·
+[Français](README_fr.md) ·
+[Español](README_es.md) ·
+[Deutsch](README_de.md) ·
+[简体中文](README_zh.md)
+
 <img src="docs/screenshot.png" alt="multiclaude in a browser: the conversation thread, an agent action card and a pending permission request" width="900" />
 
 </div>
@@ -49,6 +55,7 @@ key, no proxy, no reimplementation of the agent loop.
 | **Message queue** | The agent takes one turn at a time. Concurrent messages queue up, pinned above the input — editable and cancellable until they go out. |
 | **Interrupt** | Stop a running turn without killing the process or losing the session. |
 | **Fork a conversation** | Same files, same inherited context, two threads that diverge. Explore without spoiling someone else's work. |
+| **Archive, don't delete** | Removing a conversation archives it: history, files and context stay, and one click brings it back. Erasing for good is a separate, deliberate action. |
 
 ### The agent
 

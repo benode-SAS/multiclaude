@@ -14,6 +14,7 @@ import { runMigrations } from './db/index.ts'
 import { fileRoutes } from './files/routes.ts'
 import { roomRoutes } from './rooms/routes.ts'
 import { RoomService } from './rooms/service.ts'
+import { VERSION, versionInfo } from './updates.ts'
 import { webRoutes } from './web.ts'
 import { hub } from './ws/hub.ts'
 import { wsRoutes } from './ws/routes.ts'
@@ -27,6 +28,7 @@ AuthService.subscribe((auth) => hub.broadcastAll({ type: 'auth', auth }))
 /** Everything REST lives under /api so the front uses one path in dev and prod. */
 const api = new Elysia({ prefix: '/api' })
 	.get('/health', () => ({ ok: true }))
+	.get('/version', () => versionInfo())
 	.use(authRoutes)
 	.use(roomRoutes)
 	.use(fileRoutes)
@@ -71,7 +73,7 @@ async function bootstrap() {
 	const accounts = await AccountService.count()
 	const auth = await AuthService.status()
 
-	console.log(`multiclaude → http://localhost:${config.port}`)
+	console.log(`multiclaude ${VERSION} → http://localhost:${config.port}`)
 	console.log(
 		`claude       ${claudeBin}${claudeBinResolved ? '' : ' (NOT FOUND — set CLAUDE_BIN)'}`,
 	)
